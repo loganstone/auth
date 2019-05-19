@@ -11,3 +11,9 @@
 * OTP 초기화
 * 이메일로 certification code 발송
 * 이메일로 발송된 certification code 확인
+
+# Frameworks(plan)
+* http - echo
+* orm - gorm
+* log - logrus
+* cli - cobra
