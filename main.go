@@ -1,13 +1,18 @@
 package main
 
 import (
-	"net/http"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
+	"github.com/loganstone/auth/db"
+	"github.com/loganstone/auth/handlers"
 )
 
 func main() {
+	db.AutoMigrate()
+
 	// Echo instance
 	e := echo.New()
 
@@ -16,13 +21,9 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Routes
-	e.GET("/", hello)
+	e.GET("/user", handlers.User)
+	e.POST("/user", handlers.AddUser)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":9090"))
-}
-
-// Handler
-func hello(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
 }
