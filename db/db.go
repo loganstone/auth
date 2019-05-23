@@ -1,6 +1,10 @@
 package db
 
 import (
+	"fmt"
+	"log"
+	"os"
+
 	"github.com/jinzhu/gorm"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql" //
@@ -19,7 +23,24 @@ func AutoMigrate() {
 
 // Connection ..
 func Connection() *gorm.DB {
-	db, err := gorm.Open("mysql", "root:@/test?charset=utf8mb4&parseTime=True&loc=Local")
+	const errMsgFmt = "'%s' environment variable is required"
+
+	id, ok := os.LookupEnv("AUTH_DB_ID")
+	if !ok {
+		log.Fatalf(errMsgFmt, "AUTH_DB_ID")
+	}
+
+	pw, ok := os.LookupEnv("AUTH_DB_PW")
+	if !ok {
+		log.Fatalf(errMsgFmt, "AUTH_DB_PW")
+	}
+
+	name, ok := os.LookupEnv("AUTH_DB_NAME")
+	if !ok {
+		log.Fatalf(errMsgFmt, "AUTH_DB_NAME")
+	}
+
+	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@/%s?charset=utf8mb4&parseTime=True&loc=Local", id, pw, name))
 	if err != nil {
 		panic("DB Connection Error")
 	}
