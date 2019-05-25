@@ -21,7 +21,7 @@ var (
 func main() {
 	flag.Parse()
 
-	db.AutoMigrate()
+	db.Sync()
 
 	// Echo instance
 	e := echo.New()

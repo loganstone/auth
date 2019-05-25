@@ -12,8 +12,8 @@ import (
 
 const connOpt = "charset=utf8mb4&parseTime=True&loc=Local"
 
-// AutoMigrate ...
-func AutoMigrate() {
+// Sync ...
+func Sync() {
 	db := Connection()
 	db.AutoMigrate(&models.User{})
 	defer db.Close()
