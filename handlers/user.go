@@ -22,7 +22,15 @@ func User(c echo.Context) error {
 func AddUser(c echo.Context) error {
 	con := db.Connection()
 	defer con.Close()
-	user := models.User{Email: "test@email.com"}
+
+	user := new(models.User)
+	if err := c.Bind(user); err != nil {
+		return err
+	}
+	if err := c.Validate(user); err != nil {
+		return err
+	}
+
 	con.Create(&user)
 	return c.JSON(http.StatusCreated, user)
 }

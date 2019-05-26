@@ -6,6 +6,7 @@ import (
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
+	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
@@ -13,6 +14,16 @@ import (
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/handlers"
 )
+
+// Validator ..
+type Validator struct {
+	validator *validator.Validate
+}
+
+// Validate ...
+func (v *Validator) Validate(i interface{}) error {
+	return v.validator.Struct(i)
+}
 
 var (
 	portToListen = flag.Int("p", configs.DefaultPort, "port to listen on")
@@ -25,6 +36,8 @@ func main() {
 
 	// Echo instance
 	e := echo.New()
+
+	e.Validator = &Validator{validator: validator.New()}
 
 	// Middleware
 	e.Use(middleware.Logger())
