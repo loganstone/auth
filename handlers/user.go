@@ -9,12 +9,25 @@ import (
 	"github.com/loganstone/auth/models"
 )
 
+// Users ...
+func Users(c echo.Context) error {
+	con := db.Connection()
+	defer con.Close()
+	users := []models.User{}
+	con.Find(&users)
+	return c.JSON(http.StatusOK, users)
+}
+
 // User ...
 func User(c echo.Context) error {
 	con := db.Connection()
 	defer con.Close()
 	user := models.User{}
-	con.First(&user)
+	id := c.Param("id")
+	con.First(&user, id)
+	if user.ID == 0 {
+		return echo.NewHTTPError(http.StatusNotFound)
+	}
 	return c.JSON(http.StatusOK, user)
 }
 
