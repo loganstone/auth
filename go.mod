@@ -9,4 +9,5 @@ require (
 	github.com/jinzhu/gorm v1.9.8
 	github.com/labstack/echo/v4 v4.1.5
 	github.com/leodido/go-urn v1.1.0 // indirect
+	golang.org/x/crypto v0.0.0-20190426145343-a29dc8fdc734
 )

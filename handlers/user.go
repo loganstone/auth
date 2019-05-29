@@ -52,6 +52,7 @@ func AddUser(c echo.Context) error {
 	}
 
 	user := models.User{Email: userParams.Email}
+	user.SetPassword(userParams.Password)
 
 	con.Create(&user)
 	return c.JSON(http.StatusCreated, user)
