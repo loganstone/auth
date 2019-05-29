@@ -34,9 +34,9 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Routes
-	e.GET("/user", handlers.Users)
-	e.GET("/user/:id", handlers.User)
-	e.POST("/user", handlers.AddUser)
+	e.GET("/users", handlers.Users)
+	e.GET("/users/:id", handlers.User)
+	e.POST("/users", handlers.AddUser)
 
 	// Start server
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", *portToListen)))
