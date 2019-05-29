@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
+	_ "net/http/pprof"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
@@ -38,6 +40,9 @@ func main() {
 	e.GET("/users/:id", handlers.User)
 	e.POST("/users", handlers.AddUser)
 	e.POST("/signin", handlers.Authenticate)
+
+	// Debug uri - /debug/pprof/
+	e.GET("/debug/pprof/*", echo.WrapHandler(http.DefaultServeMux))
 
 	// Start server
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", *portToListen)))
