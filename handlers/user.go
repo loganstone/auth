@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 
@@ -23,10 +24,15 @@ func User(c echo.Context) error {
 	con := db.Connection()
 	defer con.Close()
 	user := models.User{}
-	id := c.Param("id")
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Wrong User ID")
+	}
+
 	con.First(&user, id)
 	if user.ID == 0 {
-		return echo.NewHTTPError(http.StatusNotFound)
+		return echo.NewHTTPError(http.StatusNotFound, "User Not Found")
 	}
 	return c.JSON(http.StatusOK, user)
 }
