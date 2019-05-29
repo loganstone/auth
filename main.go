@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
+	"os/signal"
+	"time"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
@@ -45,5 +49,22 @@ func main() {
 	e.GET("/debug/pprof/*", echo.WrapHandler(http.DefaultServeMux))
 
 	// Start server
-	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", *portToListen)))
+	go func() {
+		listen := fmt.Sprintf(":%d", *portToListen)
+		if err := e.Start(listen); err != nil {
+			e.Logger.Info("Shutting down the server")
+		}
+	}()
+
+	// Graceful shutdonw
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		configs.TimeoutToGracefulShutdown*time.Second)
+	defer cancel()
+	if err := e.Shutdown(ctx); err != nil {
+		e.Logger.Fatal(err)
+	}
 }

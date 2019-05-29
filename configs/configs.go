@@ -10,6 +10,9 @@ import (
 // DefaultPort ...
 const DefaultPort = 9900
 
+// TimeoutToGracefulShutdown ...
+const TimeoutToGracefulShutdown = 10
+
 // DatabaseConfigs ...
 type DatabaseConfigs struct {
 	ID   string
