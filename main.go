@@ -37,6 +37,7 @@ func main() {
 	e.GET("/users", handlers.Users)
 	e.GET("/users/:id", handlers.User)
 	e.POST("/users", handlers.AddUser)
+	e.POST("/signin", handlers.Authenticate)
 
 	// Start server
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", *portToListen)))
