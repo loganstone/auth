@@ -56,7 +56,7 @@ func main() {
 		}
 	}()
 
-	// Graceful shutdonw
+	// Graceful shutdown
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
