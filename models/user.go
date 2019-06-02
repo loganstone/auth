@@ -1,12 +1,17 @@
 package models
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"encoding/json"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 // User ..
 type User struct {
-	CommonFields
-	Email          string `gorm:"index;not null" json:"email"`
-	HashedPassword string `gorm:"not null" json:"-"`
+	IDField
+	Email          string `gorm:"index;not null"`
+	HashedPassword string `gorm:"not null"`
+	DateTimeFields
 }
 
 // SetPassword ...
@@ -27,4 +32,17 @@ func (u *User) VerifyPassword(password string) bool {
 	existing := []byte(u.HashedPassword)
 	err := bcrypt.CompareHashAndPassword(existing, incoming)
 	return err == nil
+}
+
+// MarshalJSON ...
+func (u User) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		Email     string `json:"email"`
+		CreatedAt int64  `json:"created_at"`
+		UpdatedAt int64  `json:"updated_at"`
+	}{
+		Email:     u.Email,
+		CreatedAt: u.CreatedAt.Unix(),
+		UpdatedAt: u.UpdatedAt.Unix(),
+	})
 }
