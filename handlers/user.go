@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 
 	"github.com/loganstone/auth/db"
@@ -54,6 +55,29 @@ func AddUser(c echo.Context) error {
 	user := models.User{Email: userParams.Email}
 	user.SetPassword(userParams.Password)
 
-	con.Create(&user)
+	if err := createUser(con, &user); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "User creation failed")
+	}
+
 	return c.JSON(http.StatusCreated, user)
+}
+
+func createUser(db *gorm.DB, u *models.User) error {
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return err
+	}
+
+	if err := tx.Create(u).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
