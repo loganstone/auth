@@ -24,6 +24,7 @@ func Connection() *gorm.DB {
 	conf := configs.DB()
 	connectionString := fmt.Sprintf("%s:%s@/%s?%s", conf.ID, conf.PW, conf.Name, connOpt)
 	db, err := gorm.Open("mysql", connectionString)
+	db.LogMode(conf.Echo)
 	if err != nil {
 		panic("DB Connection Error")
 	}

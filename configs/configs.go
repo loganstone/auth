@@ -3,6 +3,7 @@ package configs
 import (
 	"log"
 	"os"
+	"strings"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql" //
 )
@@ -18,6 +19,7 @@ type DatabaseConfigs struct {
 	ID   string
 	PW   string
 	Name string
+	Echo bool
 }
 
 // DB ...
@@ -38,5 +40,7 @@ func DB() *DatabaseConfigs {
 	if !ok {
 		log.Fatalf(errMsgFmt, "AUTH_DB_NAME")
 	}
-	return &DatabaseConfigs{id, pw, name}
+
+	echo := os.Getenv("AUTH_DB_ECHO")
+	return &DatabaseConfigs{id, pw, name, (echo == "1" || strings.ToLower(echo) == "true")}
 }
