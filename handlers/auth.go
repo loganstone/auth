@@ -24,7 +24,7 @@ func Authenticate(c echo.Context) error {
 	}
 
 	user := models.User{}
-	con.Where("email = ? AND deleted_at is NULL", authParams.Email).First(&user)
+	con.Where(&models.User{Email: authParams.Email}).First(&user)
 	if !user.VerifyPassword(authParams.Password) {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Incorrect Password")
 	}
