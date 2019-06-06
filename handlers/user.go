@@ -32,8 +32,7 @@ func User(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Wrong User ID")
 	}
 
-	con.First(&user, id)
-	if user.ID == 0 {
+	if con.First(&user, id).RecordNotFound() {
 		return echo.NewHTTPError(http.StatusNotFound, "User Not Found")
 	}
 	return c.JSON(http.StatusOK, user)
