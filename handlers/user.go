@@ -52,6 +52,10 @@ func AddUser(c echo.Context) error {
 	}
 
 	user := models.User{Email: userParams.Email}
+	if !con.Where(&user).First(&user).RecordNotFound() {
+		return echo.NewHTTPError(http.StatusBadRequest, "User Already Exists")
+	}
+
 	user.SetPassword(userParams.Password)
 
 	if err := createUser(con, &user); err != nil {

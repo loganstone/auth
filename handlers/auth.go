@@ -23,8 +23,10 @@ func Authenticate(c echo.Context) error {
 		return err
 	}
 
-	user := models.User{}
-	con.Where(&models.User{Email: authParams.Email}).First(&user)
+	user := models.User{Email: authParams.Email}
+	if con.Where(&user).First(&user).RecordNotFound() {
+		return echo.NewHTTPError(http.StatusNotFound, "User Not Found")
+	}
 	if !user.VerifyPassword(authParams.Password) {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Incorrect Password")
 	}
