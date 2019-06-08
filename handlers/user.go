@@ -25,13 +25,13 @@ func Users(c echo.Context) error {
 func User(c echo.Context) error {
 	con := db.Connection()
 	defer con.Close()
-	user := models.User{}
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Wrong User ID")
 	}
 
+	user := models.User{}
 	if con.First(&user, id).RecordNotFound() {
 		return echo.NewHTTPError(http.StatusNotFound, "User Not Found")
 	}
