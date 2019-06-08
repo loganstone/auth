@@ -65,6 +65,28 @@ func AddUser(c echo.Context) error {
 	return c.JSON(http.StatusCreated, user)
 }
 
+// DeleteUser ...
+func DeleteUser(c echo.Context) error {
+	con := db.Connection()
+	defer con.Close()
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Wrong User ID")
+	}
+
+	user := models.User{}
+	if con.First(&user, id).RecordNotFound() {
+		return c.NoContent(http.StatusNoContent)
+	}
+
+	if err := deleteUser(con, &user); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user")
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
 func createUser(db *gorm.DB, u *models.User) error {
 	tx := db.Begin()
 	defer func() {
@@ -78,6 +100,26 @@ func createUser(db *gorm.DB, u *models.User) error {
 	}
 
 	if err := tx.Create(u).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}
+
+func deleteUser(db *gorm.DB, u *models.User) error {
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return err
+	}
+
+	if err := tx.Delete(u).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
