@@ -57,8 +57,9 @@ func AddUser(c echo.Context) error {
 	}
 
 	user.SetPassword(userParams.Password)
-
-	if err := createUser(con, &user); err != nil {
+	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
+		return tx.Create(&user).Error
+	}); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "User creation failed")
 	}
 
@@ -80,49 +81,11 @@ func DeleteUser(c echo.Context) error {
 		return c.NoContent(http.StatusNoContent)
 	}
 
-	if err := deleteUser(con, &user); err != nil {
+	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
+		return tx.Delete(&user).Error
+	}); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user")
 	}
 
 	return c.NoContent(http.StatusNoContent)
-}
-
-func createUser(db *gorm.DB, u *models.User) error {
-	tx := db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := tx.Error; err != nil {
-		return err
-	}
-
-	if err := tx.Create(u).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	return tx.Commit().Error
-}
-
-func deleteUser(db *gorm.DB, u *models.User) error {
-	tx := db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := tx.Error; err != nil {
-		return err
-	}
-
-	if err := tx.Delete(u).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	return tx.Commit().Error
 }

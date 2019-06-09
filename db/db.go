@@ -30,3 +30,27 @@ func Connection() *gorm.DB {
 	}
 	return db
 }
+
+// InTransaction ...
+type InTransaction func(tx *gorm.DB) error
+
+// DoInTransaction ...
+func DoInTransaction(db *gorm.DB, fn InTransaction) error {
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return err
+	}
+
+	if err := fn(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}
