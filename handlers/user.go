@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
@@ -26,15 +25,12 @@ func User(c echo.Context) error {
 	con := db.Connection()
 	defer con.Close()
 
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Wrong User ID")
-	}
-
-	user := models.User{}
-	if con.First(&user, id).RecordNotFound() {
+	email := c.Param("email")
+	user := models.User{Email: email}
+	if con.Where(&user).First(&user).RecordNotFound() {
 		return echo.NewHTTPError(http.StatusNotFound, "User Not Found")
 	}
+
 	return c.JSON(http.StatusOK, user)
 }
 
@@ -71,13 +67,9 @@ func DeleteUser(c echo.Context) error {
 	con := db.Connection()
 	defer con.Close()
 
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Wrong User ID")
-	}
-
-	user := models.User{}
-	if con.First(&user, id).RecordNotFound() {
+	email := c.Param("email")
+	user := models.User{Email: email}
+	if con.Where(&user).First(&user).RecordNotFound() {
 		return c.NoContent(http.StatusNoContent)
 	}
 
