@@ -42,9 +42,9 @@ func main() {
 
 	// Routes
 	e.GET("/users", handlers.Users)
-	e.GET("/users/:id", handlers.User)
+	e.GET("/users/:email", handlers.User)
 	e.POST("/users", handlers.AddUser)
-	e.DELETE("/users/:id", handlers.DeleteUser)
+	e.DELETE("/users/:email", handlers.DeleteUser)
 	e.POST("/signin", handlers.Authenticate)
 
 	// Debug uri - /debug/pprof/
