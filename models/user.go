@@ -14,6 +14,13 @@ type User struct {
 	DateTimeFields
 }
 
+// JSONUser .
+type JSONUser struct {
+	Email     string `json:"email"`
+	CreatedAt int64  `json:"created_at"`
+	UpdatedAt int64  `json:"updated_at"`
+}
+
 // SetPassword ...
 func (u *User) SetPassword(password string) error {
 	passwordBytes := []byte(password)
@@ -36,11 +43,7 @@ func (u *User) VerifyPassword(password string) bool {
 
 // MarshalJSON ...
 func (u User) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&struct {
-		Email     string `json:"email"`
-		CreatedAt int64  `json:"created_at"`
-		UpdatedAt int64  `json:"updated_at"`
-	}{
+	return json.Marshal(&JSONUser{
 		Email:     u.Email,
 		CreatedAt: u.CreatedAt.Unix(),
 		UpdatedAt: u.UpdatedAt.Unix(),

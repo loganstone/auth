@@ -43,7 +43,7 @@ func main() {
 	// Routes
 	e.GET("/users", handlers.Users)
 	e.GET("/users/:email", handlers.User)
-	e.POST("/users", handlers.AddUser)
+	e.POST("/users", handlers.CreateUser)
 	e.DELETE("/users/:email", handlers.DeleteUser)
 	e.POST("/signin", handlers.Authenticate)
 

@@ -34,8 +34,8 @@ func User(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-// AddUser ...
-func AddUser(c echo.Context) error {
+// CreateUser ...
+func CreateUser(c echo.Context) error {
 	con := db.Connection()
 	defer con.Close()
 
