@@ -19,7 +19,7 @@ import (
 	"github.com/loganstone/auth/validator"
 )
 
-const NumberOfUsersToCreate = 100
+const NumberOfUsersToCreate = 10
 
 var (
 	emailFmt = "test_%s@mail.com"
@@ -57,17 +57,15 @@ func TestUsers(t *testing.T) {
 	// Setup
 	con := db.Connection()
 	defer con.Close()
-	users := make([]models.User, NumberOfUsersToCreate)
-	for i := 0; i > NumberOfUsersToCreate; i++ {
-		users[i] = models.User{
+	for i := 0; i < NumberOfUsersToCreate; i++ {
+		u := models.User{
 			Email: fmt.Sprintf(emailFmt, uuid.New().String()),
 		}
-		users[i].SetPassword(password)
+		u.SetPassword(password)
+		assert.Nil(t, db.DoInTransaction(con, func(tx *gorm.DB) error {
+			return tx.Create(&u).Error
+		}))
 	}
-
-	assert.Nil(t, db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Create(users).Error
-	}))
 
 	e := echo.New()
 	e.Validator = validator.New()
