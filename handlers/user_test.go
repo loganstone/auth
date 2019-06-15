@@ -80,3 +80,37 @@ func TestUsers(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 	}
 }
+
+func TestUser(t *testing.T) {
+	// Setup
+	con := db.Connection()
+	defer con.Close()
+	email := fmt.Sprintf(emailFmt, uuid.New().String())
+	u := models.User{Email: email}
+	u.SetPassword(password)
+	assert.Nil(t, db.DoInTransaction(con, func(tx *gorm.DB) error {
+		return tx.Create(&u).Error
+	}))
+
+	e := echo.New()
+	e.Validator = validator.New()
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+
+	c := e.NewContext(req, rec)
+	c.SetPath("/users/:email")
+	c.SetParamNames("email")
+	c.SetParamValues(email)
+
+	// Assertions
+	if assert.NoError(t, User(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+		var jsonUser models.JSONUser
+		decoder := json.NewDecoder(rec.Body)
+		if assert.NoError(t, decoder.Decode(&jsonUser)) {
+			assert.Equal(t, jsonUser.Email, email)
+		}
+	}
+}
