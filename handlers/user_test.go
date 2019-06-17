@@ -26,6 +26,20 @@ var (
 	password = "password"
 )
 
+func SetUpNewTestUser(email string, pw string) (*models.User, error) {
+	con := db.Connection()
+	defer con.Close()
+	u := models.User{Email: email}
+	u.SetPassword(pw)
+	err := db.DoInTransaction(con, func(tx *gorm.DB) error {
+		return tx.Create(&u).Error
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &u, err
+}
+
 func TestCreateUser(t *testing.T) {
 	// Setup
 	e := echo.New()
@@ -55,16 +69,10 @@ func TestCreateUser(t *testing.T) {
 
 func TestUsers(t *testing.T) {
 	// Setup
-	con := db.Connection()
-	defer con.Close()
 	for i := 0; i < NumberOfUsersToCreate; i++ {
-		u := models.User{
-			Email: fmt.Sprintf(emailFmt, uuid.New().String()),
-		}
-		u.SetPassword(password)
-		assert.Nil(t, db.DoInTransaction(con, func(tx *gorm.DB) error {
-			return tx.Create(&u).Error
-		}))
+		email := fmt.Sprintf(emailFmt, uuid.New().String())
+		_, err := SetUpNewTestUser(email, password)
+		assert.Nil(t, err)
 	}
 
 	e := echo.New()
@@ -83,14 +91,9 @@ func TestUsers(t *testing.T) {
 
 func TestUser(t *testing.T) {
 	// Setup
-	con := db.Connection()
-	defer con.Close()
 	email := fmt.Sprintf(emailFmt, uuid.New().String())
-	u := models.User{Email: email}
-	u.SetPassword(password)
-	assert.Nil(t, db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Create(&u).Error
-	}))
+	_, err := SetUpNewTestUser(email, password)
+	assert.Nil(t, err)
 
 	e := echo.New()
 	e.Validator = validator.New()

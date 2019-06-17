@@ -9,27 +9,19 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/models"
 	"github.com/loganstone/auth/types"
 	"github.com/loganstone/auth/validator"
 )
 
 func TestAuthenticate(t *testing.T) {
-
 	// Setup
-	con := db.Connection()
-	defer con.Close()
 	email := fmt.Sprintf(emailFmt, uuid.New().String())
-	u := models.User{Email: email}
-	u.SetPassword(password)
-	assert.Nil(t, db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Create(&u).Error
-	}))
+	_, err := SetUpNewTestUser(email, password)
+	assert.Nil(t, err)
 
 	e := echo.New()
 	e.Validator = validator.New()
