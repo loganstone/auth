@@ -17,3 +17,9 @@
 * orm - gorm
 * log - logrus
 * cli - cobra
+
+# Running Tests
+
+```shell
+$ go test -v ./...
+```
