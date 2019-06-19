@@ -9,11 +9,9 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/models"
 	"github.com/loganstone/auth/types"
 	"github.com/loganstone/auth/validator"
@@ -21,33 +19,14 @@ import (
 
 const NumberOfUsersToCreate = 10
 
-var (
-	emailFmt = "test_%s@mail.com"
-	password = "password"
-)
-
-func SetUpNewTestUser(email string, pw string) (*models.User, error) {
-	con := db.Connection()
-	defer con.Close()
-	u := models.User{Email: email}
-	u.SetPassword(pw)
-	err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Create(&u).Error
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &u, err
-}
-
 func TestCreateUser(t *testing.T) {
 	// Setup
 	e := echo.New()
 	e.Validator = validator.New()
 
 	params := types.AddUserParams{
-		Email:    fmt.Sprintf(emailFmt, uuid.New().String()),
-		Password: password,
+		Email:    fmt.Sprintf(testEmailFmt, uuid.New().String()),
+		Password: testPassword,
 	}
 	jsonBytes, _ := json.Marshal(params)
 
@@ -70,8 +49,8 @@ func TestCreateUser(t *testing.T) {
 func TestUsers(t *testing.T) {
 	// Setup
 	for i := 0; i < NumberOfUsersToCreate; i++ {
-		email := fmt.Sprintf(emailFmt, uuid.New().String())
-		_, err := SetUpNewTestUser(email, password)
+		email := fmt.Sprintf(testEmailFmt, uuid.New().String())
+		_, err := SetUpNewTestUser(email, testPassword)
 		assert.Nil(t, err)
 	}
 
@@ -91,8 +70,8 @@ func TestUsers(t *testing.T) {
 
 func TestUser(t *testing.T) {
 	// Setup
-	email := fmt.Sprintf(emailFmt, uuid.New().String())
-	_, err := SetUpNewTestUser(email, password)
+	email := fmt.Sprintf(testEmailFmt, uuid.New().String())
+	_, err := SetUpNewTestUser(email, testPassword)
 	assert.Nil(t, err)
 
 	e := echo.New()

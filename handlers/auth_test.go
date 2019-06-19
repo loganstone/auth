@@ -19,8 +19,8 @@ import (
 
 func TestSignin(t *testing.T) {
 	// Setup
-	email := fmt.Sprintf(emailFmt, uuid.New().String())
-	_, err := SetUpNewTestUser(email, password)
+	email := fmt.Sprintf(testEmailFmt, uuid.New().String())
+	_, err := SetUpNewTestUser(email, testPassword)
 	assert.Nil(t, err)
 
 	e := echo.New()
@@ -28,7 +28,7 @@ func TestSignin(t *testing.T) {
 
 	params := types.SigninParams{
 		Email:    email,
-		Password: password,
+		Password: testPassword,
 	}
 	jsonBytes, _ := json.Marshal(params)
 
