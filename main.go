@@ -45,7 +45,9 @@ func main() {
 	e.GET("/users/:email", handlers.User)
 	e.POST("/users", handlers.CreateUser)
 	e.DELETE("/users/:email", handlers.DeleteUser)
-	e.POST("/signin", handlers.Authenticate)
+
+	auth := e.Group("/auth")
+	auth.POST("/signin", handlers.Signin)
 
 	// Debug uri - /debug/pprof/
 	e.GET("/debug/pprof/*", echo.WrapHandler(http.DefaultServeMux))

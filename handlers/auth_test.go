@@ -17,7 +17,7 @@ import (
 	"github.com/loganstone/auth/validator"
 )
 
-func TestAuthenticate(t *testing.T) {
+func TestSignin(t *testing.T) {
 	// Setup
 	email := fmt.Sprintf(emailFmt, uuid.New().String())
 	_, err := SetUpNewTestUser(email, password)
@@ -26,19 +26,19 @@ func TestAuthenticate(t *testing.T) {
 	e := echo.New()
 	e.Validator = validator.New()
 
-	params := types.AuthenticateParams{
+	params := types.SigninParams{
 		Email:    email,
 		Password: password,
 	}
 	jsonBytes, _ := json.Marshal(params)
 
-	req := httptest.NewRequest(http.MethodPost, "/signin", bytes.NewReader(jsonBytes))
+	req := httptest.NewRequest(http.MethodPost, "/auth/signin", bytes.NewReader(jsonBytes))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
 	// Assertions
-	if assert.NoError(t, Authenticate(c)) {
+	if assert.NoError(t, Signin(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		var jsonUser models.JSONUser
 		decoder := json.NewDecoder(rec.Body)

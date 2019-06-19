@@ -6,8 +6,8 @@ type AddUserParams struct {
 	Password string `validate:"required"`
 }
 
-// AuthenticateParams ..
-type AuthenticateParams struct {
+// SigninParams .
+type SigninParams struct {
 	Email    string `validate:"required,email"`
 	Password string `validate:"required"`
 }

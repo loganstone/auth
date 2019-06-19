@@ -10,24 +10,24 @@ import (
 	"github.com/loganstone/auth/types"
 )
 
-// Authenticate ...
-func Authenticate(c echo.Context) error {
+// Signin .
+func Signin(c echo.Context) error {
 	con := db.Connection()
 	defer con.Close()
 
-	authParams := new(types.AuthenticateParams)
-	if err := c.Bind(authParams); err != nil {
+	params := new(types.SigninParams)
+	if err := c.Bind(params); err != nil {
 		return err
 	}
-	if err := c.Validate(authParams); err != nil {
+	if err := c.Validate(params); err != nil {
 		return err
 	}
 
-	user := models.User{Email: authParams.Email}
+	user := models.User{Email: params.Email}
 	if con.Where(&user).First(&user).RecordNotFound() {
 		return echo.NewHTTPError(http.StatusNotFound, "User Not Found")
 	}
-	if !user.VerifyPassword(authParams.Password) {
+	if !user.VerifyPassword(params.Password) {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Incorrect Password")
 	}
 
