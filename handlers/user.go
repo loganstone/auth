@@ -39,20 +39,20 @@ func CreateUser(c echo.Context) error {
 	con := db.Connection()
 	defer con.Close()
 
-	userParams := new(types.AddUserParams)
-	if err := c.Bind(userParams); err != nil {
+	params := new(types.AddUserParams)
+	if err := c.Bind(params); err != nil {
 		return err
 	}
-	if err := c.Validate(userParams); err != nil {
+	if err := c.Validate(params); err != nil {
 		return err
 	}
 
-	user := models.User{Email: userParams.Email}
+	user := models.User{Email: params.Email}
 	if !con.Where(&user).First(&user).RecordNotFound() {
 		return echo.NewHTTPError(http.StatusBadRequest, "User Already Exists")
 	}
 
-	user.SetPassword(userParams.Password)
+	user.SetPassword(params.Password)
 	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
 		return tx.Create(&user).Error
 	}); err != nil {
