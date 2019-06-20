@@ -1,6 +1,7 @@
 package configs
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -25,9 +26,10 @@ type DatabaseConfigs struct {
 	Echo bool
 }
 
-// ToSlice .
-func (c *DatabaseConfigs) ToSlice() []interface{} {
-	return []interface{}{c.ID, c.PW, c.Name}
+// ConnectionString .
+func (c *DatabaseConfigs) ConnectionString() string {
+	confSlice := append([]interface{}{c.ID, c.PW, c.Name}, ConnOpt)
+	return fmt.Sprintf("%s:%s@/%s?%s", confSlice...)
 }
 
 // DB ...

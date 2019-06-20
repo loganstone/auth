@@ -1,7 +1,6 @@
 package configs
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -17,8 +16,6 @@ func TestDB(t *testing.T) {
 
 	// Assertions
 	conf := DB()
-	confSlice := append(conf.ToSlice(), ConnOpt)
-	connectionString := fmt.Sprintf("%s:%s@/%s?%s", confSlice...)
 	expected := "test_db_id:test_db_pw@/test_db_name?" + ConnOpt
-	assert.Equal(t, connectionString, expected)
+	assert.Equal(t, conf.ConnectionString(), expected)
 }

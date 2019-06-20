@@ -1,8 +1,6 @@
 package db
 
 import (
-	"fmt"
-
 	"github.com/jinzhu/gorm"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql" //
@@ -20,9 +18,7 @@ func Sync() {
 // Connection ..
 func Connection() *gorm.DB {
 	conf := configs.DB()
-	confSlice := append(conf.ToSlice(), configs.ConnOpt)
-	connectionString := fmt.Sprintf("%s:%s@/%s?%s", confSlice...)
-	db, err := gorm.Open("mysql", connectionString)
+	db, err := gorm.Open("mysql", conf.ConnectionString())
 	db.LogMode(conf.Echo)
 	if err != nil {
 		panic("DB Connection Error")
