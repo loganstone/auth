@@ -1,6 +1,7 @@
 package configs
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -25,6 +26,13 @@ type DatabaseConfigs struct {
 	Name string
 	Echo bool
 }
+
+// Options .
+type Options struct {
+	PortToListen int
+}
+
+var options Options
 
 // ConnectionString .
 func (c *DatabaseConfigs) ConnectionString() string {
@@ -55,4 +63,14 @@ func DB() *DatabaseConfigs {
 	return &DatabaseConfigs{
 		id, pw, name, (echo == "1" || strings.ToLower(echo) == "true"),
 	}
+}
+
+func init() {
+	flag.IntVar(&options.PortToListen, "p", DefaultPort, "port to listen on")
+	flag.Parse()
+}
+
+// Opts .
+func Opts() Options {
+	return options
 }

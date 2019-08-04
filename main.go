@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
@@ -21,12 +20,8 @@ import (
 	"github.com/loganstone/auth/validator"
 )
 
-var (
-	portToListen = flag.Int("p", configs.DefaultPort, "port to listen on")
-)
-
 func main() {
-	flag.Parse()
+	options := configs.Opts()
 
 	db.Sync()
 
@@ -54,7 +49,7 @@ func main() {
 
 	// Start server
 	go func() {
-		listen := fmt.Sprintf(":%d", *portToListen)
+		listen := fmt.Sprintf(":%d", options.PortToListen)
 		if err := e.Start(listen); err != nil {
 			e.Logger.Info("Shutting down the server")
 		}
