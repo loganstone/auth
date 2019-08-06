@@ -28,7 +28,11 @@ func User(c echo.Context) error {
 	email := c.Param("email")
 	user := models.User{Email: email}
 	if con.Where(&user).First(&user).RecordNotFound() {
-		return echo.NewHTTPError(http.StatusNotFound, "User Not Found")
+		return c.JSON(http.StatusNotFound,
+			types.Error{
+				ErrorCode: types.NotFoundUser,
+				Message:   "not such user",
+			})
 	}
 
 	return c.JSON(http.StatusOK, user)
