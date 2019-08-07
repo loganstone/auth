@@ -48,7 +48,11 @@ func CreateUser(c echo.Context) error {
 		return err
 	}
 	if err := c.Validate(params); err != nil {
-		return err
+		return c.JSON(http.StatusBadRequest,
+			types.Error{
+				ErrorCode: types.ValidateError,
+				Message:   err.Error(),
+			})
 	}
 
 	user := models.User{Email: params.Email}
