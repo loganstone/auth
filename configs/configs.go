@@ -10,14 +10,21 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql" //
 )
 
-// ConnOpt .
-const ConnOpt = "charset=utf8mb4&parseTime=True&loc=Local"
+const (
+	// TimeoutToGracefulShutdown .
+	TimeoutToGracefulShutdown = 10
 
-// DefaultPort ...
-const DefaultPort = 9900
+	connOpt     = "charset=utf8mb4&parseTime=True&loc=Local"
+	defaultPort = 9900
+	envErrFmt   = "'%s' environment variable is required\n"
+)
 
-// TimeoutToGracefulShutdown ...
-const TimeoutToGracefulShutdown = 10
+// Options .
+type Options struct {
+	PortToListen int
+}
+
+var options Options
 
 // DatabaseConfigs ...
 type DatabaseConfigs struct {
@@ -27,36 +34,27 @@ type DatabaseConfigs struct {
 	Echo bool
 }
 
-// Options .
-type Options struct {
-	PortToListen int
-}
-
-var options Options
-
 // ConnectionString .
 func (c *DatabaseConfigs) ConnectionString() string {
-	confSlice := append([]interface{}{c.ID, c.PW, c.Name}, ConnOpt)
+	confSlice := append([]interface{}{c.ID, c.PW, c.Name}, connOpt)
 	return fmt.Sprintf("%s:%s@/%s?%s", confSlice...)
 }
 
 // DB ...
 func DB() *DatabaseConfigs {
-	const errMsgFmt = "'%s' environment variable is required\n"
-
 	id, ok := os.LookupEnv("AUTH_DB_ID")
 	if !ok {
-		log.Fatalf(errMsgFmt, "AUTH_DB_ID")
+		log.Fatalf(envErrFmt, "AUTH_DB_ID")
 	}
 
 	pw, ok := os.LookupEnv("AUTH_DB_PW")
 	if !ok {
-		log.Fatalf(errMsgFmt, "AUTH_DB_PW")
+		log.Fatalf(envErrFmt, "AUTH_DB_PW")
 	}
 
 	name, ok := os.LookupEnv("AUTH_DB_NAME")
 	if !ok {
-		log.Fatalf(errMsgFmt, "AUTH_DB_NAME")
+		log.Fatalf(envErrFmt, "AUTH_DB_NAME")
 	}
 
 	echo := os.Getenv("AUTH_DB_ECHO")
@@ -66,7 +64,7 @@ func DB() *DatabaseConfigs {
 }
 
 func init() {
-	flag.IntVar(&options.PortToListen, "p", DefaultPort, "port to listen on")
+	flag.IntVar(&options.PortToListen, "p", defaultPort, "port to listen on")
 	flag.Parse()
 }
 
