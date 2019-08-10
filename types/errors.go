@@ -5,6 +5,7 @@ const (
 	UnknownError = 1000 + iota
 	NotFoundUser
 	ValidateError
+	DBTransactionError
 )
 
 // Error .

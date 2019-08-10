@@ -64,7 +64,11 @@ func CreateUser(c echo.Context) error {
 	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
 		return tx.Create(&user).Error
 	}); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "User creation failed")
+		return c.JSON(http.StatusInternalServerError,
+			types.Error{
+				ErrorCode: types.DBTransactionError,
+				Message:   err.Error(),
+			})
 	}
 
 	return c.JSON(http.StatusCreated, user)
