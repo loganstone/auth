@@ -16,7 +16,7 @@ import (
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/handlers"
+	"github.com/loganstone/auth/router"
 	"github.com/loganstone/auth/validator"
 )
 
@@ -35,14 +35,7 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
 
-	// Routes
-	e.GET("/users", handlers.Users)
-	e.GET("/users/:email", handlers.User)
-	e.POST("/users", handlers.CreateUser)
-	e.DELETE("/users/:email", handlers.DeleteUser)
-
-	auth := e.Group("/auth")
-	auth.POST("/signin", handlers.Signin)
+	router.Init(e)
 
 	// Debug uri - /debug/pprof/
 	e.GET("/debug/pprof/*", echo.WrapHandler(http.DefaultServeMux))
