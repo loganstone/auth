@@ -16,6 +16,6 @@ func TestDB(t *testing.T) {
 
 	// Assertions
 	conf := DB()
-	expected := "test_db_id:test_db_pw@/test_db_name?" + ConnOpt
+	expected := "test_db_id:test_db_pw@/test_db_name?" + connOpt
 	assert.Equal(t, conf.ConnectionString(), expected)
 }
