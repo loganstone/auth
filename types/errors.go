@@ -3,9 +3,14 @@ package types
 // ErroCodes .
 const (
 	UnknownError = 1000 + iota
-	NotFoundUser
 	ValidateError
 	DBTransactionError
+)
+
+// ErroCodes .
+const (
+	NotFoundUser = 2000 + iota
+	IncorrectPassword
 )
 
 // Error .
