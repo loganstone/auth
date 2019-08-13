@@ -8,6 +8,7 @@ import (
 
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/models"
+	"github.com/loganstone/auth/response"
 	"github.com/loganstone/auth/types"
 )
 
@@ -48,11 +49,8 @@ func CreateUser(c echo.Context) error {
 		return err
 	}
 	if err := c.Validate(params); err != nil {
-		return c.JSON(http.StatusBadRequest,
-			types.Error{
-				ErrorCode: types.ValidateError,
-				Message:   err.Error(),
-			})
+		return response.ValidateError(
+			c, http.StatusBadRequest, err.Error())
 	}
 
 	user := models.User{Email: params.Email}
