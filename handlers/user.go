@@ -55,13 +55,18 @@ func CreateUser(c echo.Context) error {
 
 	user := models.User{Email: params.Email}
 	if !con.Where(&user).First(&user).RecordNotFound() {
-		return echo.NewHTTPError(http.StatusBadRequest, "User Already Exists")
+		return c.JSON(http.StatusBadRequest,
+			types.Error{
+				ErrorCode: types.UserAlreadyExists,
+				Message:   "user already exists",
+			})
 	}
 
 	user.SetPassword(params.Password)
-	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
+	err := db.DoInTransaction(con, func(tx *gorm.DB) error {
 		return tx.Create(&user).Error
-	}); err != nil {
+	})
+	if err != nil {
 		return c.JSON(http.StatusInternalServerError,
 			types.Error{
 				ErrorCode: types.DBTransactionError,
@@ -83,10 +88,15 @@ func DeleteUser(c echo.Context) error {
 		return c.NoContent(http.StatusNoContent)
 	}
 
-	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
+	err := db.DoInTransaction(con, func(tx *gorm.DB) error {
 		return tx.Delete(&user).Error
-	}); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user")
+	})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError,
+			types.Error{
+				ErrorCode: types.DBTransactionError,
+				Message:   err.Error(),
+			})
 	}
 
 	return c.NoContent(http.StatusNoContent)

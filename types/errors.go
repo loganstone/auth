@@ -11,6 +11,7 @@ const (
 const (
 	NotFoundUser = 2000 + iota
 	IncorrectPassword
+	UserAlreadyExists
 )
 
 // Error .
