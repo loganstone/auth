@@ -30,7 +30,8 @@ func TestCreateUser(t *testing.T) {
 	}
 	jsonBytes, _ := json.Marshal(params)
 
-	req := httptest.NewRequest(http.MethodPost, "/users", bytes.NewReader(jsonBytes))
+	req := httptest.NewRequest(
+		http.MethodPost, "/users", bytes.NewReader(jsonBytes))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)

@@ -24,7 +24,8 @@ type JSONUser struct {
 // SetPassword ...
 func (u *User) SetPassword(password string) error {
 	passwordBytes := []byte(password)
-	hashedBytes, err := bcrypt.GenerateFromPassword(passwordBytes, bcrypt.DefaultCost)
+	hashedBytes, err := bcrypt.GenerateFromPassword(
+		passwordBytes, bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
