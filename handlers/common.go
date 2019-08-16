@@ -6,7 +6,7 @@ import (
 	"github.com/loganstone/auth/models"
 )
 
-var (
+const (
 	testEmailFmt = "test_%s@mail.com"
 	testPassword = "password"
 )
