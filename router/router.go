@@ -14,4 +14,7 @@ func Init(e *echo.Echo) {
 
 	auth := e.Group("/auth")
 	auth.POST("/signin", handlers.Signin)
+
+	test := e.Group("/test")
+	test.GET("/send/email/:email", handlers.SendEmailForUser)
 }
