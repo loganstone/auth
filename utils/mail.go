@@ -17,7 +17,7 @@ const (
 func SendMail(fromName, fromEmail, toEmail, subject, body string) {
 	c, err := smtp.Dial(localHost + ":" + port)
 	if err != nil {
-		log.Fatal(err)
+		log.Panicln(err)
 	}
 	defer c.Close()
 
@@ -46,11 +46,11 @@ func SendMail(fromName, fromEmail, toEmail, subject, body string) {
 
 	wc, err := c.Data()
 	if err != nil {
-		log.Fatal(err)
+		log.Panicln(err)
 	}
 	defer wc.Close()
 	buf := bytes.NewBufferString(msg)
 	if _, err = buf.WriteTo(wc); err != nil {
-		log.Fatal(err)
+		log.Panicln(err)
 	}
 }
