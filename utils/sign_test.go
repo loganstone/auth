@@ -24,7 +24,8 @@ func TestSignAndLoad(t *testing.T) {
 	signed, err := Sign(val)
 	assert.Equal(t, err, nil)
 
-	loaded := Load(signed)
+	loaded, err := Load(signed)
+	assert.Equal(t, err, nil)
 
 	assert.Equal(t, val, loaded)
 }

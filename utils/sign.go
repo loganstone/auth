@@ -34,20 +34,16 @@ func init() {
 func Sign(payload []byte) (string, error) {
 	object, err := signer.Sign(payload)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	return object.CompactSerialize()
 }
 
 // Load .
-func Load(serialized string) []byte {
+func Load(serialized string) ([]byte, error) {
 	object, err := jose.ParseSigned(serialized)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	output, err := object.Verify(&privateKey.PublicKey)
-	if err != nil {
-		panic(err)
-	}
-	return output
+	return object.Verify(&privateKey.PublicKey)
 }
