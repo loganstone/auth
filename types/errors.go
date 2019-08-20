@@ -5,6 +5,7 @@ const (
 	UnknownError = 1000 + iota
 	ValidateError
 	DBTransactionError
+	MarshalJSONError
 )
 
 // ErroCodes .

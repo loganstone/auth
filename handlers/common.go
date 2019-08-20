@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/jinzhu/gorm"
@@ -47,7 +48,17 @@ func SendEmailForUser(c echo.Context) error {
 			})
 	}
 
-	utils.SendMail("system", "test@mail.com", user.Email, "test", "test body")
+	val, err := json.Marshal(user)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError,
+			types.Error{
+				ErrorCode: types.MarshalJSONError,
+				Message:   err.Error(),
+			})
+	}
+	signed, err := utils.Sign(val)
+
+	utils.SendMail("system", "test@mail.com", user.Email, "test", signed)
 
 	return c.JSON(http.StatusOK, "ok")
 }
