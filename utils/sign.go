@@ -3,6 +3,7 @@ package utils
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"log"
 
 	"gopkg.in/square/go-jose.v2"
 )
@@ -14,7 +15,7 @@ func init() {
 	// Generate a public/private key pair to use for this example.
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		panic(err)
+		log.Panicln(err)
 	}
 	privateKey = *key
 
@@ -25,7 +26,7 @@ func init() {
 			Key:       key,
 		}, nil)
 	if err != nil {
-		panic(err)
+		log.Panicln(err)
 	}
 	signer = object
 }
