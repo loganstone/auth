@@ -7,10 +7,11 @@ import (
 
 // Init .
 func Init(e *echo.Echo) {
-	e.GET("/users", handlers.Users)
-	e.GET("/users/:email", handlers.User)
-	e.POST("/users", handlers.CreateUser)
-	e.DELETE("/users/:email", handlers.DeleteUser)
+	users := e.Group("/users")
+	users.GET("", handlers.Users)
+	users.GET("/:email", handlers.User)
+	users.POST("", handlers.CreateUser)
+	users.DELETE("/:email", handlers.DeleteUser)
 
 	auth := e.Group("/auth")
 	auth.POST("/signin", handlers.Signin)
