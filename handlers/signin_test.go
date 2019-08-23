@@ -33,7 +33,7 @@ func TestSignin(t *testing.T) {
 	jsonBytes, _ := json.Marshal(params)
 
 	req := httptest.NewRequest(
-		http.MethodPost, "/auth/signin", bytes.NewReader(jsonBytes))
+		http.MethodPost, "/signin", bytes.NewReader(jsonBytes))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
