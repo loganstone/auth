@@ -6,6 +6,7 @@ const (
 	ValidateError
 	DBTransactionError
 	MarshalJSONError
+	SendEmailError
 )
 
 // ErroCodes .

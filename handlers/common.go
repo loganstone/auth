@@ -38,8 +38,7 @@ func SendEmailForUser(c echo.Context) error {
 	con := db.Connection()
 	defer con.Close()
 
-	email := c.Param("email")
-	user := models.User{Email: email}
+	user := models.User{Email: c.Param("email")}
 	if con.Where(&user).First(&user).RecordNotFound() {
 		return c.JSON(http.StatusNotFound,
 			types.Error{
@@ -58,7 +57,16 @@ func SendEmailForUser(c echo.Context) error {
 	}
 	signed, err := utils.Sign(val)
 
-	utils.SendMail("system", "test@mail.com", user.Email, "test", signed)
+	email := utils.NewEmail(
+		"sys", "test@mail.com", user.Email, "Test", signed)
+	err = email.SendToLocalPostfix()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError,
+			types.Error{
+				ErrorCode: types.SendEmailError,
+				Message:   err.Error(),
+			})
+	}
 
 	return c.JSON(http.StatusOK, "ok")
 }
