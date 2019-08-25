@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"gopkg.in/go-playground/assert.v1"
@@ -27,4 +28,33 @@ func TestMakeTextHTMLHeader(t *testing.T) {
 	email.makeTextHTMLHeader()
 
 	assert.Equal(t, email.header, expected)
+}
+
+func TestMakeMessage(t *testing.T) {
+	email := NewEmail(
+		name, from, to, subject, body)
+	email.makeTextHTMLHeader()
+	email.makeMessage()
+
+	contained := strings.Contains(
+		email.message, fmt.Sprintf(`From: "%s" <%s>`, name, from))
+	assert.Equal(t, contained, true)
+
+	contained = strings.Contains(
+		email.message, fmt.Sprintf(`To: %s`, to))
+	assert.Equal(t, contained, true)
+
+	contained = strings.Contains(
+		email.message, fmt.Sprintf(`Subject: %s`, subject))
+	assert.Equal(t, contained, true)
+
+	contained = strings.Contains(
+		email.message, `Content-Type: text/html; charset="UTF-8"`)
+	assert.Equal(t, contained, true)
+
+	contained = strings.Contains(email.message, "\n")
+	assert.Equal(t, contained, true)
+
+	contained = strings.Contains(email.message, body)
+	assert.Equal(t, contained, true)
 }
