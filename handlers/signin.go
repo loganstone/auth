@@ -27,11 +27,7 @@ func Signin(c echo.Context) error {
 
 	user := models.User{Email: params.Email}
 	if con.Where(&user).First(&user).RecordNotFound() {
-		return c.JSON(http.StatusNotFound,
-			types.Error{
-				ErrorCode: types.NotFoundUser,
-				Message:   "not such user",
-			})
+		return response.NotFoundUser(c)
 	}
 	if !user.VerifyPassword(params.Password) {
 		return c.JSON(http.StatusUnauthorized,

@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/models"
+	"github.com/loganstone/auth/response"
 	"github.com/loganstone/auth/types"
 	"github.com/loganstone/auth/utils"
 )
@@ -74,11 +75,7 @@ func SendEmailForUser(c echo.Context) error {
 
 	user := models.User{Email: c.Param("email")}
 	if con.Where(&user).First(&user).RecordNotFound() {
-		return c.JSON(http.StatusNotFound,
-			types.Error{
-				ErrorCode: types.NotFoundUser,
-				Message:   "not such user",
-			})
+		return response.NotFoundUser(c)
 	}
 
 	val, err := json.Marshal(user)
