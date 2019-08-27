@@ -107,7 +107,7 @@ func SendEmailForUser(c echo.Context) error {
 	email := utils.NewEmail(
 		"sys", "test@mail.com", user.Email,
 		"Please verify your email address.", tpl.String())
-	err = email.SendToLocalPostfix()
+	err = email.Send()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError,
 			types.Error{

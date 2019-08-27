@@ -3,13 +3,15 @@ package utils
 import (
 	"bytes"
 	"fmt"
+	"net"
 	"net/mail"
 	"net/smtp"
 )
 
 const (
-	localHost = "127.0.0.1"
-	port      = "25"
+	localHost       = "127.0.0.1"
+	defaultSMTPPort = "25"
+	testSMTPPort    = "7777"
 )
 
 // Email .
@@ -60,13 +62,18 @@ func (m *Email) makeMessage() {
 	m.message += "\r\n" + m.body
 }
 
-// SendToLocalPostfix 는 local postfix 로 email 을 보낸다.
-func (m *Email) SendToLocalPostfix() error {
-	c, err := smtp.Dial(localHost + ":" + port)
+// Send 는 local postfix 로 email 을 보낸다.
+func (m *Email) Send() error {
+	return m.sendToLocalPostfix(
+		net.JoinHostPort(localHost, defaultSMTPPort))
+}
+
+func (m *Email) sendToLocalPostfix(address string) error {
+	c, err := smtp.Dial(address)
 	if err != nil {
 		return err
 	}
-	defer c.Close()
+	defer c.Quit()
 
 	c.Mail(m.from)
 	c.Rcpt(m.to)

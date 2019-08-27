@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"net"
 	"strings"
 	"testing"
 
@@ -58,4 +61,92 @@ func TestMakeMessage(t *testing.T) {
 
 	contained = strings.Contains(email.message, body)
 	assert.Equal(t, contained, expected)
+}
+
+// reference - https://golang.org/src/net/smtp/smtp_test.go
+func TestSendToLocalPostfix(t *testing.T) {
+	ln := newLocalListener(t)
+	defer ln.Close()
+
+	clientDone := make(chan bool)
+	serverDone := make(chan bool)
+
+	go func() {
+		defer close(serverDone)
+		c, err := ln.Accept()
+		if err != nil {
+			t.Errorf("server accept: %v", err)
+			return
+		}
+		defer c.Close()
+		if err := serverHandle(c, t); err != nil {
+			t.Errorf("server error: %v", err)
+		}
+	}()
+
+	go func() {
+		defer close(clientDone)
+		email := NewEmail(name, from, to, subject, body)
+		err := email.sendToLocalPostfix(ln.Addr().String())
+		assert.Equal(t, err, nil)
+	}()
+
+	<-clientDone
+	<-serverDone
+}
+
+// reference - https://golang.org/src/net/smtp/smtp_test.go
+func newLocalListener(t *testing.T) net.Listener {
+	ln, err := net.Listen("tcp", net.JoinHostPort(localHost, testSMTPPort))
+	if err != nil {
+		ln, err = net.Listen("tcp6", net.JoinHostPort("::1", testSMTPPort))
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+	return ln
+}
+
+// reference - https://golang.org/src/net/smtp/smtp_test.go
+type smtpSender struct {
+	w io.Writer
+}
+
+// reference - https://golang.org/src/net/smtp/smtp_test.go
+func (s smtpSender) send(f string) {
+	s.w.Write([]byte(f + "\r\n"))
+}
+
+// reference - https://golang.org/src/net/smtp/smtp_test.go
+func serverHandle(c net.Conn, t *testing.T) error {
+	send := smtpSender{c}.send
+	// Important.
+	send("220 127.0.0.1 ESMTP service ready")
+	s := bufio.NewScanner(c)
+	for s.Scan() {
+		switch s.Text() {
+		case "EHLO localhost":
+			send("250 Ok")
+		case fmt.Sprintf("MAIL FROM:<%s>", from):
+			send("250 Ok")
+		case fmt.Sprintf("RCPT TO:<%s>", to):
+			send("250 Ok")
+		case "DATA":
+			send("354 send the mail data, end with .")
+			send("250 Ok")
+		case fmt.Sprintf("Subject: %s", subject):
+		case `Content-Type: text/html; charset="UTF-8"`:
+		case fmt.Sprintf(`From: "%s" <%s>`, name, from):
+		case fmt.Sprintf("To: %s", to):
+		case "":
+		case body:
+		case ".":
+		case "QUIT":
+			send("221 127.0.0.1 Service closing transmission channel")
+			return nil
+		default:
+			t.Fatalf("unrecognized command: %q", s.Text())
+		}
+	}
+	return s.Err()
 }
