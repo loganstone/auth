@@ -28,15 +28,15 @@ var options Options
 
 // DatabaseConfigs ...
 type DatabaseConfigs struct {
-	ID   string
-	PW   string
-	Name string
+	id   string
+	pw   string
+	name string
 	Echo bool
 }
 
 // ConnectionString .
 func (c *DatabaseConfigs) ConnectionString() string {
-	confSlice := append([]interface{}{c.ID, c.PW, c.Name}, connOpt)
+	confSlice := append([]interface{}{c.id, c.pw, c.name}, connOpt)
 	return fmt.Sprintf("%s:%s@/%s?%s", confSlice...)
 }
 
