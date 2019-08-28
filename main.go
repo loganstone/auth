@@ -3,21 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/gin-contrib/pprof"
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/router"
-	"github.com/loganstone/auth/validator"
 )
 
 func main() {
@@ -25,38 +25,43 @@ func main() {
 
 	db.Sync()
 
-	// Echo instance
-	e := echo.New()
-
-	e.Validator = validator.New()
-
-	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	e.Use(middleware.RequestID())
-
-	router.Init(e)
+	router := router.New()
 
 	// Debug uri - /debug/pprof/
-	e.GET("/debug/pprof/*", echo.WrapHandler(http.DefaultServeMux))
+	pprof.Register(router)
 
-	// Start server
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", options.PortToListen),
+		Handler: router,
+	}
+
 	go func() {
-		listen := fmt.Sprintf(":%d", options.PortToListen)
-		if err := e.Start(listen); err != nil {
-			e.Logger.Info("Shutting down the server")
+		// service connections
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
 		}
 	}()
 
 	// Graceful shutdown
 	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt)
+	// kill (no param) default send syscall.SIGTERM
+	// kill -2 is syscall.SIGINT
+	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
+	log.Println("Shutdown Server ...")
+
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		configs.TimeoutToGracefulShutdown*time.Second)
 	defer cancel()
-	if err := e.Shutdown(ctx); err != nil {
-		e.Logger.Fatal(err)
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shutdown:", err)
 	}
+	// catching ctx.Done(). timeout of 5 seconds.
+	select {
+	case <-ctx.Done():
+		log.Printf("timeout of %d seconds.", configs.TimeoutToGracefulShutdown)
+	}
+	log.Println("Server exiting")
 }

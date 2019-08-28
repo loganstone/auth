@@ -13,7 +13,7 @@
 * 이메일로 발송된 verification code 확인
 
 # Frameworks(plan)
-* http - echo
+* http - gin
 * orm - gorm
 * log - logrus
 * cli - cobra

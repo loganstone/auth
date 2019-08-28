@@ -1,31 +1,45 @@
 package response
 
 import (
-	"net/http"
-
-	"github.com/labstack/echo/v4"
+	"github.com/gin-gonic/gin"
 
 	"github.com/loganstone/auth/types"
 )
 
-func errorJSON(c echo.Context, httpStatusCode, errorCode int, message string) error {
-	return c.JSON(httpStatusCode,
-		types.Error{
-			ErrorCode: errorCode,
-			Message:   message,
-		})
+// ErrorCode .
+func ErrorCode(code int, message string) gin.H {
+	return gin.H{
+		"error_code":    code,
+		"error_message": message,
+	}
 }
 
-// ValidateError .
-func ValidateError(c echo.Context, code int, message string) error {
-	return errorJSON(c, code, types.ValidateError, message)
+// DBTransactionError .
+func DBTransactionError(message string) gin.H {
+	return ErrorCode(types.DBTransactionError, message)
+}
+
+// BindURIError .
+func BindURIError(message string) gin.H {
+	return ErrorCode(types.BindURIError, message)
+}
+
+// BindJSONError .
+func BindJSONError(message string) gin.H {
+	return ErrorCode(types.BindJSONError, message)
 }
 
 // NotFoundUser .
-func NotFoundUser(c echo.Context) error {
-	return c.JSON(http.StatusNotFound,
-		types.Error{
-			ErrorCode: types.NotFoundUser,
-			Message:   "not such user",
-		})
+func NotFoundUser() gin.H {
+	return ErrorCode(types.NotFoundUser, "not such user")
+}
+
+// UserAlreadyExists .
+func UserAlreadyExists() gin.H {
+	return ErrorCode(types.UserAlreadyExists, "user already exists")
+}
+
+// SetPasswordError .
+func SetPasswordError(message string) gin.H {
+	return ErrorCode(types.SetPasswordError, message)
 }

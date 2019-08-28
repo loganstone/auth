@@ -1,20 +1,24 @@
 package router
 
 import (
-	"github.com/labstack/echo/v4"
-	"github.com/loganstone/auth/handlers"
+	"github.com/gin-gonic/gin"
+
+	"github.com/loganstone/auth/handler"
 )
 
-// Init .
-func Init(e *echo.Echo) {
-	users := e.Group("/users")
-	users.GET("", handlers.Users)
-	users.GET("/:email", handlers.User)
-	users.POST("", handlers.CreateUser)
-	users.DELETE("/:email", handlers.DeleteUser)
+// New .
+func New() *gin.Engine {
+	router := gin.Default()
 
-	e.POST("/signin", handlers.Signin)
+	users := router.Group("/users")
+	{
+		users.GET("", handler.Users)
+		users.GET("/:email", handler.User)
+		users.POST("", handler.CreateUser)
+		users.DELETE("/:email", handler.DeleteUser)
+	}
 
-	test := e.Group("/test")
-	test.GET("/send/email/:email", handlers.SendEmailForUser)
+	router.POST("signin", handler.Signin)
+
+	return router
 }

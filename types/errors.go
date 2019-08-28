@@ -3,7 +3,6 @@ package types
 // ErroCodes .
 const (
 	UnknownError = 1000 + iota
-	ValidateError
 	DBTransactionError
 	MarshalJSONError
 	SendEmailError
@@ -11,13 +10,14 @@ const (
 
 // ErroCodes .
 const (
-	NotFoundUser = 2000 + iota
-	IncorrectPassword
-	UserAlreadyExists
+	BindURIError = 2000 + iota
+	BindJSONError
 )
 
-// Error .
-type Error struct {
-	ErrorCode int    `json:"error_code"`
-	Message   string `json:"message"`
-}
+// ErroCodes .
+const (
+	NotFoundUser = 3000 + iota
+	UserAlreadyExists
+	SetPasswordError
+	IncorrectPassword
+)

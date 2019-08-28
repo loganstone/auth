@@ -10,14 +10,14 @@ import (
 	"github.com/loganstone/auth/models"
 )
 
-// Sync ...
+// Sync .
 func Sync() {
 	db := Connection()
 	db.AutoMigrate(&models.User{})
 	defer db.Close()
 }
 
-// Connection ..
+// Connection .
 func Connection() *gorm.DB {
 	conf := configs.DB()
 	db, err := gorm.Open("mysql", conf.ConnectionString())
@@ -28,10 +28,10 @@ func Connection() *gorm.DB {
 	return db
 }
 
-// InTransaction ...
+// InTransaction .
 type InTransaction func(tx *gorm.DB) error
 
-// DoInTransaction ...
+// DoInTransaction .
 func DoInTransaction(db *gorm.DB, fn InTransaction) error {
 	tx := db.Begin()
 	defer func() {

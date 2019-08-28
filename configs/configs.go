@@ -12,7 +12,7 @@ import (
 
 const (
 	// TimeoutToGracefulShutdown .
-	TimeoutToGracefulShutdown = 10
+	TimeoutToGracefulShutdown = 5
 
 	connOpt     = "charset=utf8mb4&parseTime=True&loc=Local"
 	defaultPort = 9900
