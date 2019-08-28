@@ -5,15 +5,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-
-	"github.com/gin-contrib/pprof"
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
@@ -26,9 +23,6 @@ func main() {
 	db.Sync()
 
 	router := router.New()
-
-	// Debug uri - /debug/pprof/
-	pprof.Register(router)
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", options.PortToListen),
@@ -55,9 +49,11 @@ func main() {
 		context.Background(),
 		configs.TimeoutToGracefulShutdown*time.Second)
 	defer cancel()
+
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}
+
 	// catching ctx.Done(). timeout of 5 seconds.
 	select {
 	case <-ctx.Done():
