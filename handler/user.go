@@ -8,7 +8,7 @@ import (
 
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/models"
-	"github.com/loganstone/auth/response"
+	"github.com/loganstone/auth/payload"
 )
 
 // Users .
@@ -32,7 +32,8 @@ func User(c *gin.Context) {
 	user := models.User{Email: email}
 
 	if con.Where(&user).First(&user).RecordNotFound() {
-		c.JSON(http.StatusNotFound, response.NotFoundUser())
+		c.AbortWithStatusJSON(
+			http.StatusNotFound, payload.NotFoundUser())
 		return
 	}
 
@@ -47,26 +48,31 @@ func CreateUser(c *gin.Context) {
 	var user models.User
 
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, response.BindJSONError(err.Error()))
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			payload.ErrorBindJSON(err.Error()))
 		return
 	}
 
 	if !con.Where(&user).First(&user).RecordNotFound() {
-		c.JSON(http.StatusBadRequest, response.UserAlreadyExists())
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest, payload.UserAlreadyExists())
 		return
 	}
 
 	if err := user.SetPassword(); err != nil {
-		c.JSON(http.StatusInternalServerError,
-			response.SetPasswordError(err.Error()))
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			payload.ErrorSetPassword(err.Error()))
 		return
 	}
 
 	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
 		return tx.Create(&user).Error
 	}); err != nil {
-		c.JSON(http.StatusInternalServerError,
-			response.DBTransactionError(err.Error()))
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			payload.ErrorDBTransaction(err.Error()))
 		return
 	}
 
@@ -89,8 +95,9 @@ func DeleteUser(c *gin.Context) {
 	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
 		return tx.Delete(&user).Error
 	}); err != nil {
-		c.JSON(http.StatusInternalServerError,
-			response.DBTransactionError(err.Error()))
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			payload.ErrorDBTransaction(err.Error()))
 		return
 	}
 
