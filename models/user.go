@@ -15,8 +15,7 @@ type User struct {
 	DateTimeFields
 }
 
-// JSONUser .
-type JSONUser struct {
+type jsonUser struct {
 	Email     string `json:"email"`
 	CreatedAt int64  `json:"created_at"`
 	UpdatedAt int64  `json:"updated_at"`
@@ -24,9 +23,8 @@ type JSONUser struct {
 
 // SetPassword .
 func (u *User) SetPassword() error {
-	passwordBytes := []byte(u.Password)
 	hashedBytes, err := bcrypt.GenerateFromPassword(
-		passwordBytes, bcrypt.DefaultCost)
+		[]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
@@ -44,7 +42,7 @@ func (u *User) VerifyPassword() bool {
 
 // MarshalJSON .
 func (u User) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&JSONUser{
+	return json.Marshal(&jsonUser{
 		Email:     u.Email,
 		CreatedAt: u.CreatedAt.Unix(),
 		UpdatedAt: u.UpdatedAt.Unix(),
