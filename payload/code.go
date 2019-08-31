@@ -1,6 +1,6 @@
 package payload
 
-// ErroCodes .
+// Internal server error codes.
 const (
 	ErrorCodeUnknown = 1000 + iota
 	ErrorCodeDBTransaction
@@ -8,13 +8,13 @@ const (
 	ErrorCodeSendEmail
 )
 
-// ErroCodes .
+// Bind erro codes.
 const (
 	ErrorCodeBindURI = 2000 + iota
 	ErrorCodeBindJSON
 )
 
-// ErroCodes .
+// User error codes.
 const (
 	ErrorCodeNotFoundUser = 3000 + iota
 	ErrorCodeUserAlreadyExists
