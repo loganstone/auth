@@ -14,7 +14,7 @@ var signer jose.Signer
 func init() {
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		log.Panicln(err)
+		log.Fatal(err)
 	}
 	privateKey = *key
 
@@ -24,7 +24,7 @@ func init() {
 			Key:       key,
 		}, nil)
 	if err != nil {
-		log.Panicln(err)
+		log.Fatal(err)
 	}
 	signer = object
 }
