@@ -54,25 +54,13 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	if !con.Where(&user).First(&user).RecordNotFound() {
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest, payload.UserAlreadyExists())
-		return
-	}
-
-	if err := user.SetPassword(); err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorSetPassword(err.Error()))
-		return
-	}
-
-	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Create(&user).Error
-	}); err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorDBTransaction(err.Error()))
+	errPayload := createNewUser(&user)
+	if errPayload != nil {
+		httpStatusCode := http.StatusInternalServerError
+		if errPayload["error_code"] == payload.ErrorCodeUserAlreadyExists {
+			httpStatusCode = http.StatusBadRequest
+		}
+		c.AbortWithStatusJSON(httpStatusCode, errPayload)
 		return
 	}
 
