@@ -27,6 +27,16 @@ func ErrorBindJSON(message string) gin.H {
 	return ErrorWithCode(ErrorCodeBindJSON, message)
 }
 
+// ErrorBadPage .
+func ErrorBadPage(message string) gin.H {
+	return ErrorWithCode(ErrorCodeBadPage, message)
+}
+
+// ErrorBadPageSize .
+func ErrorBadPageSize(message string) gin.H {
+	return ErrorWithCode(ErrorCodeBadPageSize, message)
+}
+
 // NotFoundUser .
 func NotFoundUser() gin.H {
 	return ErrorWithCode(ErrorCodeNotFoundUser, "not such user")

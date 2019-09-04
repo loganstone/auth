@@ -10,6 +10,10 @@ import (
 	"github.com/loganstone/auth/payload"
 )
 
+const (
+	defaultPageSize = "20"
+)
+
 func createNewUser(user *models.User) (errPayload gin.H) {
 	con := db.Connection()
 	defer con.Close()

@@ -8,10 +8,12 @@ const (
 	ErrorCodeSendEmail
 )
 
-// Bind erro codes.
+// Parameter error codes.
 const (
 	ErrorCodeBindURI = 2000 + iota
 	ErrorCodeBindJSON
+	ErrorCodeBadPage
+	ErrorCodeBadPageSize
 )
 
 // User error codes.

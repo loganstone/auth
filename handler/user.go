@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -16,9 +17,36 @@ func Users(c *gin.Context) {
 	con := db.Connection()
 	defer con.Close()
 
+	page, err := strconv.Atoi(c.DefaultQuery("page", "0"))
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusNotFound,
+			payload.ErrorBadPage("'page' must be integer"))
+		return
+	}
+	if page < 0 {
+		c.AbortWithStatusJSON(
+			http.StatusNotFound,
+			payload.ErrorBadPage("'page' must be greater than or equal to 0"))
+		return
+	}
+	pageSize, err := strconv.Atoi(c.DefaultQuery("page_size", defaultPageSize))
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusNotFound,
+			payload.ErrorBadPageSize("'page_size' must be integer"))
+		return
+	}
+	if pageSize < 1 {
+		c.AbortWithStatusJSON(
+			http.StatusNotFound,
+			payload.ErrorBadPageSize("'page_size' must be greater than 0"))
+		return
+	}
+
 	var users []models.User
 
-	con.Find(&users)
+	con.Limit(pageSize).Offset(page * pageSize).Find(&users)
 
 	c.JSON(http.StatusOK, users)
 }
