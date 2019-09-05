@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"errors"
+	"strconv"
+
 	"github.com/jinzhu/gorm"
 
 	"github.com/gin-gonic/gin"
@@ -35,4 +38,39 @@ func createNewUser(user *models.User) (errPayload gin.H) {
 		return
 	}
 	return
+}
+
+var (
+	errPageType      = errors.New("'page' must be integer")
+	errPageValue     = errors.New("'page' must not be less than zero")
+	errPageSizeType  = errors.New("'page_size' must be integer")
+	errPageSizeValue = errors.New("'page_size' must not be less than one")
+)
+
+// Page .
+func Page(c *gin.Context) (int, error) {
+	page, err := strconv.Atoi(c.DefaultQuery("page", "0"))
+	if err != nil {
+		return 0, errPageType
+	}
+
+	if page < 0 {
+		return 0, errPageValue
+	}
+
+	return page, nil
+}
+
+// PageSize .
+func PageSize(c *gin.Context) (int, error) {
+	pageSize, err := strconv.Atoi(c.DefaultQuery("page_size", defaultPageSize))
+	if err != nil {
+		return 0, errPageSizeType
+	}
+
+	if pageSize < 1 {
+		return 0, errPageSizeValue
+	}
+
+	return pageSize, nil
 }
