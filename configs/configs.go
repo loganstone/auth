@@ -14,7 +14,7 @@ const (
 	// TimeoutToGracefulShutdown .
 	TimeoutToGracefulShutdown = 5
 
-	connOpt     = "charset=utf8mb4&parseTime=True&loc=Local"
+	dbConOpt    = "charset=utf8mb4&parseTime=True&loc=Local"
 	defaultPort = 9900
 	envErrFmt   = "'%s' environment variable is required\n"
 )
@@ -36,8 +36,8 @@ type DatabaseConfigs struct {
 
 // ConnectionString .
 func (c *DatabaseConfigs) ConnectionString() string {
-	confSlice := append([]interface{}{c.id, c.pw, c.name}, connOpt)
-	return fmt.Sprintf("%s:%s@/%s?%s", confSlice...)
+	conf := append([]interface{}{c.id, c.pw, c.name}, dbConOpt)
+	return fmt.Sprintf("%s:%s@/%s?%s", conf...)
 }
 
 // DB ...
