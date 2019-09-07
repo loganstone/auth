@@ -14,9 +14,9 @@ const (
 	// TimeoutToGracefulShutdown .
 	TimeoutToGracefulShutdown = 5
 
-	dbConOpt    = "charset=utf8mb4&parseTime=True&loc=Local"
-	defaultPort = 9900
-	envErrFmt   = "'%s' environment variable is required\n"
+	dbConOpt       = "charset=utf8mb4&parseTime=True&loc=Local"
+	defaultPort    = 9900
+	failedToLookup = "need to set '%s' environment variable\n"
 )
 
 // Options .
@@ -44,17 +44,17 @@ func (c *DatabaseConfigs) ConnectionString() string {
 func DB() *DatabaseConfigs {
 	id, ok := os.LookupEnv("AUTH_DB_ID")
 	if !ok {
-		log.Fatalf(envErrFmt, "AUTH_DB_ID")
+		log.Fatalf(failedToLookup, "AUTH_DB_ID")
 	}
 
 	pw, ok := os.LookupEnv("AUTH_DB_PW")
 	if !ok {
-		log.Fatalf(envErrFmt, "AUTH_DB_PW")
+		log.Fatalf(failedToLookup, "AUTH_DB_PW")
 	}
 
 	name, ok := os.LookupEnv("AUTH_DB_NAME")
 	if !ok {
-		log.Fatalf(envErrFmt, "AUTH_DB_NAME")
+		log.Fatalf(failedToLookup, "AUTH_DB_NAME")
 	}
 
 	echo := os.Getenv("AUTH_DB_ECHO")
