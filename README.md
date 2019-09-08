@@ -9,8 +9,8 @@
 * OTP 생성
 * OTP 인증
 * OTP 초기화
-* 이메일로 verification code 발송
-* 이메일로 발송된 verification code 확인
+* 이메일로 인증 코드 발송
+* 이메일로 발송된 인증 코드 확인
 
 # Frameworks(plan)
 * http - gin
