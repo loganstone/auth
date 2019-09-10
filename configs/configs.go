@@ -14,17 +14,17 @@ const (
 	// TimeoutToGracefulShutdown .
 	TimeoutToGracefulShutdown = 5
 
-	dbConOpt       = "charset=utf8mb4&parseTime=True&loc=Local"
-	defaultPort    = 9900
-	failedToLookup = "need to set '%s' environment variable\n"
+	dbConOpt            = "charset=utf8mb4&parseTime=True&loc=Local"
+	defaultPortToListen = 9900
+	failedToLookup      = "need to set '%s' environment variable\n"
 )
 
-// Options .
-type Options struct {
+// AppConfigs .
+type AppConfigs struct {
 	PortToListen int
 }
 
-var options Options
+var appConfigs AppConfigs
 
 // DatabaseConfigs ...
 type DatabaseConfigs struct {
@@ -38,6 +38,13 @@ type DatabaseConfigs struct {
 func (c *DatabaseConfigs) ConnectionString() string {
 	conf := append([]interface{}{c.id, c.pw, c.name}, dbConOpt)
 	return fmt.Sprintf("%s:%s@/%s?%s", conf...)
+}
+
+func init() {
+	flag.IntVar(
+		&appConfigs.PortToListen, "p",
+		defaultPortToListen, "port to listen on")
+	flag.Parse()
 }
 
 // DB ...
@@ -63,12 +70,7 @@ func DB() *DatabaseConfigs {
 	}
 }
 
-func init() {
-	flag.IntVar(&options.PortToListen, "p", defaultPort, "port to listen on")
-	flag.Parse()
-}
-
-// Opts .
-func Opts() Options {
-	return options
+// App .
+func App() AppConfigs {
+	return appConfigs
 }

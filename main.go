@@ -18,14 +18,14 @@ import (
 )
 
 func main() {
-	options := configs.Opts()
+	conf := configs.App()
 
 	db.Sync()
 
 	router := router.New()
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", options.PortToListen),
+		Addr:    fmt.Sprintf(":%d", conf.PortToListen),
 		Handler: router,
 	}
 
