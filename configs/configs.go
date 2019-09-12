@@ -44,7 +44,6 @@ func init() {
 	flag.IntVar(
 		&appConfigs.PortToListen, "p",
 		defaultPortToListen, "port to listen on")
-	flag.Parse()
 }
 
 // DB ...

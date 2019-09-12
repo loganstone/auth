@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,6 +17,10 @@ import (
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/router"
 )
+
+func init() {
+	flag.Parse()
+}
 
 func main() {
 	conf := configs.App()
