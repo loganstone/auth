@@ -94,3 +94,15 @@ func PageSize(c *gin.Context) (int, error) {
 
 	return pageSize, nil
 }
+
+// Bind .
+func Bind(r *gin.Engine) {
+	users := r.Group("/users")
+	{
+		users.GET("", Users)
+		users.GET("/:email", User)
+		users.POST("", CreateUser)
+		users.DELETE("/:email", DeleteUser)
+	}
+	r.POST("signin", Signin)
+}

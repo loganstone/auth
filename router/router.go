@@ -11,15 +11,7 @@ import (
 func New() *gin.Engine {
 	router := gin.Default()
 
-	users := router.Group("/users")
-	{
-		users.GET("", handler.Users)
-		users.GET("/:email", handler.User)
-		users.POST("", handler.CreateUser)
-		users.DELETE("/:email", handler.DeleteUser)
-	}
-
-	router.POST("signin", handler.Signin)
+	handler.Bind(router)
 
 	if gin.Mode() == gin.DebugMode {
 		// Debug uri - /debug/pprof/
