@@ -15,7 +15,7 @@ import (
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/router"
+	"github.com/loganstone/auth/handler"
 )
 
 func init() {
@@ -27,11 +27,9 @@ func main() {
 
 	db.Sync()
 
-	router := router.New()
-
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", conf.PortToListen),
-		Handler: router,
+		Handler: handler.New(),
 	}
 
 	go func() {

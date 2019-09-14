@@ -6,6 +6,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 
 	"github.com/loganstone/auth/db"
@@ -15,6 +16,15 @@ import (
 
 const (
 	defaultPageSize = "20"
+)
+
+var (
+	errPageType      = errors.New("'page' must be integer")
+	errPageRange     = errors.New("'page' out of integer range")
+	errPageValue     = errors.New("'page' must not be less than zero")
+	errPageSizeType  = errors.New("'page_size' must be integer")
+	errPageSizeRange = errors.New("'page_size' out of integer range")
+	errPageSizeValue = errors.New("'page_size' must not be less than one")
 )
 
 func createNewUser(user *models.User) (errPayload gin.H) {
@@ -40,14 +50,30 @@ func createNewUser(user *models.User) (errPayload gin.H) {
 	return
 }
 
-var (
-	errPageType      = errors.New("'page' must be integer")
-	errPageRange     = errors.New("'page' out of integer range")
-	errPageValue     = errors.New("'page' must not be less than zero")
-	errPageSizeType  = errors.New("'page_size' must be integer")
-	errPageSizeRange = errors.New("'page_size' out of integer range")
-	errPageSizeValue = errors.New("'page_size' must not be less than one")
-)
+func bind(r *gin.Engine) {
+	users := r.Group("/users")
+	{
+		users.GET("", Users)
+		users.GET("/:email", User)
+		users.POST("", CreateUser)
+		users.DELETE("/:email", DeleteUser)
+	}
+	r.POST("signin", Signin)
+}
+
+// New .
+func New() *gin.Engine {
+	router := gin.Default()
+
+	bind(router)
+
+	if gin.Mode() == gin.DebugMode {
+		// Debug uri - /debug/pprof/
+		pprof.Register(router)
+	}
+
+	return router
+}
 
 // Page .
 func Page(c *gin.Context) (int, error) {
@@ -93,16 +119,4 @@ func PageSize(c *gin.Context) (int, error) {
 	}
 
 	return pageSize, nil
-}
-
-// Bind .
-func Bind(r *gin.Engine) {
-	users := r.Group("/users")
-	{
-		users.GET("", Users)
-		users.GET("/:email", User)
-		users.POST("", CreateUser)
-		users.DELETE("/:email", DeleteUser)
-	}
-	r.POST("signin", Signin)
 }
