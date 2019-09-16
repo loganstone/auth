@@ -27,4 +27,9 @@ func TestCreateUser(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
+
+	var payload map[string]string
+	json.NewDecoder(w.Body).Decode(&payload)
+
+	assert.Equal(t, user["email"], payload["email"])
 }
