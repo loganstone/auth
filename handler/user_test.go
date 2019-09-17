@@ -13,23 +13,27 @@ import (
 )
 
 func TestCreateUser(t *testing.T) {
-	user := map[string]string{
+	reqBody := map[string]string{
 		"email":    fmt.Sprintf("test-%s@email.com", uuid.New().String()),
 		"password": "ok1234",
 	}
-	reqBody, err := json.Marshal(user)
+	body, err := json.Marshal(reqBody)
 
 	assert.Equal(t, err, nil)
 
 	router := New()
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/users", bytes.NewReader(reqBody))
+	req, err := http.NewRequest("POST", "/users", bytes.NewReader(body))
+	defer req.Body.Close()
+
+	assert.Equal(t, err, nil)
+
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 
-	var payload map[string]string
-	json.NewDecoder(w.Body).Decode(&payload)
+	var resBody map[string]string
+	json.NewDecoder(w.Body).Decode(&resBody)
 
-	assert.Equal(t, user["email"], payload["email"])
+	assert.Equal(t, reqBody["email"], resBody["email"])
 }
