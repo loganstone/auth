@@ -45,7 +45,8 @@ func TestUser(t *testing.T) {
 		Email:    email,
 		Password: "ok1234",
 	}
-	_ = createNewUser(&user)
+	errPayload := createNewUser(&user)
+	assert.Equal(t, errPayload == nil, true)
 
 	router := New()
 	w := httptest.NewRecorder()
