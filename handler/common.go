@@ -61,8 +61,7 @@ func bind(r *gin.Engine) {
 	r.POST("signin", Signin)
 }
 
-// New .
-func New() *gin.Engine {
+func newRouter() *gin.Engine {
 	router := gin.Default()
 
 	bind(router)
@@ -73,6 +72,17 @@ func New() *gin.Engine {
 	}
 
 	return router
+}
+
+// New .
+func New() *gin.Engine {
+	return newRouter()
+}
+
+// NewTest .
+func NewTest() *gin.Engine {
+	gin.SetMode(gin.TestMode)
+	return newRouter()
 }
 
 // Page .

@@ -22,7 +22,7 @@ func TestCreateUser(t *testing.T) {
 
 	assert.Equal(t, err, nil)
 
-	router := New()
+	router := NewTest()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/users", bytes.NewReader(body))
 	defer req.Body.Close()
@@ -48,7 +48,7 @@ func TestUser(t *testing.T) {
 	errPayload := createNewUser(&user)
 	assert.Equal(t, errPayload == nil, true)
 
-	router := New()
+	router := NewTest()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s", email)
 	req, err := http.NewRequest("GET", uri, nil)
