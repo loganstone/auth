@@ -13,10 +13,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	testEmailFmt = "test-%s@email.com"
+	testPassword = "ok1234"
+)
+
+func getTestEmail() string {
+	return fmt.Sprintf(testEmailFmt, uuid.New().String())
+}
+
 func TestCreateUser(t *testing.T) {
 	reqBody := map[string]string{
-		"email":    fmt.Sprintf("test-%s@email.com", uuid.New().String()),
-		"password": "ok1234",
+		"email":    getTestEmail(),
+		"password": testPassword,
 	}
 	body, err := json.Marshal(reqBody)
 
@@ -40,10 +49,10 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestUser(t *testing.T) {
-	email := fmt.Sprintf("test-%s@email.com", uuid.New().String())
+	email := getTestEmail()
 	user := models.User{
 		Email:    email,
-		Password: "ok1234",
+		Password: testPassword,
 	}
 	errPayload := createNewUser(&user)
 	assert.Equal(t, errPayload == nil, true)
