@@ -73,3 +73,18 @@ func TestUser(t *testing.T) {
 
 	assert.Equal(t, email, resBody["email"])
 }
+
+func TestUserWithNonexistentEmail(t *testing.T) {
+	nonexistentEmail := getTestEmail()
+
+	router := NewTest()
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/users/%s", nonexistentEmail)
+	req, err := http.NewRequest("GET", uri, nil)
+
+	assert.Equal(t, err, nil)
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusNotFound, w.Code)
+}
