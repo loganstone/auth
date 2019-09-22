@@ -48,6 +48,18 @@ func TestCreateUser(t *testing.T) {
 	assert.Equal(t, reqBody["email"], resBody["email"])
 }
 
+func TestCreateUserWithoutParam(t *testing.T) {
+	router := NewTest()
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", "/users", nil)
+
+	assert.Equal(t, err, nil)
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
 func TestUser(t *testing.T) {
 	email := getTestEmail()
 	user := models.User{
