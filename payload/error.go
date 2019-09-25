@@ -27,6 +27,36 @@ func ErrorBindJSON(message string) gin.H {
 	return ErrorWithCode(ErrorCodeBindJSON, message)
 }
 
+// ErrorMarshalJSON .
+func ErrorMarshalJSON(message string) gin.H {
+	return ErrorWithCode(ErrorCodeMarshalJSON, message)
+}
+
+// ErrorUnMarshalJSON .
+func ErrorUnMarshalJSON(message string) gin.H {
+	return ErrorWithCode(ErrorCodeUnMarshalJSON, message)
+}
+
+// ErrorSignToken .
+func ErrorSignToken(message string) gin.H {
+	return ErrorWithCode(ErrorCodeSignToken, message)
+}
+
+// ErrorLoadToken .
+func ErrorLoadToken(message string) gin.H {
+	return ErrorWithCode(ErrorCodeLoadToken, message)
+}
+
+// ErrorSendEmail .
+func ErrorSendEmail(message string) gin.H {
+	return ErrorWithCode(ErrorCodeSendEmail, message)
+}
+
+// ErrorTmplExecute .
+func ErrorTmplExecute(message string) gin.H {
+	return ErrorWithCode(ErrorCodeTmplExecute, message)
+}
+
 // ErrorBadPage .
 func ErrorBadPage(message string) gin.H {
 	return ErrorWithCode(ErrorCodeBadPage, message)
@@ -51,4 +81,9 @@ func UserAlreadyExists() gin.H {
 // ErrorSetPassword .
 func ErrorSetPassword(message string) gin.H {
 	return ErrorWithCode(ErrorCodeSetPassword, message)
+}
+
+// ErrorExpiredToken .
+func ErrorExpiredToken() gin.H {
+	return ErrorWithCode(ErrorCodeExpiredToken, "expired token")
 }

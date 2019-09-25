@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql" //
@@ -14,14 +15,16 @@ const (
 	// TimeoutToGracefulShutdown .
 	TimeoutToGracefulShutdown = 5
 
-	dbConOpt            = "charset=utf8mb4&parseTime=True&loc=Local"
-	defaultPortToListen = 9900
-	failedToLookup      = "need to set '%s' environment variable\n"
+	dbConOpt                       = "charset=utf8mb4&parseTime=True&loc=Local"
+	defaultPortToListen            = 9900
+	failedToLookup                 = "need to set '%s' environment variable\n"
+	defaultSignupTokenExpire int64 = 1800 // 30 minutes
 )
 
 // AppConfigs .
 type AppConfigs struct {
-	PortToListen int
+	PortToListen      int
+	SignupTokenExpire int64
 }
 
 var appConfigs AppConfigs
@@ -71,5 +74,13 @@ func DB() *DatabaseConfigs {
 
 // App .
 func App() AppConfigs {
+	appConfigs.SignupTokenExpire = defaultSignupTokenExpire
+	expire, ok := os.LookupEnv("AUTH_SIGNUP_TOKEN_EXPIRE")
+	if ok {
+		v, err := strconv.ParseInt(expire, 10, 64)
+		if err == nil {
+			appConfigs.SignupTokenExpire = v
+		}
+	}
 	return appConfigs
 }

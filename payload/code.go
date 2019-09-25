@@ -5,7 +5,11 @@ const (
 	ErrorCodeUnknown = 1000 + iota
 	ErrorCodeDBTransaction
 	ErrorCodeMarshalJSON
+	ErrorCodeUnMarshalJSON
+	ErrorCodeSignToken
+	ErrorCodeLoadToken
 	ErrorCodeSendEmail
+	ErrorCodeTmplExecute
 )
 
 // Parameter error codes.
@@ -14,6 +18,7 @@ const (
 	ErrorCodeBindJSON
 	ErrorCodeBadPage
 	ErrorCodeBadPageSize
+	ErrorCodeExpiredToken
 )
 
 // User error codes.
