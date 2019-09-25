@@ -95,6 +95,12 @@ func TestSendToLocalPostfix(t *testing.T) {
 	<-serverDone
 }
 
+func TestNameFromEmail(t *testing.T) {
+	expected := "johndoe"
+	name := NameFromEmail(from)
+	assert.Equal(t, expected, name)
+}
+
 // reference - https://golang.org/src/net/smtp/smtp_test.go
 func newLocalListener(t *testing.T) net.Listener {
 	ln, err := net.Listen("tcp", net.JoinHostPort(localHost, testSMTPPort))

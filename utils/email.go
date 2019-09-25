@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/mail"
 	"net/smtp"
+	"strings"
 )
 
 const (
@@ -93,4 +94,9 @@ func (m *Email) sendToLocalPostfix(address string) error {
 	}
 
 	return nil
+}
+
+// NameFromEmail
+func NameFromEmail(email string) string {
+	return strings.Split(email, "@")[0]
 }

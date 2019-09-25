@@ -115,7 +115,7 @@ func SendVerificationEmail(c *gin.Context) {
 	}
 
 	if err = utils.NewEmail(
-		param.Email, // TODO(hs.lee): 이메일에서 이름을 분리하도록 수정
+		utils.NameFromEmail(param.Email),
 		"auth@email.com",
 		param.Email,
 		"[auth] Sign up for email address.", // TODO(hs.lee): 설정 하도록 수정
