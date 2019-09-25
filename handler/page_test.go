@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	pageTestUri     = "/test/page"
+	pageTestURI     = "/test/page"
 	pageQueryFmt    = "?page=%d&page_size=%d"
-	pageTestFullUrl = pageTestUri + pageQueryFmt
+	pageTestFullURL = pageTestURI + pageQueryFmt
 )
 
 func pageTestHandler(c *gin.Context) {
@@ -45,11 +45,11 @@ func pageTestHandler(c *gin.Context) {
 
 func TestPage(t *testing.T) {
 	page := 1
-	page_size := 10
+	pageSize := 10
 	router := NewTest()
-	router.GET(pageTestUri, pageTestHandler)
+	router.GET(pageTestURI, pageTestHandler)
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf(pageTestFullUrl, page, page_size)
+	uri := fmt.Sprintf(pageTestFullURL, page, pageSize)
 	req, err := http.NewRequest("GET", uri, nil)
 
 	assert.Equal(t, err, nil)
@@ -62,7 +62,7 @@ func TestPage(t *testing.T) {
 	json.NewDecoder(w.Body).Decode(&resBody)
 
 	assert.Equal(t, page, resBody["page"])
-	assert.Equal(t, page_size, resBody["page_size"])
+	assert.Equal(t, pageSize, resBody["page_size"])
 }
 
 func TestPageWithBadQueryParam(t *testing.T) {
@@ -73,11 +73,11 @@ func TestPageWithBadQueryParam(t *testing.T) {
 		"page=0&page_size=0",
 	}
 	router := NewTest()
-	router.GET(pageTestUri, pageTestHandler)
+	router.GET(pageTestURI, pageTestHandler)
 
 	for _, v := range badPages {
 		w := httptest.NewRecorder()
-		uri := fmt.Sprintf(pageTestUri+"?%s", v)
+		uri := fmt.Sprintf(pageTestURI+"?%s", v)
 		req, err := http.NewRequest("GET", uri, nil)
 
 		assert.Equal(t, err, nil)

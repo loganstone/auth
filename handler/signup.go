@@ -78,10 +78,9 @@ func SendVerificationEmail(c *gin.Context) {
 		return
 	}
 
-	expire_ts := time.Now().Unix() + configs.App().SignupTokenExpire
 	v, err := json.Marshal(TokenData{
 		Email:     param.Email,
-		ExpiredAt: expire_ts,
+		ExpiredAt: time.Now().Unix() + configs.App().SignupTokenExpire,
 	})
 	if err != nil {
 		c.AbortWithStatusJSON(
