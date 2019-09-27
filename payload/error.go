@@ -17,16 +17,6 @@ func ErrorDBTransaction(message string) gin.H {
 	return ErrorWithCode(ErrorCodeDBTransaction, message)
 }
 
-// ErrorBindURI .
-func ErrorBindURI(message string) gin.H {
-	return ErrorWithCode(ErrorCodeBindURI, message)
-}
-
-// ErrorBindJSON .
-func ErrorBindJSON(message string) gin.H {
-	return ErrorWithCode(ErrorCodeBindJSON, message)
-}
-
 // ErrorMarshalJSON .
 func ErrorMarshalJSON(message string) gin.H {
 	return ErrorWithCode(ErrorCodeMarshalJSON, message)
@@ -57,6 +47,16 @@ func ErrorTmplExecute(message string) gin.H {
 	return ErrorWithCode(ErrorCodeTmplExecute, message)
 }
 
+// ErrorBindURI .
+func ErrorBindURI(message string) gin.H {
+	return ErrorWithCode(ErrorCodeBindURI, message)
+}
+
+// ErrorBindJSON .
+func ErrorBindJSON(message string) gin.H {
+	return ErrorWithCode(ErrorCodeBindJSON, message)
+}
+
 // ErrorBadPage .
 func ErrorBadPage(message string) gin.H {
 	return ErrorWithCode(ErrorCodeBadPage, message)
@@ -65,6 +65,11 @@ func ErrorBadPage(message string) gin.H {
 // ErrorBadPageSize .
 func ErrorBadPageSize(message string) gin.H {
 	return ErrorWithCode(ErrorCodeBadPageSize, message)
+}
+
+// ErrorExpiredToken .
+func ErrorExpiredToken() gin.H {
+	return ErrorWithCode(ErrorCodeExpiredToken, "expired token")
 }
 
 // NotFoundUser .
@@ -81,9 +86,4 @@ func UserAlreadyExists() gin.H {
 // ErrorSetPassword .
 func ErrorSetPassword(message string) gin.H {
 	return ErrorWithCode(ErrorCodeSetPassword, message)
-}
-
-// ErrorExpiredToken .
-func ErrorExpiredToken() gin.H {
-	return ErrorWithCode(ErrorCodeExpiredToken, "expired token")
 }
