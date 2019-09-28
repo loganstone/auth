@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"text/template"
 	"time"
@@ -50,6 +51,12 @@ type VerificationEmailParam struct {
 	Email string `json:"email" binding:"required,email"`
 }
 
+// SignUpParam .
+type SignUpParam struct {
+	Token    string `json:"token" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 // TokenData .
 type TokenData struct {
 	Email     string `json:"email"`
@@ -95,6 +102,10 @@ func SendVerificationEmail(c *gin.Context) {
 			http.StatusInternalServerError,
 			payload.ErrorSignToken(err.Error()))
 		return
+	}
+
+	if gin.Mode() == gin.DebugMode {
+		log.Println("signup token:", token)
 	}
 
 	// TODO(hs.lee):
@@ -149,6 +160,16 @@ func VerifySignupToken(c *gin.Context) {
 		return
 	}
 
+	var user models.User
+	con := db.Connection()
+	defer con.Close()
+	if !con.Where("email = ?", tokenData.Email).First(&user).RecordNotFound() {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			payload.UserAlreadyExists())
+		return
+	}
+
 	if tokenData.ExpiredAt < time.Now().Unix() {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
@@ -156,4 +177,63 @@ func VerifySignupToken(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"email": tokenData.Email})
+}
+
+// SignUp .
+func SignUp(c *gin.Context) {
+	var param SignUpParam
+	if err := c.ShouldBindJSON(&param); err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			payload.ErrorBindJSON(err.Error()))
+		return
+	}
+
+	var tokenData TokenData
+	decodedToken, err := utils.Load(param.Token)
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			payload.ErrorLoadToken(err.Error()))
+		return
+	}
+
+	if err := json.Unmarshal(decodedToken, &tokenData); err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			payload.ErrorUnMarshalJSON(err.Error()))
+		return
+	}
+
+	if tokenData.ExpiredAt < time.Now().Unix() {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			payload.ErrorExpiredToken())
+		return
+	}
+
+	var user models.User
+	con := db.Connection()
+	defer con.Close()
+	if !con.Where("email = ?", tokenData.Email).First(&user).RecordNotFound() {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			payload.UserAlreadyExists())
+		return
+	}
+
+	user.Email = tokenData.Email
+	user.Password = param.Password
+
+	errPayload := createNewUser(&user)
+	if errPayload != nil {
+		httpStatusCode := http.StatusInternalServerError
+		if errPayload["error_code"] == payload.ErrorCodeUserAlreadyExists {
+			httpStatusCode = http.StatusBadRequest
+		}
+		c.AbortWithStatusJSON(httpStatusCode, errPayload)
+		return
+	}
+
+	c.JSON(http.StatusCreated, user)
 }
