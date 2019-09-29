@@ -51,8 +51,8 @@ type VerificationEmailParam struct {
 	Email string `json:"email" binding:"required,email"`
 }
 
-// SignUpParam .
-type SignUpParam struct {
+// SignupParam .
+type SignupParam struct {
 	Token    string `json:"token" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
@@ -179,9 +179,9 @@ func VerifySignupToken(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"email": tokenData.Email})
 }
 
-// SignUp .
-func SignUp(c *gin.Context) {
-	var param SignUpParam
+// Signup .
+func Signup(c *gin.Context) {
+	var param SignupParam
 	if err := c.ShouldBindJSON(&param); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
