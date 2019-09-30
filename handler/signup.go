@@ -19,6 +19,8 @@ import (
 
 const (
 	// TODO(hs.lee): 파일로 읽도록 수정
+	verificationEmailTitle = "[auth] Sign up for email address."
+	// TODO(hs.lee): 파일로 읽도록 수정
 	verificationEmailTmplText = `<!DOCTYPE html>
 <html>
 <head>
@@ -129,7 +131,7 @@ func SendVerificationEmail(c *gin.Context) {
 		utils.NameFromEmail(param.Email),
 		"auth@email.com",
 		param.Email,
-		"[auth] Sign up for email address.", // TODO(hs.lee): 설정 하도록 수정
+		verificationEmailTitle,
 		body.String(),
 	).Send(); err != nil {
 		c.AbortWithStatusJSON(
