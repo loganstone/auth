@@ -9,9 +9,6 @@ func bind(r *gin.Engine) {
 	{
 		users.GET("", Users)
 		users.GET("/:email", User)
-		// TODO(hs.lee):
-		// Signup 테스트 코드가 작성되면 삭제 한다.
-		users.POST("", CreateUser)
 		users.DELETE("/:email", DeleteUser)
 	}
 

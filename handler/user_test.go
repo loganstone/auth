@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -20,44 +19,6 @@ const (
 
 func getTestEmail() string {
 	return fmt.Sprintf(testEmailFmt, uuid.New().String())
-}
-
-func TestCreateUser(t *testing.T) {
-	reqBody := map[string]string{
-		"email":    getTestEmail(),
-		"password": testPassword,
-	}
-	body, err := json.Marshal(reqBody)
-
-	assert.Equal(t, err, nil)
-
-	router := NewTest()
-	w := httptest.NewRecorder()
-	req, err := http.NewRequest("POST", "/users", bytes.NewReader(body))
-	defer req.Body.Close()
-
-	assert.Equal(t, err, nil)
-
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusCreated, w.Code)
-
-	var resBody map[string]string
-	json.NewDecoder(w.Body).Decode(&resBody)
-
-	assert.Equal(t, reqBody["email"], resBody["email"])
-}
-
-func TestCreateUserWithoutParam(t *testing.T) {
-	router := NewTest()
-	w := httptest.NewRecorder()
-	req, err := http.NewRequest("POST", "/users", nil)
-
-	assert.Equal(t, err, nil)
-
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestUser(t *testing.T) {

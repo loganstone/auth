@@ -76,3 +76,35 @@ func TestVerifySignupToken(t *testing.T) {
 
 	assert.Equal(t, email, resBody["email"])
 }
+
+func TestSignup(t *testing.T) {
+	email := getTestEmail()
+	v, err := json.Marshal(TokenData{
+		Email:     email,
+		ExpiredAt: time.Now().Unix() + configs.App().SignupTokenExpire,
+	})
+	assert.Equal(t, err, nil)
+
+	token, err := utils.Sign(v)
+	assert.Equal(t, err, nil)
+
+	reqBody := map[string]string{
+		"token":    token,
+		"password": testPassword,
+	}
+	body, err := json.Marshal(reqBody)
+	assert.Equal(t, err, nil)
+
+	router := NewTest()
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", "/signup", bytes.NewReader(body))
+	assert.Equal(t, err, nil)
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusCreated, w.Code)
+
+	var resBody map[string]string
+	json.NewDecoder(w.Body).Decode(&resBody)
+
+	assert.Equal(t, email, resBody["email"])
+}
