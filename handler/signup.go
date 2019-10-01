@@ -110,6 +110,11 @@ func SendVerificationEmail(c *gin.Context) {
 		log.Println("signup token:", token)
 	}
 
+	if gin.Mode() == gin.TestMode {
+		c.JSON(http.StatusOK, gin.H{"token": token})
+		return
+	}
+
 	// TODO(hs.lee):
 	// organization, from email, signup_url  은 환경 변수로 설정하도록 수정
 	var body bytes.Buffer
