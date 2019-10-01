@@ -96,7 +96,7 @@ func (m *Email) sendToLocalPostfix(address string) error {
 	return nil
 }
 
-// NameFromEmail
+// NameFromEmail .
 func NameFromEmail(email string) string {
 	return strings.Split(email, "@")[0]
 }
