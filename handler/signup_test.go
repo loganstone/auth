@@ -19,18 +19,15 @@ func TestSendVerificationEmail(t *testing.T) {
 		"email": getTestEmail(),
 	}
 	body, err := json.Marshal(reqBody)
-
 	assert.Equal(t, err, nil)
 
 	router := NewTest()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signup/email/verification", bytes.NewReader(body))
 	defer req.Body.Close()
-
 	assert.Equal(t, err, nil)
 
 	router.ServeHTTP(w, req)
-
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody map[string]string
@@ -64,11 +61,9 @@ func TestVerifySignupToken(t *testing.T) {
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/signup/email/verification/%s", token)
 	req, err := http.NewRequest("GET", uri, nil)
-
 	assert.Equal(t, err, nil)
 
 	router.ServeHTTP(w, req)
-
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody map[string]string
@@ -99,8 +94,8 @@ func TestSignup(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signup", bytes.NewReader(body))
 	assert.Equal(t, err, nil)
-	router.ServeHTTP(w, req)
 
+	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
 
 	var resBody map[string]string

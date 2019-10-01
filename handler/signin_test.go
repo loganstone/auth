@@ -25,18 +25,15 @@ func TestSignin(t *testing.T) {
 		"password": user.Password,
 	}
 	body, err := json.Marshal(reqBody)
-
 	assert.Equal(t, err, nil)
 
 	router := NewTest()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
-
 	assert.Equal(t, err, nil)
 
 	router.ServeHTTP(w, req)
-
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody map[string]string

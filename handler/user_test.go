@@ -34,11 +34,9 @@ func TestUser(t *testing.T) {
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s", email)
 	req, err := http.NewRequest("GET", uri, nil)
-
 	assert.Equal(t, err, nil)
 
 	router.ServeHTTP(w, req)
-
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody map[string]string
@@ -54,10 +52,8 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s", nonexistentEmail)
 	req, err := http.NewRequest("GET", uri, nil)
-
 	assert.Equal(t, err, nil)
 
 	router.ServeHTTP(w, req)
-
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
