@@ -19,12 +19,14 @@ const (
 	defaultPortToListen            = 9900
 	failedToLookup                 = "need to set '%s' environment variable\n"
 	defaultSignupTokenExpire int64 = 1800 // 30 minutes
+	defaultJWTSigninKey            = "plzsetyoursigninkey"
 )
 
 // AppConfigs .
 type AppConfigs struct {
 	PortToListen      int
 	SignupTokenExpire int64
+	JWTSigninKey      []byte
 }
 
 var appConfigs AppConfigs
@@ -80,6 +82,11 @@ func App() AppConfigs {
 		if err == nil {
 			appConfigs.SignupTokenExpire = v
 		}
+	}
+
+	appConfigs.JWTSigninKey = []byte(defaultJWTSigninKey)
+	if key, ok := os.LookupEnv("AUTH_JWT_KEY"); ok {
+		appConfigs.JWTSigninKey = []byte(key)
 	}
 	return appConfigs
 }
