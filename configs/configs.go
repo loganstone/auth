@@ -75,8 +75,7 @@ func DB() *DatabaseConfigs {
 // App .
 func App() AppConfigs {
 	appConfigs.SignupTokenExpire = defaultSignupTokenExpire
-	expire, ok := os.LookupEnv("AUTH_SIGNUP_TOKEN_EXPIRE")
-	if ok {
+	if expire, ok := os.LookupEnv("AUTH_SIGNUP_TOKEN_EXPIRE"); ok {
 		v, err := strconv.ParseInt(expire, 10, 64)
 		if err == nil {
 			appConfigs.SignupTokenExpire = v
