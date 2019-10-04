@@ -134,7 +134,7 @@ func SendVerificationEmail(c *gin.Context) {
 // VerifySignupToken .
 func VerifySignupToken(c *gin.Context) {
 	token := c.Param("token")
-	decodedToken, err := utils.ParseJWTToken(token)
+	claims, err := utils.ParseJWTSignupToken(token)
 	if err != nil {
 		ve, ok := err.(*jwt.ValidationError)
 		if !ok || ve.Errors != jwt.ValidationErrorExpired {
@@ -152,14 +152,14 @@ func VerifySignupToken(c *gin.Context) {
 	var user models.User
 	con := db.Connection()
 	defer con.Close()
-	if !con.Where("email = ?", decodedToken["email"]).First(&user).RecordNotFound() {
+	if !con.Where("email = ?", claims.Email).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
 			payload.UserAlreadyExists())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"email": decodedToken["email"]})
+	c.JSON(http.StatusOK, gin.H{"email": claims.Email})
 }
 
 // Signup .
@@ -172,7 +172,7 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	decodedToken, err := utils.ParseJWTToken(param.Token)
+	claims, err := utils.ParseJWTSignupToken(param.Token)
 	if err != nil {
 		ve, ok := err.(*jwt.ValidationError)
 		if !ok || ve.Errors != jwt.ValidationErrorExpired {
@@ -190,14 +190,14 @@ func Signup(c *gin.Context) {
 	var user models.User
 	con := db.Connection()
 	defer con.Close()
-	if !con.Where("email = ?", decodedToken["email"]).First(&user).RecordNotFound() {
+	if !con.Where("email = ?", claims.Email).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
 			payload.UserAlreadyExists())
 		return
 	}
 
-	user.Email = decodedToken["email"].(string)
+	user.Email = claims.Email
 	user.Password = param.Password
 
 	errPayload := createNewUser(&user)

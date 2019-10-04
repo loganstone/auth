@@ -40,11 +40,7 @@ func newTestUser() *models.User {
 
 func TestNewJWTToken(t *testing.T) {
 	token := NewJWTToken(1)
-	claims := token.Claims.(jwt.MapClaims)
-
-	assert.Equal(t, "auth", claims["iss"])
-	assert.Equal(t, "", claims["sub"])
-	assert.Equal(t, "", claims["aud"])
+	assert.Equal(t, jwt.MapClaims{}, token.Claims)
 }
 
 func TestParseToken(t *testing.T) {
@@ -53,22 +49,21 @@ func TestParseToken(t *testing.T) {
 	signupToken, err := token.Signup(testEmail)
 	assert.Equal(t, err, nil)
 
-	tokenData, err := ParseJWTToken(signupToken)
+	signupClaims, err := ParseJWTSignupToken(signupToken)
 	assert.Equal(t, err, nil)
-	assert.Equal(t, testEmail, tokenData["email"])
-	assert.Equal(t, "Signup", tokenData["sub"])
+	assert.Equal(t, testEmail, signupClaims.Email)
+	assert.Equal(t, "Signup", signupClaims.Subject)
 
 	user := newTestUser()
 	sessionToken, err := token.Session(user)
 	assert.Equal(t, err, nil)
 
-	tokenData, err = ParseJWTToken(sessionToken)
+	sessionClaims, err := ParseJWTSessionToken(sessionToken)
 	assert.Equal(t, err, nil)
-	assert.Equal(t, "Authorization", tokenData["sub"])
+	assert.Equal(t, "Authorization", sessionClaims.Subject)
 
-	sessionUser, ok := tokenData["user"].(map[string]interface{})
-	assert.Equal(t, ok, true)
-	assert.Equal(t, user.Email, sessionUser["email"])
+	assert.Equal(t, user.Email, sessionClaims.UserEmail)
+	assert.Equal(t, user.ID, sessionClaims.UserID)
 }
 
 func TestParseTokenWithExpired(t *testing.T) {
@@ -77,7 +72,7 @@ func TestParseTokenWithExpired(t *testing.T) {
 	signupToken, err := token.Signup(testEmail)
 	assert.Equal(t, err, nil)
 
-	_, err = ParseJWTToken(signupToken)
+	_, err = ParseJWTSignupToken(signupToken)
 	ve, ok := err.(*jwt.ValidationError)
 	assert.Equal(t, ok, true)
 	assert.Equal(t, jwt.ValidationErrorExpired, ve.Errors)

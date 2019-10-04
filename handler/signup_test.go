@@ -35,10 +35,10 @@ func TestSendVerificationEmail(t *testing.T) {
 	assert.NotEqual(t, resBody["token"], "")
 	token := resBody["token"]
 
-	decodedToken, err := utils.ParseJWTToken(token)
+	claims, err := utils.ParseJWTSignupToken(token)
 	assert.Equal(t, err, nil)
 
-	assert.Equal(t, reqBody["email"], decodedToken["aud"])
+	assert.Equal(t, reqBody["email"], claims.Email)
 }
 
 func TestVerifySignupToken(t *testing.T) {
