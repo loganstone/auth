@@ -79,33 +79,6 @@ func User(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// CreateUser .
-func CreateUser(c *gin.Context) {
-	con := db.Connection()
-	defer con.Close()
-
-	var user models.User
-
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			payload.ErrorBindJSON(err.Error()))
-		return
-	}
-
-	errPayload := createNewUser(&user)
-	if errPayload != nil {
-		httpStatusCode := http.StatusInternalServerError
-		if errPayload["error_code"] == payload.ErrorCodeUserAlreadyExists {
-			httpStatusCode = http.StatusBadRequest
-		}
-		c.AbortWithStatusJSON(httpStatusCode, errPayload)
-		return
-	}
-
-	c.JSON(http.StatusCreated, user)
-}
-
 // DeleteUser .
 func DeleteUser(c *gin.Context) {
 	con := db.Connection()
