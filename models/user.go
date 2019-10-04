@@ -48,3 +48,13 @@ func (u User) MarshalJSON() ([]byte, error) {
 		UpdatedAt: u.UpdatedAt.Unix(),
 	})
 }
+
+// ToMap .
+func (u *User) ToMap() map[string]interface{} {
+	return map[string]interface{}{
+		"id":         u.ID,
+		"email":      u.Email,
+		"created_at": u.CreatedAt.Unix(),
+		"updated_at": u.UpdatedAt.Unix(),
+	}
+}

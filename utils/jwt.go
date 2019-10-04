@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -41,15 +40,10 @@ func (t *Token) Signup(email string) (string, error) {
 }
 
 func (t *Token) Session(user *models.User) (string, error) {
-	data, err := json.Marshal(user)
-	if err != nil {
-		return "", err
-	}
-
 	claims := t.Claims.(jwt.MapClaims)
 	claims["sub"] = "Authorization"
 	claims["aud"] = user.Email
-	claims["user"] = string(data)
+	claims["user"] = user.ToMap()
 	return t.SignedString(configs.App().JWTSigninKey)
 }
 
