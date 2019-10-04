@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/utils"
@@ -36,30 +35,21 @@ func TestSendVerificationEmail(t *testing.T) {
 	assert.NotEqual(t, resBody["token"], "")
 	token := resBody["token"]
 
-	decodedToken, err := utils.Load(token)
+	decodedToken, err := utils.ParseJWTToken(token)
 	assert.Equal(t, err, nil)
 
-	var tokenData TokenData
-	err = json.Unmarshal(decodedToken, &tokenData)
-	assert.Equal(t, err, nil)
-
-	assert.Equal(t, reqBody["email"], tokenData.Email)
+	assert.Equal(t, reqBody["email"], decodedToken["aud"])
 }
 
 func TestVerifySignupToken(t *testing.T) {
 	email := getTestEmail()
-	v, err := json.Marshal(TokenData{
-		Email:     email,
-		ExpiredAt: time.Now().Unix() + configs.App().SignupTokenExpire,
-	})
-	assert.Equal(t, err, nil)
-
-	token, err := utils.Sign(v)
+	token := utils.NewJWTToken(configs.App().SignupTokenExpire)
+	signupToken, err := token.Signup(email)
 	assert.Equal(t, err, nil)
 
 	router := NewTest()
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/signup/email/verification/%s", token)
+	uri := fmt.Sprintf("/signup/email/verification/%s", signupToken)
 	req, err := http.NewRequest("GET", uri, nil)
 	assert.Equal(t, err, nil)
 
@@ -74,17 +64,12 @@ func TestVerifySignupToken(t *testing.T) {
 
 func TestSignup(t *testing.T) {
 	email := getTestEmail()
-	v, err := json.Marshal(TokenData{
-		Email:     email,
-		ExpiredAt: time.Now().Unix() + configs.App().SignupTokenExpire,
-	})
-	assert.Equal(t, err, nil)
-
-	token, err := utils.Sign(v)
+	token := utils.NewJWTToken(configs.App().SignupTokenExpire)
+	signupToken, err := token.Signup(email)
 	assert.Equal(t, err, nil)
 
 	reqBody := map[string]string{
-		"token":    token,
+		"token":    signupToken,
 		"password": testPassword,
 	}
 	body, err := json.Marshal(reqBody)

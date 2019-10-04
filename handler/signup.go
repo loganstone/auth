@@ -2,12 +2,11 @@ package handler
 
 import (
 	"bytes"
-	"encoding/json"
 	"log"
 	"net/http"
 	"text/template"
-	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 
 	"github.com/loganstone/auth/configs"
@@ -59,12 +58,6 @@ type SignupParam struct {
 	Password string `json:"password" binding:"required"`
 }
 
-// TokenData .
-type TokenData struct {
-	Email     string `json:"email"`
-	ExpiredAt int64  `json:"expired_at"`
-}
-
 // SendVerificationEmail .
 func SendVerificationEmail(c *gin.Context) {
 	con := db.Connection()
@@ -87,18 +80,8 @@ func SendVerificationEmail(c *gin.Context) {
 		return
 	}
 
-	v, err := json.Marshal(TokenData{
-		Email:     param.Email,
-		ExpiredAt: time.Now().Unix() + configs.App().SignupTokenExpire,
-	})
-	if err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorMarshalJSON(err.Error()))
-		return
-	}
-
-	token, err := utils.Sign(v)
+	token := utils.NewJWTToken(configs.App().SignupTokenExpire)
+	signupToken, err := token.Signup(param.Email)
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
@@ -107,11 +90,11 @@ func SendVerificationEmail(c *gin.Context) {
 	}
 
 	if gin.Mode() == gin.DebugMode {
-		log.Println("signup token:", token)
+		log.Println("signup token:", signupToken)
 	}
 
 	if gin.Mode() == gin.TestMode {
-		c.JSON(http.StatusOK, gin.H{"token": token})
+		c.JSON(http.StatusOK, gin.H{"token": signupToken})
 		return
 	}
 
@@ -120,7 +103,7 @@ func SendVerificationEmail(c *gin.Context) {
 	var body bytes.Buffer
 	data := map[string]interface{}{
 		"user_email":   param.Email,
-		"signup_url":   token,
+		"signup_url":   signupToken,
 		"expire_min":   configs.App().SignupTokenExpire / 60,
 		"organization": "auth",
 	}
@@ -151,39 +134,32 @@ func SendVerificationEmail(c *gin.Context) {
 // VerifySignupToken .
 func VerifySignupToken(c *gin.Context) {
 	token := c.Param("token")
-	decodedToken, err := utils.Load(token)
+	decodedToken, err := utils.ParseJWTToken(token)
 	if err != nil {
+		ve, ok := err.(*jwt.ValidationError)
+		if !ok || ve.Errors != jwt.ValidationErrorExpired {
+			c.AbortWithStatusJSON(
+				http.StatusInternalServerError,
+				payload.ErrorLoadToken(err.Error()))
+			return
+		}
 		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorLoadToken(err.Error()))
-		return
-	}
-
-	var tokenData TokenData
-	if err := json.Unmarshal(decodedToken, &tokenData); err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorUnMarshalJSON(err.Error()))
+			http.StatusBadRequest,
+			payload.ErrorExpiredToken())
 		return
 	}
 
 	var user models.User
 	con := db.Connection()
 	defer con.Close()
-	if !con.Where("email = ?", tokenData.Email).First(&user).RecordNotFound() {
+	if !con.Where("email = ?", decodedToken["aud"]).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
 			payload.UserAlreadyExists())
 		return
 	}
 
-	if tokenData.ExpiredAt < time.Now().Unix() {
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			payload.ErrorExpiredToken())
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"email": tokenData.Email})
+	c.JSON(http.StatusOK, gin.H{"email": decodedToken["aud"]})
 }
 
 // Signup .
@@ -196,23 +172,15 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	var tokenData TokenData
-	decodedToken, err := utils.Load(param.Token)
+	decodedToken, err := utils.ParseJWTToken(param.Token)
 	if err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorLoadToken(err.Error()))
-		return
-	}
-
-	if err := json.Unmarshal(decodedToken, &tokenData); err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorUnMarshalJSON(err.Error()))
-		return
-	}
-
-	if tokenData.ExpiredAt < time.Now().Unix() {
+		ve, ok := err.(*jwt.ValidationError)
+		if !ok || ve.Errors != jwt.ValidationErrorExpired {
+			c.AbortWithStatusJSON(
+				http.StatusInternalServerError,
+				payload.ErrorLoadToken(err.Error()))
+			return
+		}
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
 			payload.ErrorExpiredToken())
@@ -222,14 +190,14 @@ func Signup(c *gin.Context) {
 	var user models.User
 	con := db.Connection()
 	defer con.Close()
-	if !con.Where("email = ?", tokenData.Email).First(&user).RecordNotFound() {
+	if !con.Where("email = ?", decodedToken["aud"]).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
 			payload.UserAlreadyExists())
 		return
 	}
 
-	user.Email = tokenData.Email
+	user.Email = decodedToken["aud"].(string)
 	user.Password = param.Password
 
 	errPayload := createNewUser(&user)
