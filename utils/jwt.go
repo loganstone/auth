@@ -36,6 +36,7 @@ func (t *Token) Signup(email string) (string, error) {
 	claims := t.Claims.(jwt.MapClaims)
 	claims["sub"] = "Signup"
 	claims["aud"] = email
+	claims["email"] = email
 	return t.SignedString(configs.App().JWTSigninKey)
 }
 

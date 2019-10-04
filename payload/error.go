@@ -27,14 +27,14 @@ func ErrorUnMarshalJSON(message string) gin.H {
 	return ErrorWithCode(ErrorCodeUnMarshalJSON, message)
 }
 
-// ErrorSignToken .
-func ErrorSignToken(message string) gin.H {
-	return ErrorWithCode(ErrorCodeSignToken, message)
+// ErrorSignJWTToken .
+func ErrorSignJWTToken(message string) gin.H {
+	return ErrorWithCode(ErrorCodeSignJWTToken, message)
 }
 
-// ErrorLoadToken .
-func ErrorLoadToken(message string) gin.H {
-	return ErrorWithCode(ErrorCodeLoadToken, message)
+// ErrorParseJWTToken .
+func ErrorParseJWTToken(message string) gin.H {
+	return ErrorWithCode(ErrorCodeParseJWTToken, message)
 }
 
 // ErrorSendEmail .

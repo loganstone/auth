@@ -85,7 +85,7 @@ func SendVerificationEmail(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			payload.ErrorSignToken(err.Error()))
+			payload.ErrorSignJWTToken(err.Error()))
 		return
 	}
 
@@ -103,7 +103,7 @@ func SendVerificationEmail(c *gin.Context) {
 	var body bytes.Buffer
 	data := map[string]interface{}{
 		"user_email":   param.Email,
-		"signup_url":   signupToken,
+		"signup_url":   signupToken, // TODO(hs.lee): url 로 변경
 		"expire_min":   configs.App().SignupTokenExpire / 60,
 		"organization": "auth",
 	}
@@ -140,7 +140,7 @@ func VerifySignupToken(c *gin.Context) {
 		if !ok || ve.Errors != jwt.ValidationErrorExpired {
 			c.AbortWithStatusJSON(
 				http.StatusInternalServerError,
-				payload.ErrorLoadToken(err.Error()))
+				payload.ErrorParseJWTToken(err.Error()))
 			return
 		}
 		c.AbortWithStatusJSON(
@@ -152,14 +152,14 @@ func VerifySignupToken(c *gin.Context) {
 	var user models.User
 	con := db.Connection()
 	defer con.Close()
-	if !con.Where("email = ?", decodedToken["aud"]).First(&user).RecordNotFound() {
+	if !con.Where("email = ?", decodedToken["email"]).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
 			payload.UserAlreadyExists())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"email": decodedToken["aud"]})
+	c.JSON(http.StatusOK, gin.H{"email": decodedToken["email"]})
 }
 
 // Signup .
@@ -178,7 +178,7 @@ func Signup(c *gin.Context) {
 		if !ok || ve.Errors != jwt.ValidationErrorExpired {
 			c.AbortWithStatusJSON(
 				http.StatusInternalServerError,
-				payload.ErrorLoadToken(err.Error()))
+				payload.ErrorParseJWTToken(err.Error()))
 			return
 		}
 		c.AbortWithStatusJSON(
@@ -190,14 +190,14 @@ func Signup(c *gin.Context) {
 	var user models.User
 	con := db.Connection()
 	defer con.Close()
-	if !con.Where("email = ?", decodedToken["aud"]).First(&user).RecordNotFound() {
+	if !con.Where("email = ?", decodedToken["email"]).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
 			payload.UserAlreadyExists())
 		return
 	}
 
-	user.Email = decodedToken["aud"].(string)
+	user.Email = decodedToken["email"].(string)
 	user.Password = param.Password
 
 	errPayload := createNewUser(&user)

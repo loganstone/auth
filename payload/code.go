@@ -6,8 +6,8 @@ const (
 	ErrorCodeDBTransaction
 	ErrorCodeMarshalJSON
 	ErrorCodeUnMarshalJSON
-	ErrorCodeSignToken
-	ErrorCodeLoadToken
+	ErrorCodeSignJWTToken
+	ErrorCodeParseJWTToken
 	ErrorCodeSendEmail
 	ErrorCodeTmplExecute
 )

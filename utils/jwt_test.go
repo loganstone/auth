@@ -55,7 +55,7 @@ func TestParseToken(t *testing.T) {
 
 	tokenData, err := ParseJWTToken(signupToken)
 	assert.Equal(t, err, nil)
-	assert.Equal(t, testEmail, tokenData["aud"])
+	assert.Equal(t, testEmail, tokenData["email"])
 	assert.Equal(t, "Signup", tokenData["sub"])
 
 	user := newTestUser()
@@ -64,7 +64,6 @@ func TestParseToken(t *testing.T) {
 
 	tokenData, err = ParseJWTToken(sessionToken)
 	assert.Equal(t, err, nil)
-	assert.Equal(t, user.Email, tokenData["aud"])
 	assert.Equal(t, "Authorization", tokenData["sub"])
 
 	sessionUser, ok := tokenData["user"].(map[string]interface{})
