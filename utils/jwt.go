@@ -71,8 +71,6 @@ func (t *Token) Signup(email string) (string, error) {
 
 // Session .
 func (t *Token) Session(user *models.User) (string, error) {
-	// TODO(hs.lee):
-	// expireAfterSec 을 session 용으로 변경한다
 	t.Claims = SessionClaims{
 		SessionUser{UserID: user.ID, UserEmail: user.Email},
 		*newStandardClaims("Authorization", user.Email, "auth", t.expireAfterSec, 0),
