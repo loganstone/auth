@@ -80,50 +80,44 @@ func (t *Token) Session(user *models.User) (string, error) {
 	return t.SignedString(configs.App().JWTSigninKey)
 }
 
-// ParseJWTSignupToken .
-func ParseJWTSignupToken(signedString string) (*SignupClaims, error) {
-	// TODO(hs.lee):
-	// ParseJWTSessionToken 과 코드가 중복, 중복 제거 필요
-	token, err := jwt.ParseWithClaims(
+func parseWithClaims(signedString string, claims jwt.Claims) (*jwt.Token, error) {
+	return jwt.ParseWithClaims(
 		signedString,
-		&SignupClaims{},
+		claims,
 		func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+				return nil, fmt.Errorf("unexpected signing method: '%v'", token.Header["alg"])
 			}
 			return configs.App().JWTSigninKey, nil
 		})
+}
 
+// ParseJWTSignupToken .
+func ParseJWTSignupToken(signedString string) (*SignupClaims, error) {
+	token, err := parseWithClaims(signedString, &SignupClaims{})
 	if err != nil {
 		return nil, err
 	}
 
-	if claims, ok := token.Claims.(*SignupClaims); ok && token.Valid {
-		return claims, nil
-	} else {
-		return nil, fmt.Errorf("invalid token")
+	claims, ok := token.Claims.(*SignupClaims)
+	if !ok || !token.Valid {
+		return nil, fmt.Errorf("invalid token: '%s'", signedString)
 	}
+
+	return claims, nil
 }
 
 // ParseJWTSessionToken .
 func ParseJWTSessionToken(signedString string) (*SessionClaims, error) {
-	token, err := jwt.ParseWithClaims(
-		signedString,
-		&SessionClaims{},
-		func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-			return configs.App().JWTSigninKey, nil
-		})
-
+	token, err := parseWithClaims(signedString, &SessionClaims{})
 	if err != nil {
 		return nil, err
 	}
 
-	if claims, ok := token.Claims.(*SessionClaims); ok && token.Valid {
-		return claims, nil
-	} else {
-		return nil, fmt.Errorf("invalid token")
+	claims, ok := token.Claims.(*SessionClaims)
+	if !ok || !token.Valid {
+		return nil, fmt.Errorf("invalid token: '%s'", signedString)
 	}
+
+	return claims, nil
 }
