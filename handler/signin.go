@@ -5,9 +5,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/models"
 	"github.com/loganstone/auth/payload"
+	"github.com/loganstone/auth/utils"
 )
 
 // Signin .
@@ -39,5 +41,13 @@ func Signin(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	token := utils.NewJWTToken(configs.App().SessionTokenExpire)
+	sessionToken, err := token.Session(&user)
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			payload.ErrorSignJWTToken(err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"user": user, "token": sessionToken})
 }

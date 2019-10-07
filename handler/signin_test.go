@@ -36,8 +36,14 @@ func TestSignin(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var resBody map[string]string
+	var resBody map[string]interface{}
 	json.NewDecoder(w.Body).Decode(&resBody)
+	resUser, ok := resBody["user"].(map[string]interface{})
+	assert.Equal(t, true, ok)
 
-	assert.Equal(t, reqBody["email"], resBody["email"])
+	token, ok := resBody["token"].(string)
+	assert.Equal(t, true, ok)
+
+	assert.Equal(t, reqBody["email"], resUser["email"])
+	assert.NotEqual(t, "", token)
 }

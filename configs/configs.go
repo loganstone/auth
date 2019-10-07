@@ -15,18 +15,20 @@ const (
 	// TimeoutToGracefulShutdown .
 	TimeoutToGracefulShutdown = 5
 
-	dbConOpt                 = "charset=utf8mb4&parseTime=True&loc=Local"
-	defaultPortToListen      = 9900
-	failedToLookup           = "need to set '%s' environment variable\n"
-	defaultSignupTokenExpire = 1800 // 30 minutes
-	defaultJWTSigninKey      = "plzsetyoursigninkey"
+	dbConOpt                  = "charset=utf8mb4&parseTime=True&loc=Local"
+	defaultPortToListen       = 9900
+	failedToLookup            = "need to set '%s' environment variable\n"
+	defaultSignupTokenExpire  = 1800 // 30 minutes
+	defaultSessionTokenExpire = 3600 // 60 minutes
+	defaultJWTSigninKey       = "plzsetyoursigninkey"
 )
 
 // AppConfigs .
 type AppConfigs struct {
-	PortToListen      int
-	SignupTokenExpire int
-	JWTSigninKey      []byte
+	PortToListen       int
+	SignupTokenExpire  int
+	SessionTokenExpire int
+	JWTSigninKey       []byte
 }
 
 var appConfigs AppConfigs
@@ -81,6 +83,14 @@ func App() AppConfigs {
 		v, err := strconv.Atoi(expire)
 		if err == nil {
 			appConfigs.SignupTokenExpire = v
+		}
+	}
+
+	appConfigs.SessionTokenExpire = defaultSessionTokenExpire
+	if expire, ok := os.LookupEnv("AUTH_SESSION_TOKEN_EXPIRE"); ok {
+		v, err := strconv.Atoi(expire)
+		if err == nil {
+			appConfigs.SessionTokenExpire = v
 		}
 	}
 
