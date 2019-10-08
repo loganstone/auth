@@ -11,6 +11,11 @@ import (
 	"github.com/loganstone/auth/models"
 )
 
+const (
+	Signup  = "Signup"
+	Session = "Session"
+)
+
 // SessionUser .
 type SessionUser struct {
 	UserID    uint
@@ -64,7 +69,7 @@ func newStandardClaims(
 func (t *Token) Signup(email string) (string, error) {
 	t.Claims = SignupClaims{
 		email,
-		*newStandardClaims("Signup", email, "auth", t.expireAfterSec, 0),
+		*newStandardClaims(Signup, email, "auth", t.expireAfterSec, 0),
 	}
 	return t.SignedString(configs.App().JWTSigninKey)
 }
@@ -73,7 +78,7 @@ func (t *Token) Signup(email string) (string, error) {
 func (t *Token) Session(user *models.User) (string, error) {
 	t.Claims = SessionClaims{
 		SessionUser{UserID: user.ID, UserEmail: user.Email},
-		*newStandardClaims("Authorization", user.Email, "auth", t.expireAfterSec, 0),
+		*newStandardClaims(Session, user.Email, "auth", t.expireAfterSec, 0),
 	}
 	return t.SignedString(configs.App().JWTSigninKey)
 }
