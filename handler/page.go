@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/loganstone/auth/configs"
 )
 
 var (
@@ -41,7 +43,8 @@ func Page(c *gin.Context) (int, error) {
 
 // PageSize .
 func PageSize(c *gin.Context) (int, error) {
-	pageSize, err := strconv.Atoi(c.DefaultQuery("page_size", defaultPageSize))
+	pageSize, err := strconv.Atoi(
+		c.DefaultQuery("page_size", configs.App().PageSize))
 	if err != nil {
 		e := err.(*strconv.NumError)
 		if e.Err == strconv.ErrSyntax {

@@ -21,6 +21,7 @@ const (
 	defaultSignupTokenExpire  = 1800 // 30 minutes
 	defaultSessionTokenExpire = 3600 // 60 minutes
 	defaultJWTSigninKey       = "plzsetyoursigninkey"
+	defaultPageSize           = "20"
 )
 
 // AppConfigs .
@@ -29,6 +30,7 @@ type AppConfigs struct {
 	SignupTokenExpire  int
 	SessionTokenExpire int
 	JWTSigninKey       []byte
+	PageSize           string
 }
 
 var appConfigs AppConfigs
@@ -98,5 +100,11 @@ func App() AppConfigs {
 	if key, ok := os.LookupEnv("AUTH_JWT_KEY"); ok {
 		appConfigs.JWTSigninKey = []byte(key)
 	}
+
+	appConfigs.PageSize = defaultPageSize
+	if pageSize, ok := os.LookupEnv("AUTH_PAGE_SIZE"); ok {
+		appConfigs.PageSize = pageSize
+	}
+
 	return appConfigs
 }

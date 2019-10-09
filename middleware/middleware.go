@@ -5,10 +5,12 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"github.com/loganstone/auth/utils"
 )
 
+// Authorize .
 func Authorize() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		reqToken := c.Request.Header.Get("Authorization")
@@ -27,6 +29,14 @@ func Authorize() gin.HandlerFunc {
 			return
 		}
 		c.Set("SessionUser", sessionClaims.SessionUser)
+		c.Next()
+	}
+}
+
+// RequestID .
+func RequestID() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Request-Id", uuid.New().String())
 		c.Next()
 	}
 }
