@@ -8,8 +8,10 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/loganstone/auth/models"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/loganstone/auth/models"
+	"github.com/loganstone/auth/utils"
 )
 
 const (
@@ -36,6 +38,12 @@ func TestUser(t *testing.T) {
 	req, err := http.NewRequest("GET", uri, nil)
 	assert.Equal(t, err, nil)
 
+	token := utils.NewJWTToken(10)
+	sessionToken, err := token.Session(&user)
+	assert.Equal(t, err, nil)
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
+
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -46,6 +54,14 @@ func TestUser(t *testing.T) {
 }
 
 func TestUserWithNonexistentEmail(t *testing.T) {
+	email := getTestEmail()
+	user := models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errPayload := createNewUser(&user)
+	assert.Equal(t, errPayload == nil, true)
+
 	nonexistentEmail := getTestEmail()
 
 	router := NewTest()
@@ -53,6 +69,12 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 	uri := fmt.Sprintf("/users/%s", nonexistentEmail)
 	req, err := http.NewRequest("GET", uri, nil)
 	assert.Equal(t, err, nil)
+
+	token := utils.NewJWTToken(10)
+	sessionToken, err := token.Session(&user)
+	assert.Equal(t, err, nil)
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
