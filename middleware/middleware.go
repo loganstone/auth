@@ -16,7 +16,6 @@ func Authorize() gin.HandlerFunc {
 		reqToken := c.Request.Header.Get("Authorization")
 		bearerToken := strings.Split(reqToken, " ")
 		if len(bearerToken) != 2 {
-			// TODO(hs.lee): error_code 처리
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
@@ -24,7 +23,6 @@ func Authorize() gin.HandlerFunc {
 		sessionToken := bearerToken[1]
 		sessionClaims, err := utils.ParseJWTSessionToken(sessionToken)
 		if err != nil {
-			// TODO(hs.lee): error_code 처리
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
@@ -36,7 +34,7 @@ func Authorize() gin.HandlerFunc {
 // RequestID .
 func RequestID() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Request-Id", uuid.New().String())
+		c.Writer.Header().Set("Request-ID", uuid.New().String())
 		c.Next()
 	}
 }
