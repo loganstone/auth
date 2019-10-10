@@ -7,6 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
+	"github.com/loganstone/auth/db"
+	"github.com/loganstone/auth/models"
 	"github.com/loganstone/auth/utils"
 )
 
@@ -26,7 +28,23 @@ func Authorize() gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		c.Set("SessionUser", sessionClaims.SessionUser)
+
+		con := db.Connection()
+		defer con.Close()
+
+		user := models.User{}
+
+		if con.First(&user, sessionClaims.UserID).RecordNotFound() {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		if user.Email != sessionClaims.UserEmail {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		c.Set("SessionUser", user)
 		c.Next()
 	}
 }
