@@ -11,6 +11,7 @@ import (
 	"github.com/loganstone/auth/models"
 )
 
+// const .
 const (
 	Signup  = "Signup"
 	Session = "Session"
