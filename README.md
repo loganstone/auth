@@ -20,6 +20,8 @@
 * orm - gorm
 * log - logrus
 * cli - cobra
+* uuid - google/uuid
+* jwt - jwt-go
 
 # Running Tests
 
