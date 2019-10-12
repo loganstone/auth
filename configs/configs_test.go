@@ -19,3 +19,12 @@ func TestDB(t *testing.T) {
 	expected := "test_db_id:test_db_pw@/test_db_name?" + dbConOpt
 	assert.Equal(t, conf.ConnectionString(), expected)
 }
+
+func TestApp(t *testing.T) {
+	conf := App()
+	assert.Equal(t, defaultPortToListen, conf.PortToListen)
+	assert.Equal(t, defaultSignupTokenExpire, conf.SignupTokenExpire)
+	assert.Equal(t, defaultSessionTokenExpire, conf.SessionTokenExpire)
+	assert.Equal(t, []byte(defaultJWTSigninKey), conf.JWTSigninKey)
+	assert.Equal(t, defaultPageSize, conf.PageSize)
+}
