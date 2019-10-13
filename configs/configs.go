@@ -15,9 +15,9 @@ const (
 	// TimeoutToGracefulShutdown .
 	TimeoutToGracefulShutdown = 5
 
+	failedToLookup            = "must set '%s' environment variable\n"
 	dbConOpt                  = "charset=utf8mb4&parseTime=True&loc=Local"
-	defaultPortToListen       = 9900
-	failedToLookup            = "need to set '%s' environment variable\n"
+	defaultPortToListen       = 9999
 	defaultSignupTokenExpire  = 1800 // 30 minutes
 	defaultSessionTokenExpire = 3600 // 60 minutes
 	defaultJWTSigninKey       = "plzsetyoursigninkey"
