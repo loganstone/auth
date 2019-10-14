@@ -52,7 +52,7 @@ func Authorize() gin.HandlerFunc {
 // RequestID .
 func RequestID() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Request-ID", uuid.New().String())
+		c.Request.Header.Set("Request-ID", uuid.New().String())
 		c.Next()
 	}
 }
