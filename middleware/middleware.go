@@ -1,8 +1,10 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -55,4 +57,36 @@ func RequestID() gin.HandlerFunc {
 		c.Request.Header.Set("Request-ID", uuid.New().String())
 		c.Next()
 	}
+}
+
+// Ref - https://sourcegraph.com/github.com/gin-gonic/gin/-/blob/logger.go#L131
+var logFormatter = func(param gin.LogFormatterParams) string {
+	var statusColor, methodColor, resetColor string
+	if param.IsOutputColor() {
+		statusColor = param.StatusCodeColor()
+		methodColor = param.MethodColor()
+		resetColor = param.ResetColor()
+	}
+
+	if param.Latency > time.Minute {
+		// Truncate in a golang < 1.8 safe way
+		param.Latency = param.Latency - param.Latency%time.Second
+	}
+
+	requestID := param.Request.Header.Get("Request-ID")
+	return fmt.Sprintf("[REQUEST ID - %s] %v |%s %3d %s| %13v | %15s |%s %-7s %s %s\n%s",
+		requestID,
+		param.TimeStamp.Format("2006/01/02 - 15:04:05"),
+		statusColor, param.StatusCode, resetColor,
+		param.Latency,
+		param.ClientIP,
+		methodColor, param.Method, resetColor,
+		param.Path,
+		param.ErrorMessage,
+	)
+}
+
+// LogFormat .
+func LogFormat() gin.HandlerFunc {
+	return gin.LoggerWithFormatter(logFormatter)
 }

@@ -3,10 +3,15 @@ package handler
 import (
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
+
+	"github.com/loganstone/auth/middleware"
 )
 
 func newRouter() *gin.Engine {
-	router := gin.Default()
+	router := gin.New()
+	router.Use(middleware.LogFormat())
+	router.Use(middleware.RequestID())
+	router.Use(gin.Recovery())
 
 	bind(router)
 
