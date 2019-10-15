@@ -10,7 +10,7 @@ import (
 type User struct {
 	IDField
 	Email          string `gorm:"index;not null" binding:"required,email"`
-	Password       string `gorm:"-" binding:"required"`
+	Password       string `gorm:"-" binding:"required,gte=10,alphanum"`
 	HashedPassword string `gorm:"not null"`
 	DateTimeFields
 }

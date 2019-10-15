@@ -16,7 +16,7 @@ import (
 
 const (
 	testEmailFmt = "test-%s@email.com"
-	testPassword = "ok1234"
+	testPassword = "ok12345678"
 )
 
 func getTestEmail() string {
