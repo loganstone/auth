@@ -10,12 +10,13 @@ import (
 )
 
 var (
-	errPageType      = errors.New("'page' must be integer")
-	errPageRange     = errors.New("'page' out of integer range")
-	errPageValue     = errors.New("'page' must not be less than zero")
-	errPageSizeType  = errors.New("'page_size' must be integer")
-	errPageSizeRange = errors.New("'page_size' out of integer range")
-	errPageSizeValue = errors.New("'page_size' must not be less than one")
+	errPageType          = errors.New("'page' must be integer")
+	errPageRange         = errors.New("'page' out of integer range")
+	errPageValue         = errors.New("'page' must not be less than zero")
+	errPageSizeType      = errors.New("'page_size' must be integer")
+	errPageSizeRange     = errors.New("'page_size' out of integer range")
+	errPageSizeValue     = errors.New("'page_size' must not be less than one")
+	errOverPageSizeLimit = errors.New("'page_size' over page size limit")
 )
 
 // Page .
@@ -43,8 +44,9 @@ func Page(c *gin.Context) (int, error) {
 
 // PageSize .
 func PageSize(c *gin.Context) (int, error) {
+	conf := configs.App()
 	pageSize, err := strconv.Atoi(
-		c.DefaultQuery("page_size", configs.App().PageSize))
+		c.DefaultQuery("page_size", conf.PageSize))
 	if err != nil {
 		e := err.(*strconv.NumError)
 		if e.Err == strconv.ErrSyntax {
@@ -60,6 +62,10 @@ func PageSize(c *gin.Context) (int, error) {
 
 	if pageSize < 1 {
 		return 0, errPageSizeValue
+	}
+
+	if conf.PageSizeLimit > 0 && conf.PageSizeLimit < pageSize {
+		return 0, errOverPageSizeLimit
 	}
 
 	return pageSize, nil

@@ -31,6 +31,7 @@ type AppConfigs struct {
 	SessionTokenExpire int
 	JWTSigninKey       []byte
 	PageSize           string
+	PageSizeLimit      int
 }
 
 var appConfigs AppConfigs
@@ -104,6 +105,12 @@ func App() AppConfigs {
 	appConfigs.PageSize = defaultPageSize
 	if pageSize, ok := os.LookupEnv("AUTH_PAGE_SIZE"); ok {
 		appConfigs.PageSize = pageSize
+	}
+
+	if pageSizeLimit, ok := os.LookupEnv("AUTH_PAGE_SIZE_LIMIT"); ok {
+		if v, err := strconv.Atoi(pageSizeLimit); err == nil {
+			appConfigs.PageSizeLimit = v
+		}
 	}
 
 	return appConfigs
