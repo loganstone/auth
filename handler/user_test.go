@@ -47,10 +47,11 @@ func TestUser(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var resBody map[string]string
+	var resBody models.JSONUser
 	json.NewDecoder(w.Body).Decode(&resBody)
 
-	assert.Equal(t, email, resBody["email"])
+	assert.Equal(t, email, resBody.Email)
+	assert.Equal(t, int64(0), resBody.OTPConfirmedAt)
 }
 
 func TestUserWithNonexistentEmail(t *testing.T) {
