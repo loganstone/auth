@@ -2,7 +2,7 @@ package payload
 
 // Internal server error codes.
 const (
-	ErrorCodeUnknown = 1000 + iota
+	ErrorCodeUnknown = iota + 1000
 	ErrorCodeDBTransaction
 	ErrorCodeMarshalJSON
 	ErrorCodeUnMarshalJSON
@@ -14,7 +14,7 @@ const (
 
 // Parameter error codes.
 const (
-	ErrorCodeBindURI = 2000 + iota
+	ErrorCodeBindURI = iota + 2000
 	ErrorCodeBindJSON
 	ErrorCodeBadPage
 	ErrorCodeBadPageSize
@@ -23,7 +23,7 @@ const (
 
 // User error codes.
 const (
-	ErrorCodeNotFoundUser = 3000 + iota
+	ErrorCodeNotFoundUser = iota + 3000
 	ErrorCodeUserAlreadyExists
 	ErrorCodeSetPassword
 	ErrorCodeIncorrectPassword
