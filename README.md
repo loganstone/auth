@@ -22,6 +22,7 @@
 * cli - cobra
 * uuid - google/uuid
 * jwt - jwt-go
+* otp - xlzd/gotp
 
 # Running Tests
 
