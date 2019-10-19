@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	_ "github.com/jinzhu/gorm/dialects/mysql" //
+	_ "github.com/jinzhu/gorm/dialects/mysql" // driver
 )
 
 const (
@@ -80,7 +80,7 @@ func DB() *DatabaseConfigs {
 }
 
 // App .
-func App() AppConfigs {
+func App() *AppConfigs {
 	appConfigs.SignupTokenExpire = defaultSignupTokenExpire
 	if expire, ok := os.LookupEnv("AUTH_SIGNUP_TOKEN_EXPIRE"); ok {
 		v, err := strconv.Atoi(expire)
@@ -113,5 +113,5 @@ func App() AppConfigs {
 		}
 	}
 
-	return appConfigs
+	return &appConfigs
 }
