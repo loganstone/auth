@@ -2,7 +2,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/loganstone/auth)](https://goreportcard.com/report/github.com/loganstone/auth)
 
-자주 사용하는 인증서비스를 API 로 제공
+인증 서비스 API 만들기
 
 # Goal
 - [x] 이메일 확인 후 가입
