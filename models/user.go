@@ -16,7 +16,7 @@ type User struct {
 
 	OTPSecretKey   string `gorm:"size:16"`
 	OTPBackupCodes JSON
-	OTPConfirmedAt time.Time
+	OTPConfirmedAt *time.Time
 
 	DateTimeFields
 }
@@ -55,7 +55,7 @@ func (u User) MarshalJSON() ([]byte, error) {
 		CreatedAt: u.CreatedAt.Unix(),
 		UpdatedAt: u.UpdatedAt.Unix(),
 	}
-	if !u.OTPConfirmedAt.IsZero() {
+	if u.OTPConfirmedAt != nil {
 		user.OTPConfirmedAt = u.OTPConfirmedAt.Unix()
 	}
 	return json.Marshal(user)
