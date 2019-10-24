@@ -10,6 +10,7 @@ require (
 	github.com/jinzhu/gorm v1.9.10
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/stretchr/testify v1.3.0
+	github.com/xlzd/gotp v0.0.0-20181030022105-c8557ba2c119
 	golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
 	gopkg.in/go-playground/assert.v1 v1.2.1
 )

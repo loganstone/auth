@@ -2,9 +2,15 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 
+	"github.com/xlzd/gotp"
 	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	errEmptyOTPSecretKey = errors.New("empty 'OTPSecretKey'")
 )
 
 // User .
@@ -59,4 +65,68 @@ func (u User) MarshalJSON() ([]byte, error) {
 		user.OTPConfirmedAt = u.OTPConfirmedAt.Unix()
 	}
 	return json.Marshal(user)
+}
+
+func (u *User) getTOTP() (*gotp.TOTP, error) {
+	if u.OTPSecretKey == "" {
+		return nil, errEmptyOTPSecretKey
+	}
+	return gotp.NewDefaultTOTP(u.OTPSecretKey), nil
+}
+
+// GenerateOTPSecretKey .
+func (u *User) GenerateOTPSecretKey() {
+	// TODO: export config
+	secretLength := 16
+	u.OTPSecretKey = gotp.RandomSecret(secretLength)
+}
+
+// VerifyOTP .
+func (u *User) VerifyOTP(otp string) bool {
+	totp, err := u.getTOTP()
+	if err != nil {
+		return false
+	}
+	return otp == totp.Now()
+}
+
+// OTPProvisioningURI .
+func (u *User) OTPProvisioningURI() (string, error) {
+	totp, err := u.getTOTP()
+	if err != nil {
+		return "", err
+	}
+	// TODO: export config - accountName, issuerName
+	return totp.ProvisioningUri("demoAccountName", "issuerName"), nil
+}
+
+// ConfirmOTP .
+func (u *User) ConfirmOTP() {
+	now := time.Now()
+	u.OTPConfirmedAt = &now
+}
+
+// ResetOTP .
+func (u *User) ResetOTP() {
+	u.OTPSecretKey = ""
+	u.OTPConfirmedAt = nil
+}
+
+// ConfirmedOTP .
+func (u *User) ConfirmedOTP() bool {
+	return u.OTPConfirmedAt != nil
+}
+
+// GenerateOTPBackupCodes .
+func (u *User) GenerateOTPBackupCodes() {
+}
+
+// VerifyOTPBackupCode .
+func (u *User) VerifyOTPBackupCode(code string) bool {
+	return false
+}
+
+// RemoveOTPBackupCode .
+func (u *User) RemoveOTPBackupCode(code string) bool {
+	return false
 }
