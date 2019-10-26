@@ -13,8 +13,8 @@ func TestDigitCode(t *testing.T) {
 		assert.Equal(t, len(code), n)
 	}
 
-	prev := ""
-	for i := 0; i > 100; i++ {
+	var prev string
+	for i := 0; i < 100; i++ {
 		code := DigitCode(6)
 		assert.NotEqual(t, prev, code)
 		prev = code
