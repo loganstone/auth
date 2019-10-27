@@ -38,7 +38,7 @@ func (j *JSON) Scan(value interface{}) error {
 	}
 	s, ok := value.([]byte)
 	if !ok {
-		return errors.New("invalid Scan Source")
+		return errors.New("invalid scan source")
 	}
 	*j = append((*j)[0:0], s...)
 	return nil
