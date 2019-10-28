@@ -16,3 +16,11 @@ func DigitCode(n int) (code string) {
 	}
 	return
 }
+
+// DigitCodes .
+func DigitCodes(c, n int) (codes []string) {
+	for i := 0; i < c; i++ {
+		codes = append(codes, DigitCode(n))
+	}
+	return
+}

@@ -117,8 +117,9 @@ func (u *User) ConfirmedOTP() bool {
 	return u.OTPConfirmedAt != nil
 }
 
-// GenerateOTPBackupCodes .
-func (u *User) GenerateOTPBackupCodes() {
+// SetOTPBackupCodes .
+func (u *User) SetOTPBackupCodes(codes []string) {
+	u.OTPBackupCodes.Scan(codes)
 }
 
 // VerifyOTPBackupCode .
