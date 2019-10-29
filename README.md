@@ -23,6 +23,7 @@
 * uuid - google/uuid
 * jwt - jwt-go
 * otp - xlzd/gotp
+* env caarlos0/env
 
 # Running Tests
 
