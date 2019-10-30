@@ -42,7 +42,7 @@ func Signin(c *gin.Context) {
 	}
 
 	token := utils.NewJWTToken(configs.App().SessionTokenExpire)
-	sessionToken, err := token.Session(&user)
+	sessionToken, err := token.Session(user.ID, user.Email)
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,

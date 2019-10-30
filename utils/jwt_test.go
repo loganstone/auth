@@ -6,10 +6,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
-	"github.com/jinzhu/gorm"
 
-	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/models"
 	"gopkg.in/go-playground/assert.v1"
 )
 
@@ -20,22 +17,6 @@ const (
 
 func getTestEmail() string {
 	return fmt.Sprintf(testEmailFmt, uuid.New().String())
-}
-
-func newTestUser() *models.User {
-	con := db.Connection()
-	defer con.Close()
-
-	user := models.User{
-		Email:    getTestEmail(),
-		Password: testPassword,
-	}
-
-	_ = user.SetPassword()
-	_ = db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Create(&user).Error
-	})
-	return &user
 }
 
 func TestNewJWTToken(t *testing.T) {
@@ -54,16 +35,18 @@ func TestParseToken(t *testing.T) {
 	assert.Equal(t, testEmail, signupClaims.Email)
 	assert.Equal(t, Signup, signupClaims.Subject)
 
-	user := newTestUser()
-	sessionToken, err := token.Session(user)
+	var userID uint = 1
+	userEmail := getTestEmail()
+
+	sessionToken, err := token.Session(userID, userEmail)
 	assert.Equal(t, err, nil)
 
 	sessionClaims, err := ParseJWTSessionToken(sessionToken)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, Session, sessionClaims.Subject)
 
-	assert.Equal(t, user.Email, sessionClaims.UserEmail)
-	assert.Equal(t, user.ID, sessionClaims.UserID)
+	assert.Equal(t, userEmail, sessionClaims.UserEmail)
+	assert.Equal(t, userID, sessionClaims.UserID)
 }
 
 func TestParseTokenWithExpired(t *testing.T) {

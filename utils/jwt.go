@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/loganstone/auth/configs"
-	"github.com/loganstone/auth/models"
 )
 
 // const .
@@ -76,10 +75,10 @@ func (t *Token) Signup(email string) (string, error) {
 }
 
 // Session .
-func (t *Token) Session(user *models.User) (string, error) {
+func (t *Token) Session(userID uint, userEmail string) (string, error) {
 	t.Claims = SessionClaims{
-		SessionUser{UserID: user.ID, UserEmail: user.Email},
-		*newStandardClaims(Session, user.Email, "auth", t.expireAfterSec, 0),
+		SessionUser{UserID: userID, UserEmail: userEmail},
+		*newStandardClaims(Session, userEmail, "auth", t.expireAfterSec, 0),
 	}
 	return t.SignedString(configs.App().JWTSigninKey)
 }

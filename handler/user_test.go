@@ -39,7 +39,7 @@ func TestUser(t *testing.T) {
 	assert.Equal(t, err, nil)
 
 	token := utils.NewJWTToken(10)
-	sessionToken, err := token.Session(&user)
+	sessionToken, err := token.Session(user.ID, user.Email)
 	assert.Equal(t, err, nil)
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
@@ -72,7 +72,7 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 	assert.Equal(t, err, nil)
 
 	token := utils.NewJWTToken(10)
-	sessionToken, err := token.Session(&user)
+	sessionToken, err := token.Session(user.ID, user.Email)
 	assert.Equal(t, err, nil)
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
