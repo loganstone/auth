@@ -8,19 +8,21 @@ import (
 const digits = "0123456789"
 
 // DigitCode .
-func DigitCode(n int) (code string) {
+func DigitCode(n int) string {
 	rand.Seed(time.Now().UnixNano())
-	for len(code) < n {
-		num := rand.Intn(len(digits))
-		code += string(digits[num])
+	code := make([]rune, n)
+	for i := 0; i < n; i++ {
+		idx := rand.Intn(len(digits))
+		code[i] = rune(digits[idx])
 	}
-	return
+	return string(code)
 }
 
 // DigitCodes .
-func DigitCodes(c, n int) (codes []string) {
+func DigitCodes(c, n int) []string {
+	codes := make([]string, c)
 	for i := 0; i < c; i++ {
-		codes = append(codes, DigitCode(n))
+		codes[i] = DigitCode(n)
 	}
-	return
+	return codes
 }

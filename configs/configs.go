@@ -46,8 +46,7 @@ type DatabaseConfigs struct {
 
 // ConnectionString .
 func (c *DatabaseConfigs) ConnectionString() string {
-	conf := append([]interface{}{c.id, c.pw, c.name}, dbConOpt)
-	return fmt.Sprintf("%s:%s@/%s?%s", conf...)
+	return fmt.Sprintf("%s:%s@/%s?%s", c.id, c.pw, c.name, dbConOpt)
 }
 
 func init() {
