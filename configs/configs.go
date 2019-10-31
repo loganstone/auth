@@ -29,7 +29,7 @@ type AppConfigs struct {
 	PortToListen       int
 	SignupTokenExpire  int
 	SessionTokenExpire int
-	JWTSigninKey       []byte
+	JWTSigninKey       string
 	PageSize           string
 	PageSizeLimit      int
 }
@@ -96,9 +96,9 @@ func App() *AppConfigs {
 		}
 	}
 
-	appConfigs.JWTSigninKey = []byte(defaultJWTSigninKey)
+	appConfigs.JWTSigninKey = defaultJWTSigninKey
 	if key, ok := os.LookupEnv("AUTH_JWT_KEY"); ok {
-		appConfigs.JWTSigninKey = []byte(key)
+		appConfigs.JWTSigninKey = key
 	}
 
 	appConfigs.PageSize = defaultPageSize

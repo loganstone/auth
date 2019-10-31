@@ -11,8 +11,9 @@ import (
 )
 
 const (
-	testEmailFmt = "test-%s@email.com"
-	testPassword = "ok1234"
+	testEmailFmt  = "test-%s@email.com"
+	testPassword  = "ok1234"
+	testSecretkey = "thisissecertkey"
 )
 
 func getTestEmail() string {
@@ -27,10 +28,10 @@ func TestNewJWTToken(t *testing.T) {
 func TestParseToken(t *testing.T) {
 	testEmail := getTestEmail()
 	token := NewJWTToken(5)
-	signupToken, err := token.Signup(testEmail)
+	signupToken, err := token.Signup(testEmail, testSecretkey)
 	assert.Equal(t, err, nil)
 
-	signupClaims, err := ParseJWTSignupToken(signupToken)
+	signupClaims, err := ParseJWTSignupToken(signupToken, testSecretkey)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, testEmail, signupClaims.Email)
 	assert.Equal(t, Signup, signupClaims.Subject)
@@ -38,10 +39,10 @@ func TestParseToken(t *testing.T) {
 	var userID uint = 1
 	userEmail := getTestEmail()
 
-	sessionToken, err := token.Session(userID, userEmail)
+	sessionToken, err := token.Session(userID, userEmail, testSecretkey)
 	assert.Equal(t, err, nil)
 
-	sessionClaims, err := ParseJWTSessionToken(sessionToken)
+	sessionClaims, err := ParseJWTSessionToken(sessionToken, testSecretkey)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, Session, sessionClaims.Subject)
 
@@ -52,10 +53,10 @@ func TestParseToken(t *testing.T) {
 func TestParseTokenWithExpired(t *testing.T) {
 	testEmail := getTestEmail()
 	token := NewJWTToken(-1)
-	signupToken, err := token.Signup(testEmail)
+	signupToken, err := token.Signup(testEmail, testSecretkey)
 	assert.Equal(t, err, nil)
 
-	_, err = ParseJWTSignupToken(signupToken)
+	_, err = ParseJWTSignupToken(signupToken, testSecretkey)
 	ve, ok := err.(*jwt.ValidationError)
 	assert.Equal(t, ok, true)
 	assert.Equal(t, jwt.ValidationErrorExpired, ve.Errors)

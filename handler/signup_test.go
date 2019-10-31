@@ -14,6 +14,7 @@ import (
 )
 
 func TestSendVerificationEmail(t *testing.T) {
+	conf := configs.App()
 	reqBody := map[string]string{
 		"email": getTestEmail(),
 	}
@@ -35,16 +36,17 @@ func TestSendVerificationEmail(t *testing.T) {
 	assert.NotEqual(t, resBody["token"], "")
 	token := resBody["token"]
 
-	claims, err := utils.ParseJWTSignupToken(token)
+	claims, err := utils.ParseJWTSignupToken(token, conf.JWTSigninKey)
 	assert.Equal(t, err, nil)
 
 	assert.Equal(t, reqBody["email"], claims.Email)
 }
 
 func TestVerifySignupToken(t *testing.T) {
+	conf := configs.App()
 	email := getTestEmail()
-	token := utils.NewJWTToken(configs.App().SignupTokenExpire)
-	signupToken, err := token.Signup(email)
+	token := utils.NewJWTToken(conf.SignupTokenExpire)
+	signupToken, err := token.Signup(email, conf.JWTSigninKey)
 	assert.Equal(t, err, nil)
 
 	router := NewTest()
@@ -63,9 +65,10 @@ func TestVerifySignupToken(t *testing.T) {
 }
 
 func TestSignup(t *testing.T) {
+	conf := configs.App()
 	email := getTestEmail()
-	token := utils.NewJWTToken(configs.App().SignupTokenExpire)
-	signupToken, err := token.Signup(email)
+	token := utils.NewJWTToken(conf.SignupTokenExpire)
+	signupToken, err := token.Signup(email, conf.JWTSigninKey)
 	assert.Equal(t, err, nil)
 
 	reqBody := map[string]string{

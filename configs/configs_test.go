@@ -25,6 +25,6 @@ func TestApp(t *testing.T) {
 	assert.Equal(t, defaultPortToListen, conf.PortToListen)
 	assert.Equal(t, defaultSignupTokenExpire, conf.SignupTokenExpire)
 	assert.Equal(t, defaultSessionTokenExpire, conf.SessionTokenExpire)
-	assert.Equal(t, []byte(defaultJWTSigninKey), conf.JWTSigninKey)
+	assert.Equal(t, defaultJWTSigninKey, conf.JWTSigninKey)
 	assert.Equal(t, defaultPageSize, conf.PageSize)
 }

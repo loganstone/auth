@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
+	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/models"
 	"github.com/loganstone/auth/utils"
@@ -17,6 +18,7 @@ import (
 // Authorize .
 func Authorize() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		conf := configs.App()
 		reqToken := c.Request.Header.Get("Authorization")
 		bearerToken := strings.Split(reqToken, " ")
 		if len(bearerToken) != 2 {
@@ -25,7 +27,7 @@ func Authorize() gin.HandlerFunc {
 		}
 
 		sessionToken := bearerToken[1]
-		sessionClaims, err := utils.ParseJWTSessionToken(sessionToken)
+		sessionClaims, err := utils.ParseJWTSessionToken(sessionToken, conf.JWTSigninKey)
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return

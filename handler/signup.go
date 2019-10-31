@@ -63,6 +63,7 @@ func SendVerificationEmail(c *gin.Context) {
 	con := db.Connection()
 	defer con.Close()
 
+	conf := configs.App()
 	var user models.User
 	var param VerificationEmailParam
 
@@ -80,8 +81,8 @@ func SendVerificationEmail(c *gin.Context) {
 		return
 	}
 
-	token := utils.NewJWTToken(configs.App().SignupTokenExpire)
-	signupToken, err := token.Signup(param.Email)
+	token := utils.NewJWTToken(conf.SignupTokenExpire)
+	signupToken, err := token.Signup(param.Email, conf.JWTSigninKey)
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
@@ -104,7 +105,7 @@ func SendVerificationEmail(c *gin.Context) {
 	data := map[string]interface{}{
 		"user_email":   param.Email,
 		"signup_url":   signupToken, // TODO(hs.lee): url 로 변경
-		"expire_min":   configs.App().SignupTokenExpire / 60,
+		"expire_min":   conf.SignupTokenExpire / 60,
 		"organization": "auth",
 	}
 
@@ -134,7 +135,8 @@ func SendVerificationEmail(c *gin.Context) {
 // VerifySignupToken .
 func VerifySignupToken(c *gin.Context) {
 	token := c.Param("token")
-	claims, err := utils.ParseJWTSignupToken(token)
+	conf := configs.App()
+	claims, err := utils.ParseJWTSignupToken(token, conf.JWTSigninKey)
 	if err != nil {
 		ve, ok := err.(*jwt.ValidationError)
 		if !ok || ve.Errors != jwt.ValidationErrorExpired {
@@ -165,6 +167,7 @@ func VerifySignupToken(c *gin.Context) {
 // Signup .
 func Signup(c *gin.Context) {
 	var param SignupParam
+	conf := configs.App()
 	if err := c.ShouldBindJSON(&param); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
@@ -172,7 +175,7 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	claims, err := utils.ParseJWTSignupToken(param.Token)
+	claims, err := utils.ParseJWTSignupToken(param.Token, conf.JWTSigninKey)
 	if err != nil {
 		ve, ok := err.(*jwt.ValidationError)
 		if !ok || ve.Errors != jwt.ValidationErrorExpired {

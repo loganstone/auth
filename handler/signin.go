@@ -17,6 +17,7 @@ func Signin(c *gin.Context) {
 	con := db.Connection()
 	defer con.Close()
 
+	conf := configs.App()
 	var user models.User
 
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -41,8 +42,8 @@ func Signin(c *gin.Context) {
 		return
 	}
 
-	token := utils.NewJWTToken(configs.App().SessionTokenExpire)
-	sessionToken, err := token.Session(user.ID, user.Email)
+	token := utils.NewJWTToken(conf.SessionTokenExpire)
+	sessionToken, err := token.Session(user.ID, user.Email, conf.JWTSigninKey)
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
