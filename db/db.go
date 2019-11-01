@@ -6,22 +6,12 @@ import (
 	"github.com/jinzhu/gorm"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql" // driver
-	"github.com/loganstone/auth/configs"
-	"github.com/loganstone/auth/models"
 )
 
-// Sync .
-func Sync() {
-	db := Connection()
-	db.AutoMigrate(&models.User{})
-	defer db.Close()
-}
-
 // Connection .
-func Connection() *gorm.DB {
-	conf := configs.DB()
-	db, err := gorm.Open("mysql", conf.ConnectionString())
-	db.LogMode(conf.Echo)
+func Connection(option string, echo bool) *gorm.DB {
+	db, err := gorm.Open("mysql", option)
+	db.LogMode(echo)
 	if err != nil {
 		log.Panicln("DB Connection Error")
 	}

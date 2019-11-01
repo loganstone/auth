@@ -16,6 +16,7 @@ import (
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/handler"
+	"github.com/loganstone/auth/models"
 )
 
 func init() {
@@ -25,7 +26,11 @@ func init() {
 func main() {
 	conf := configs.App()
 
-	db.Sync()
+	// DB Sync
+	dbConf := configs.DB()
+	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
+	con.AutoMigrate(&models.User{})
+	defer con.Close()
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", conf.PortToListen),

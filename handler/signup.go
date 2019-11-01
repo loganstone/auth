@@ -60,10 +60,11 @@ type SignupParam struct {
 
 // SendVerificationEmail .
 func SendVerificationEmail(c *gin.Context) {
-	con := db.Connection()
+	conf := configs.App()
+	dbConf := configs.DB()
+	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 	defer con.Close()
 
-	conf := configs.App()
 	var user models.User
 	var param VerificationEmailParam
 
@@ -134,8 +135,12 @@ func SendVerificationEmail(c *gin.Context) {
 
 // VerifySignupToken .
 func VerifySignupToken(c *gin.Context) {
-	token := c.Param("token")
 	conf := configs.App()
+	dbConf := configs.DB()
+	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
+	defer con.Close()
+
+	token := c.Param("token")
 	claims, err := utils.ParseJWTSignupToken(token, conf.JWTSigninKey)
 	if err != nil {
 		ve, ok := err.(*jwt.ValidationError)
@@ -152,8 +157,6 @@ func VerifySignupToken(c *gin.Context) {
 	}
 
 	var user models.User
-	con := db.Connection()
-	defer con.Close()
 	if !con.Where("email = ?", claims.Email).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
@@ -166,8 +169,12 @@ func VerifySignupToken(c *gin.Context) {
 
 // Signup .
 func Signup(c *gin.Context) {
-	var param SignupParam
 	conf := configs.App()
+	dbConf := configs.DB()
+	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
+	defer con.Close()
+
+	var param SignupParam
 	if err := c.ShouldBindJSON(&param); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
@@ -191,8 +198,6 @@ func Signup(c *gin.Context) {
 	}
 
 	var user models.User
-	con := db.Connection()
-	defer con.Close()
 	if !con.Where("email = ?", claims.Email).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,

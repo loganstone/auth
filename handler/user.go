@@ -6,13 +6,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 
+	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/models"
 	"github.com/loganstone/auth/payload"
 )
 
 func createNewUser(user *models.User) (errPayload gin.H) {
-	con := db.Connection()
+	dbConf := configs.DB()
+	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 	defer con.Close()
 
 	if !con.Where(&user).First(&user).RecordNotFound() {
@@ -36,7 +38,8 @@ func createNewUser(user *models.User) (errPayload gin.H) {
 
 // Users .
 func Users(c *gin.Context) {
-	con := db.Connection()
+	dbConf := configs.DB()
+	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 	defer con.Close()
 
 	page, err := Page(c)
@@ -64,7 +67,8 @@ func Users(c *gin.Context) {
 
 // User .
 func User(c *gin.Context) {
-	con := db.Connection()
+	dbConf := configs.DB()
+	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 	defer con.Close()
 
 	email := c.Param("email")
@@ -81,7 +85,8 @@ func User(c *gin.Context) {
 
 // DeleteUser .
 func DeleteUser(c *gin.Context) {
-	con := db.Connection()
+	dbConf := configs.DB()
+	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 	defer con.Close()
 
 	email := c.Param("email")

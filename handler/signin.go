@@ -14,10 +14,11 @@ import (
 
 // Signin .
 func Signin(c *gin.Context) {
-	con := db.Connection()
+	conf := configs.App()
+	dbConf := configs.DB()
+	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 	defer con.Close()
 
-	conf := configs.App()
 	var user models.User
 
 	if err := c.ShouldBindJSON(&user); err != nil {

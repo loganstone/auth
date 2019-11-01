@@ -19,6 +19,10 @@ import (
 func Authorize() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		conf := configs.App()
+		dbConf := configs.DB()
+		con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
+		defer con.Close()
+
 		reqToken := c.Request.Header.Get("Authorization")
 		bearerToken := strings.Split(reqToken, " ")
 		if len(bearerToken) != 2 {
@@ -32,9 +36,6 @@ func Authorize() gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-
-		con := db.Connection()
-		defer con.Close()
 
 		user := models.User{}
 
