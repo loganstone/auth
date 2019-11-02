@@ -23,13 +23,12 @@ var (
 func Page(c *gin.Context) (int, error) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "0"))
 	if err != nil {
-		e := err.(*strconv.NumError)
-		if e.Err == strconv.ErrSyntax {
-			return 0, errPageType
+		if errors.Is(err, strconv.ErrSyntax) {
+			err = errPageType
+		}
 
-		} else if e.Err == strconv.ErrRange {
-			return 0, errPageRange
-
+		if errors.Is(err, strconv.ErrRange) {
+			err = errPageRange
 		}
 
 		return 0, err
@@ -48,13 +47,12 @@ func PageSize(c *gin.Context) (int, error) {
 	pageSize, err := strconv.Atoi(
 		c.DefaultQuery("page_size", conf.PageSize))
 	if err != nil {
-		e := err.(*strconv.NumError)
-		if e.Err == strconv.ErrSyntax {
-			return 0, errPageSizeType
+		if errors.Is(err, strconv.ErrSyntax) {
+			err = errPageSizeType
+		}
 
-		} else if e.Err == strconv.ErrRange {
-			return 0, errPageSizeRange
-
+		if errors.Is(err, strconv.ErrRange) {
+			err = errPageSizeRange
 		}
 
 		return 0, err
