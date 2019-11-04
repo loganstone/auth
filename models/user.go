@@ -19,6 +19,7 @@ type User struct {
 	Email          string `gorm:"index;not null" binding:"required,email"`
 	Password       string `gorm:"-" binding:"required,gte=10,alphanum"`
 	HashedPassword string `gorm:"not null"`
+	IsAdmin        bool   `gorm:"default:false"`
 
 	OTPSecretKey   string `gorm:"size:16"`
 	OTPBackupCodes JSON
@@ -30,6 +31,7 @@ type User struct {
 // JSONUser .
 type JSONUser struct {
 	Email          string `json:"email"`
+	IsAdmin        bool   `json:"is_admin"`
 	CreatedAt      int64  `json:"created_at"`
 	UpdatedAt      int64  `json:"updated_at"`
 	OTPConfirmedAt int64  `json:"otp_confirmed_at"`
@@ -58,6 +60,7 @@ func (u *User) VerifyPassword() bool {
 func (u User) MarshalJSON() ([]byte, error) {
 	user := &JSONUser{
 		Email:     u.Email,
+		IsAdmin:   u.IsAdmin,
 		CreatedAt: u.CreatedAt.Unix(),
 		UpdatedAt: u.UpdatedAt.Unix(),
 	}
