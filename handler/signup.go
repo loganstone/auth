@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/loganstone/auth/configs"
-	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/models"
 	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
@@ -61,8 +60,7 @@ type SignupParam struct {
 // SendVerificationEmail .
 func SendVerificationEmail(c *gin.Context) {
 	conf := configs.App()
-	dbConf := configs.DB()
-	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
+	con := GetDBConnection()
 	defer con.Close()
 
 	var user models.User
@@ -136,8 +134,7 @@ func SendVerificationEmail(c *gin.Context) {
 // VerifySignupToken .
 func VerifySignupToken(c *gin.Context) {
 	conf := configs.App()
-	dbConf := configs.DB()
-	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
+	con := GetDBConnection()
 	defer con.Close()
 
 	token := c.Param("token")
@@ -170,8 +167,7 @@ func VerifySignupToken(c *gin.Context) {
 // Signup .
 func Signup(c *gin.Context) {
 	conf := configs.App()
-	dbConf := configs.DB()
-	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
+	con := GetDBConnection()
 	defer con.Close()
 
 	var param SignupParam

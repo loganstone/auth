@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/loganstone/auth/configs"
-	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/models"
 	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
@@ -15,8 +14,7 @@ import (
 // Signin .
 func Signin(c *gin.Context) {
 	conf := configs.App()
-	dbConf := configs.DB()
-	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
+	con := GetDBConnection()
 	defer con.Close()
 
 	var user models.User
