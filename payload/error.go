@@ -87,3 +87,8 @@ func UserAlreadyExists() gin.H {
 func ErrorSetPassword(message string) gin.H {
 	return ErrorWithCode(ErrorCodeSetPassword, message)
 }
+
+// ErrorSession .
+func ErrorSession(err error) gin.H {
+	return ErrorWithCode(ErrorCodeWrongSession, err.Error())
+}

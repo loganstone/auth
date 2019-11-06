@@ -28,3 +28,8 @@ const (
 	ErrorCodeSetPassword
 	ErrorCodeIncorrectPassword
 )
+
+// Session error codes.
+const (
+	ErrorCodeWrongSession = iota + 4000
+)
