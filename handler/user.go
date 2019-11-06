@@ -15,7 +15,7 @@ func createNewUser(user *models.User) (errPayload gin.H) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	if !con.Where(&user).First(&user).RecordNotFound() {
+	if !con.Where("email = ?", user.Email).First(user).RecordNotFound() {
 		errPayload = payload.UserAlreadyExists()
 		return
 	}
@@ -26,7 +26,7 @@ func createNewUser(user *models.User) (errPayload gin.H) {
 	}
 
 	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Create(&user).Error
+		return tx.Create(user).Error
 	}); err != nil {
 		errPayload = payload.ErrorDBTransaction(err.Error())
 		return
@@ -85,8 +85,20 @@ func DeleteUser(c *gin.Context) {
 	defer con.Close()
 
 	email := c.Param("email")
-	user := models.User{Email: email}
+	loginUser, err := GetLoginUser(c)
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			payload.ErrorSession(err))
+		return
+	}
 
+	if loginUser.Email != email && !loginUser.IsAdmin {
+		c.Status(http.StatusForbidden)
+		return
+	}
+
+	user := models.User{Email: email}
 	if con.Where(&user).First(&user).RecordNotFound() {
 		c.Status(http.StatusNoContent)
 		return

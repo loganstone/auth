@@ -83,3 +83,96 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
+
+func TestDeleteUser(t *testing.T) {
+	conf := configs.App()
+	email := getTestEmail()
+	user := models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errPayload := createNewUser(&user)
+	assert.Equal(t, errPayload == nil, true)
+
+	router := NewTest()
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/users/%s", email)
+	req, err := http.NewRequest("DELETE", uri, nil)
+	assert.Equal(t, err, nil)
+
+	token := utils.NewJWTToken(10)
+	sessionToken, err := token.Session(user.ID, user.Email, conf.JWTSigninKey)
+	assert.Equal(t, err, nil)
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNoContent, w.Code)
+}
+
+func TestDeleteUserAsOtherUser(t *testing.T) {
+	conf := configs.App()
+	email := getTestEmail()
+	user := models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errPayload := createNewUser(&user)
+	assert.Equal(t, errPayload == nil, true)
+
+	router := NewTest()
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/users/%s", email)
+	req, err := http.NewRequest("DELETE", uri, nil)
+	assert.Equal(t, err, nil)
+
+	token := utils.NewJWTToken(10)
+
+	otherUser := models.User{
+		Email:    getTestEmail(),
+		Password: testPassword,
+	}
+	errPayload = createNewUser(&otherUser)
+	assert.Equal(t, errPayload == nil, true)
+	sessionToken, err := token.Session(otherUser.ID, otherUser.Email, conf.JWTSigninKey)
+	assert.Equal(t, err, nil)
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+}
+
+func TestDeleteUserAsAdmin(t *testing.T) {
+	conf := configs.App()
+	email := getTestEmail()
+	user := models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errPayload := createNewUser(&user)
+	assert.Equal(t, errPayload == nil, true)
+
+	router := NewTest()
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/users/%s", email)
+	req, err := http.NewRequest("DELETE", uri, nil)
+	assert.Equal(t, err, nil)
+
+	token := utils.NewJWTToken(10)
+
+	admin := models.User{
+		Email:    getTestEmail(),
+		Password: testPassword,
+		IsAdmin:  true,
+	}
+	errPayload = createNewUser(&admin)
+	assert.Equal(t, errPayload == nil, true)
+	sessionToken, err := token.Session(admin.ID, admin.Email, conf.JWTSigninKey)
+	assert.Equal(t, err, nil)
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNoContent, w.Code)
+}
