@@ -34,7 +34,13 @@ type AppConfigs struct {
 	PageSizeLimit      int
 }
 
-var appConfigs AppConfigs
+var appConfigs = AppConfigs{
+	PortToListen:       defaultPortToListen,
+	SignupTokenExpire:  defaultSignupTokenExpire,
+	SessionTokenExpire: defaultSessionTokenExpire,
+	JWTSigninKey:       defaultJWTSigninKey,
+	PageSize:           defaultPageSize,
+}
 
 // DatabaseConfigs ...
 type DatabaseConfigs struct {
@@ -80,7 +86,6 @@ func DB() *DatabaseConfigs {
 
 // App .
 func App() *AppConfigs {
-	appConfigs.SignupTokenExpire = defaultSignupTokenExpire
 	if expire, ok := os.LookupEnv("AUTH_SIGNUP_TOKEN_EXPIRE"); ok {
 		v, err := strconv.Atoi(expire)
 		if err == nil {
@@ -88,7 +93,6 @@ func App() *AppConfigs {
 		}
 	}
 
-	appConfigs.SessionTokenExpire = defaultSessionTokenExpire
 	if expire, ok := os.LookupEnv("AUTH_SESSION_TOKEN_EXPIRE"); ok {
 		v, err := strconv.Atoi(expire)
 		if err == nil {
@@ -96,12 +100,10 @@ func App() *AppConfigs {
 		}
 	}
 
-	appConfigs.JWTSigninKey = defaultJWTSigninKey
 	if key, ok := os.LookupEnv("AUTH_JWT_KEY"); ok {
 		appConfigs.JWTSigninKey = key
 	}
 
-	appConfigs.PageSize = defaultPageSize
 	if pageSize, ok := os.LookupEnv("AUTH_PAGE_SIZE"); ok {
 		appConfigs.PageSize = pageSize
 	}
