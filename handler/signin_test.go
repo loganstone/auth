@@ -18,20 +18,20 @@ func TestSignin(t *testing.T) {
 		Password: testPassword,
 	}
 	errPayload := createNewUser(&user)
-	assert.Equal(t, errPayload == nil, true)
+	assert.Nil(t, errPayload)
 
 	reqBody := map[string]string{
 		"email":    user.Email,
 		"password": user.Password,
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	router := NewTest()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -39,10 +39,10 @@ func TestSignin(t *testing.T) {
 	var resBody map[string]interface{}
 	json.NewDecoder(w.Body).Decode(&resBody)
 	resUser, ok := resBody["user"].(map[string]interface{})
-	assert.Equal(t, true, ok)
+	assert.True(t, ok)
 
 	token, ok := resBody["token"].(string)
-	assert.Equal(t, true, ok)
+	assert.True(t, ok)
 
 	assert.Equal(t, reqBody["email"], resUser["email"])
 	assert.NotEqual(t, "", token)

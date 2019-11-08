@@ -51,7 +51,7 @@ func TestPage(t *testing.T) {
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf(pageTestFullURL, page, pageSize)
 	req, err := http.NewRequest("GET", uri, nil)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -77,7 +77,7 @@ func TestPageWithBadQueryParam(t *testing.T) {
 		w := httptest.NewRecorder()
 		uri := fmt.Sprintf(pageTestURI+"?%s", v)
 		req, err := http.NewRequest("GET", uri, nil)
-		assert.Equal(t, err, nil)
+		assert.Nil(t, err)
 
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)

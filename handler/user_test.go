@@ -32,17 +32,17 @@ func TestUser(t *testing.T) {
 		Password: testPassword,
 	}
 	errPayload := createNewUser(&user)
-	assert.Equal(t, errPayload == nil, true)
+	assert.Nil(t, errPayload)
 
 	router := NewTest()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s", email)
 	req, err := http.NewRequest("GET", uri, nil)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	token := utils.NewJWTToken(10)
 	sessionToken, err := token.Session(user.ID, user.Email, conf.JWTSigninKey)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
 
@@ -64,7 +64,7 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 		Password: testPassword,
 	}
 	errPayload := createNewUser(&user)
-	assert.Equal(t, errPayload == nil, true)
+	assert.Nil(t, errPayload)
 
 	nonexistentEmail := getTestEmail()
 
@@ -72,11 +72,11 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s", nonexistentEmail)
 	req, err := http.NewRequest("GET", uri, nil)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	token := utils.NewJWTToken(10)
 	sessionToken, err := token.Session(user.ID, user.Email, conf.JWTSigninKey)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
 
@@ -92,17 +92,17 @@ func TestDeleteUser(t *testing.T) {
 		Password: testPassword,
 	}
 	errPayload := createNewUser(&user)
-	assert.Equal(t, errPayload == nil, true)
+	assert.Nil(t, errPayload)
 
 	router := NewTest()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s", email)
 	req, err := http.NewRequest("DELETE", uri, nil)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	token := utils.NewJWTToken(10)
 	sessionToken, err := token.Session(user.ID, user.Email, conf.JWTSigninKey)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
 
@@ -118,13 +118,13 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 		Password: testPassword,
 	}
 	errPayload := createNewUser(&user)
-	assert.Equal(t, errPayload == nil, true)
+	assert.Nil(t, errPayload)
 
 	router := NewTest()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s", email)
 	req, err := http.NewRequest("DELETE", uri, nil)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	token := utils.NewJWTToken(10)
 
@@ -133,9 +133,9 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 		Password: testPassword,
 	}
 	errPayload = createNewUser(&otherUser)
-	assert.Equal(t, errPayload == nil, true)
+	assert.Nil(t, errPayload)
 	sessionToken, err := token.Session(otherUser.ID, otherUser.Email, conf.JWTSigninKey)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
 
@@ -151,13 +151,13 @@ func TestDeleteUserAsAdmin(t *testing.T) {
 		Password: testPassword,
 	}
 	errPayload := createNewUser(&user)
-	assert.Equal(t, errPayload == nil, true)
+	assert.Nil(t, errPayload)
 
 	router := NewTest()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s", email)
 	req, err := http.NewRequest("DELETE", uri, nil)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	token := utils.NewJWTToken(10)
 
@@ -167,9 +167,9 @@ func TestDeleteUserAsAdmin(t *testing.T) {
 		IsAdmin:  true,
 	}
 	errPayload = createNewUser(&admin)
-	assert.Equal(t, errPayload == nil, true)
+	assert.Nil(t, errPayload)
 	sessionToken, err := token.Session(admin.ID, admin.Email, conf.JWTSigninKey)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
 
