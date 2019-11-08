@@ -20,8 +20,9 @@ const (
 	defaultPortToListen       = 9999
 	defaultSignupTokenExpire  = 1800 // 30 minutes
 	defaultSessionTokenExpire = 3600 // 60 minutes
-	defaultJWTSigninKey       = "plzsetyoursigninkey"
+	defaultJWTSigninKey       = "PlzSetYourSigninKey"
 	defaultPageSize           = "20"
+	envPrefix                 = "AUTH_"
 )
 
 // AppConfigs .
@@ -63,22 +64,22 @@ func init() {
 
 // DB ...
 func DB() *DatabaseConfigs {
-	id, ok := os.LookupEnv("AUTH_DB_ID")
+	id, ok := os.LookupEnv(envPrefix + "DB_ID")
 	if !ok {
-		log.Fatalf(failedToLookup, "AUTH_DB_ID")
+		log.Fatalf(failedToLookup, envPrefix+"DB_ID")
 	}
 
-	pw, ok := os.LookupEnv("AUTH_DB_PW")
+	pw, ok := os.LookupEnv(envPrefix + "DB_PW")
 	if !ok {
-		log.Fatalf(failedToLookup, "AUTH_DB_PW")
+		log.Fatalf(failedToLookup, envPrefix+"DB_PW")
 	}
 
-	name, ok := os.LookupEnv("AUTH_DB_NAME")
+	name, ok := os.LookupEnv(envPrefix + "DB_NAME")
 	if !ok {
-		log.Fatalf(failedToLookup, "AUTH_DB_NAME")
+		log.Fatalf(failedToLookup, envPrefix+"DB_NAME")
 	}
 
-	echo := os.Getenv("AUTH_DB_ECHO")
+	echo := os.Getenv(envPrefix + "DB_ECHO")
 	return &DatabaseConfigs{
 		id, pw, name, (echo == "1" || strings.ToLower(echo) == "true"),
 	}
@@ -86,29 +87,29 @@ func DB() *DatabaseConfigs {
 
 // App .
 func App() *AppConfigs {
-	if expire, ok := os.LookupEnv("AUTH_SIGNUP_TOKEN_EXPIRE"); ok {
+	if key, ok := os.LookupEnv(envPrefix + "JWT_SIGNIN_KEY"); ok {
+		appConfigs.JWTSigninKey = key
+	}
+
+	if expire, ok := os.LookupEnv(envPrefix + "SIGNUP_TOKEN_EXPIRE"); ok {
 		v, err := strconv.Atoi(expire)
 		if err == nil {
 			appConfigs.SignupTokenExpire = v
 		}
 	}
 
-	if expire, ok := os.LookupEnv("AUTH_SESSION_TOKEN_EXPIRE"); ok {
+	if expire, ok := os.LookupEnv(envPrefix + "SESSION_TOKEN_EXPIRE"); ok {
 		v, err := strconv.Atoi(expire)
 		if err == nil {
 			appConfigs.SessionTokenExpire = v
 		}
 	}
 
-	if key, ok := os.LookupEnv("AUTH_JWT_KEY"); ok {
-		appConfigs.JWTSigninKey = key
-	}
-
-	if pageSize, ok := os.LookupEnv("AUTH_PAGE_SIZE"); ok {
+	if pageSize, ok := os.LookupEnv(envPrefix + "PAGE_SIZE"); ok {
 		appConfigs.PageSize = pageSize
 	}
 
-	if pageSizeLimit, ok := os.LookupEnv("AUTH_PAGE_SIZE_LIMIT"); ok {
+	if pageSizeLimit, ok := os.LookupEnv(envPrefix + "PAGE_SIZE_LIMIT"); ok {
 		if v, err := strconv.Atoi(pageSizeLimit); err == nil {
 			appConfigs.PageSizeLimit = v
 		}
