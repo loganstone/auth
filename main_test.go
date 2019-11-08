@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/loganstone/auth/configs"
+	"github.com/loganstone/auth/db"
 )
 
 func TestMain(m *testing.M) {
@@ -20,7 +21,10 @@ func TestMain(m *testing.M) {
 
 func setup() {
 	// TODO(hs.lee):
-	// rest test database 추가
+	// 테스트 시 AUTH_DB_NAME 가 유지 되도록 처리
+	os.Setenv("AUTH_DB_NAME", "auth_test")
+	dbConf := configs.DB()
+	db.ResetTestDB(dbConf.TCPConnectionString())
 	DBSync()
 }
 

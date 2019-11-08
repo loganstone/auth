@@ -55,6 +55,13 @@ func (c *DatabaseConfigs) ConnectionString() string {
 	return fmt.Sprintf("%s:%s@/%s?%s", c.id, c.pw, c.name, dbConOpt)
 }
 
+// TCPConnectionString .
+func (c *DatabaseConfigs) TCPConnectionString() string {
+	// TODO(hs.lee):
+	// host 와 port 도 설정 가능도록 한다.
+	return fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/", c.id, c.pw)
+}
+
 // DB ...
 func DB() *DatabaseConfigs {
 	id, ok := os.LookupEnv(envPrefix + "DB_ID")
