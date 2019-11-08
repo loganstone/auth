@@ -18,11 +18,21 @@ import (
 	"github.com/loganstone/auth/models"
 )
 
-func main() {
+// DBSync .
+func DBSync() {
 	dbConf := configs.DB()
 	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
-	con.AutoMigrate(&models.User{})
 	defer con.Close()
+	con.AutoMigrate(&models.User{})
+}
+
+// Quit .
+var Quit = make(chan os.Signal)
+
+func main() {
+	// TODO(hs.lee):
+	// 환경 변수로 설정 여부를 지정 하도록 변경.
+	DBSync()
 
 	conf := configs.App()
 	srv := &http.Server{
@@ -39,12 +49,11 @@ func main() {
 	}()
 
 	// Graceful shutdown
-	quit := make(chan os.Signal)
 	// kill (no param) default send syscall.SIGTERM
 	// kill -2 is syscall.SIGINT
 	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
+	signal.Notify(Quit, syscall.SIGINT, syscall.SIGTERM)
+	<-Quit
 	log.Println("Shutdown Server ...")
 
 	ctx, cancel := context.WithTimeout(
