@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,25 +18,20 @@ import (
 	"github.com/loganstone/auth/models"
 )
 
-func init() {
-	flag.Parse()
-}
-
 func main() {
-	conf := configs.App()
-
-	// DB Sync
 	dbConf := configs.DB()
 	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 	con.AutoMigrate(&models.User{})
 	defer con.Close()
 
+	conf := configs.App()
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", conf.PortToListen),
 		Handler: handler.New(),
 	}
 
 	go func() {
+		log.Printf("listen port: %d\n", conf.PortToListen)
 		// service connections
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)

@@ -1,7 +1,6 @@
 package configs
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -56,12 +55,6 @@ func (c *DatabaseConfigs) ConnectionString() string {
 	return fmt.Sprintf("%s:%s@/%s?%s", c.id, c.pw, c.name, dbConOpt)
 }
 
-func init() {
-	flag.IntVar(
-		&appConfigs.PortToListen, "p",
-		defaultPortToListen, "port to listen on")
-}
-
 // DB ...
 func DB() *DatabaseConfigs {
 	id, ok := os.LookupEnv(envPrefix + "DB_ID")
@@ -87,6 +80,13 @@ func DB() *DatabaseConfigs {
 
 // App .
 func App() *AppConfigs {
+	if port, ok := os.LookupEnv(envPrefix + "LISTEN_PORT"); ok {
+		v, err := strconv.Atoi(port)
+		if err == nil {
+			appConfigs.PortToListen = v
+		}
+	}
+
 	if key, ok := os.LookupEnv(envPrefix + "JWT_SIGNIN_KEY"); ok {
 		appConfigs.JWTSigninKey = key
 	}
