@@ -22,6 +22,8 @@ const (
 	defaultJWTSigninKey       = "PlzSetYourSigninKey"
 	defaultPageSize           = "20"
 	envPrefix                 = "AUTH_"
+	defaultDBHost             = "127.0.0.1"
+	defaultDBPort             = "3306"
 )
 
 // AppConfigs .
@@ -46,43 +48,65 @@ var appConfigs = AppConfigs{
 type DatabaseConfigs struct {
 	id   string
 	pw   string
-	name string
+	Name string
+	host string
+	port string
 	Echo bool
+}
+
+var dbConfigs = DatabaseConfigs{
+	host: defaultDBHost,
+	port: defaultDBPort,
 }
 
 // ConnectionString .
 func (c *DatabaseConfigs) ConnectionString() string {
-	return fmt.Sprintf("%s:%s@/%s?%s", c.id, c.pw, c.name, dbConOpt)
+	return fmt.Sprintf("%s:%s@/%s?%s", c.id, c.pw, c.Name, dbConOpt)
 }
 
 // TCPConnectionString .
 func (c *DatabaseConfigs) TCPConnectionString() string {
-	// TODO(hs.lee):
-	// host 와 port 도 설정 가능도록 한다.
-	return fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/", c.id, c.pw)
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/", c.id, c.pw, c.host, c.port)
 }
 
 // DB ...
 func DB() *DatabaseConfigs {
-	id, ok := os.LookupEnv(envPrefix + "DB_ID")
-	if !ok {
-		log.Fatalf(failedToLookup, envPrefix+"DB_ID")
+	if dbConfigs.id == "" {
+		id, ok := os.LookupEnv(envPrefix + "DB_ID")
+		if !ok {
+			log.Fatalf(failedToLookup, envPrefix+"DB_ID")
+		}
+		dbConfigs.id = id
 	}
 
-	pw, ok := os.LookupEnv(envPrefix + "DB_PW")
-	if !ok {
-		log.Fatalf(failedToLookup, envPrefix+"DB_PW")
+	if dbConfigs.pw == "" {
+		pw, ok := os.LookupEnv(envPrefix + "DB_PW")
+		if !ok {
+			log.Fatalf(failedToLookup, envPrefix+"DB_PW")
+		}
+		dbConfigs.pw = pw
 	}
 
-	name, ok := os.LookupEnv(envPrefix + "DB_NAME")
-	if !ok {
-		log.Fatalf(failedToLookup, envPrefix+"DB_NAME")
+	if dbConfigs.Name == "" {
+		name, ok := os.LookupEnv(envPrefix + "DB_NAME")
+		if !ok {
+			log.Fatalf(failedToLookup, envPrefix+"DB_NAME")
+		}
+		dbConfigs.Name = name
+	}
+
+	if h, ok := os.LookupEnv(envPrefix + "DB_HOST"); ok {
+		dbConfigs.host = h
+	}
+
+	if p, ok := os.LookupEnv(envPrefix + "DB_PORT"); ok {
+		dbConfigs.port = p
 	}
 
 	echo := os.Getenv(envPrefix + "DB_ECHO")
-	return &DatabaseConfigs{
-		id, pw, name, (echo == "1" || strings.ToLower(echo) == "true"),
-	}
+	dbConfigs.Echo = (echo == "1" || strings.ToLower(echo) == "true")
+
+	return &dbConfigs
 }
 
 // App .
