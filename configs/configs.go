@@ -61,6 +61,12 @@ var dbConfigs = DatabaseConfigs{
 
 // ConnectionString .
 func (c *DatabaseConfigs) ConnectionString() string {
+	if v, ok := os.LookupEnv("AUTH_TEST"); ok {
+		if v == "true" {
+			return fmt.Sprintf(
+				"%s:%s@/%s?%s", c.id, c.pw, c.Name+"_test", dbConOpt)
+		}
+	}
 	return fmt.Sprintf("%s:%s@/%s?%s", c.id, c.pw, c.Name, dbConOpt)
 }
 
