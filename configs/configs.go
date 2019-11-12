@@ -24,6 +24,8 @@ const (
 	envPrefix                 = "AUTH_"
 	defaultDBHost             = "127.0.0.1"
 	defaultDBPort             = "3306"
+	dbConStr                  = "%s:%s@/%s?%s"
+	dbTCPConStr               = "%s:%s@tcp(%s:%s)/"
 )
 
 // AppConfigs .
@@ -61,18 +63,22 @@ var dbConfigs = DatabaseConfigs{
 
 // ConnectionString .
 func (c *DatabaseConfigs) ConnectionString() string {
+	// TODO(hs.lee):
+	// main_test.go 에서 설정한
+	// AUTH_TEST 환경변수를 모든 테스트에
+	// 유지시킬 방법을 찾아봐야 한다.
 	if v, ok := os.LookupEnv("AUTH_TEST"); ok {
 		if v == "true" {
 			return fmt.Sprintf(
-				"%s:%s@/%s?%s", c.id, c.pw, c.Name+"_test", dbConOpt)
+				dbConStr, c.id, c.pw, c.Name+"_test", dbConOpt)
 		}
 	}
-	return fmt.Sprintf("%s:%s@/%s?%s", c.id, c.pw, c.Name, dbConOpt)
+	return fmt.Sprintf(dbConStr, c.id, c.pw, c.Name, dbConOpt)
 }
 
 // TCPConnectionString .
 func (c *DatabaseConfigs) TCPConnectionString() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/", c.id, c.pw, c.host, c.port)
+	return fmt.Sprintf(dbTCPConStr, c.id, c.pw, c.host, c.port)
 }
 
 // DB ...
