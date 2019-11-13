@@ -18,6 +18,9 @@ func TestDB(t *testing.T) {
 	conf := DB()
 	expected := "test_db_id:test_db_pw@/test_db_name?" + dbConOpt
 	assert.Equal(t, conf.ConnectionString(), expected)
+
+	expected = "test_db_id:test_db_pw@tcp(127.0.0.1:3306)/"
+	assert.Equal(t, conf.TCPConnectionString(), expected)
 }
 
 func TestApp(t *testing.T) {
