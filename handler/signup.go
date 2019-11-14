@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/loganstone/auth/configs"
-	"github.com/loganstone/auth/models"
+	"github.com/loganstone/auth/db/models"
 	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )

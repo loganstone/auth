@@ -7,7 +7,16 @@ import (
 	"github.com/jinzhu/gorm"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql" // driver
+
+	"github.com/loganstone/auth/db/models"
 )
+
+// Sync .
+func Sync(option string, echo bool) {
+	con := Connection(option, echo)
+	defer con.Close()
+	con.AutoMigrate(&models.User{})
+}
 
 // Connection .
 func Connection(option string, echo bool) *gorm.DB {
@@ -19,23 +28,22 @@ func Connection(option string, echo bool) *gorm.DB {
 	return db
 }
 
-// ResetTestDB .
-func ResetTestDB(option string) {
+// ResetDB .
+func ResetDB(option string, dbname string) {
 	db, err := sql.Open("mysql", option)
 	if err != nil {
 		log.Fatal("db connection failed")
 	}
 	defer db.Close()
 
-	_, err = db.Exec(
-		"DROP DATABASE IF EXISTS auth_test")
+	_, err = db.Exec("DROP DATABASE IF EXISTS " + dbname)
 	if err != nil {
-		log.Fatal("drop 'auth_test' database failed")
+		log.Fatalf("drop '%s' database failed\n", dbname)
 	}
 	_, err = db.Exec(
-		"CREATE DATABASE auth_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+		"CREATE DATABASE " + dbname + " CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
 	if err != nil {
-		log.Fatal("create 'auth_test' database failed")
+		log.Fatalf("create '%s' database failed\n", dbname)
 	}
 }
 

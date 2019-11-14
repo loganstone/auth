@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/loganstone/auth/configs"
-	"github.com/loganstone/auth/models"
+	"github.com/loganstone/auth/db/models"
 	"github.com/loganstone/auth/utils"
 )
 

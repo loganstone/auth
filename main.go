@@ -15,16 +15,7 @@ import (
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/handler"
-	"github.com/loganstone/auth/models"
 )
-
-// DBSync .
-func DBSync() {
-	dbConf := configs.DB()
-	con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
-	defer con.Close()
-	con.AutoMigrate(&models.User{})
-}
 
 // Quit .
 var Quit = make(chan os.Signal)
@@ -32,7 +23,8 @@ var Quit = make(chan os.Signal)
 func main() {
 	// TODO(hs.lee):
 	// 환경 변수로 설정 여부를 지정 하도록 변경.
-	DBSync()
+	dbConf := configs.DB()
+	db.Sync(dbConf.ConnectionString(), dbConf.Echo)
 
 	conf := configs.App()
 	srv := &http.Server{

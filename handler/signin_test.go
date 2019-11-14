@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/loganstone/auth/models"
+	"github.com/loganstone/auth/db/models"
 	"github.com/stretchr/testify/assert"
 )
 

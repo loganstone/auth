@@ -61,16 +61,17 @@ var dbConfigs = DatabaseConfigs{
 	port: defaultDBPort,
 }
 
+// DBNameForTest .
+func (c *DatabaseConfigs) DBNameForTest() string {
+	return c.Name + "_test"
+}
+
 // ConnectionString .
 func (c *DatabaseConfigs) ConnectionString() string {
-	// TODO(hs.lee):
-	// main_test.go 에서 설정한
-	// AUTH_TEST 환경변수를 모든 테스트에
-	// 유지시킬 방법을 찾아봐야 한다.
 	if v, ok := os.LookupEnv("AUTH_TEST"); ok {
 		if v == "true" {
 			return fmt.Sprintf(
-				dbConStr, c.id, c.pw, c.Name+"_test", dbConOpt)
+				dbConStr, c.id, c.pw, c.DBNameForTest(), dbConOpt)
 		}
 	}
 	return fmt.Sprintf(dbConStr, c.id, c.pw, c.Name, dbConOpt)
