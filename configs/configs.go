@@ -63,6 +63,12 @@ var dbConfigs = DatabaseConfigs{
 	port: defaultDBPort,
 }
 
+var requiredDBConf = map[string]*string{
+	envPrefix + "DB_ID":   &dbConfigs.id,
+	envPrefix + "DB_PW":   &dbConfigs.pw,
+	envPrefix + "DB_NAME": &dbConfigs.name,
+}
+
 // DBNameForTest .
 func (c *DatabaseConfigs) DBNameForTest() string {
 	return fmt.Sprintf("%s_test", c.name)
@@ -84,23 +90,13 @@ func (c *DatabaseConfigs) TCPConnectionString() string {
 
 // DB ...
 func DB() *DatabaseConfigs {
-	id, ok := os.LookupEnv(envPrefix + "DB_ID")
-	if !ok {
-		log.Fatalf(failedToLookup, envPrefix+"DB_ID")
+	for k, p := range requiredDBConf {
+		v, ok := os.LookupEnv(k)
+		if !ok {
+			log.Fatalf(failedToLookup, k)
+		}
+		*p = v
 	}
-	dbConfigs.id = id
-
-	pw, ok := os.LookupEnv(envPrefix + "DB_PW")
-	if !ok {
-		log.Fatalf(failedToLookup, envPrefix+"DB_PW")
-	}
-	dbConfigs.pw = pw
-
-	name, ok := os.LookupEnv(envPrefix + "DB_NAME")
-	if !ok {
-		log.Fatalf(failedToLookup, envPrefix+"DB_NAME")
-	}
-	dbConfigs.name = name
 
 	if h, ok := os.LookupEnv(envPrefix + "DB_HOST"); ok {
 		dbConfigs.host = h
