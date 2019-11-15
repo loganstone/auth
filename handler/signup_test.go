@@ -21,7 +21,7 @@ func TestSendVerificationEmail(t *testing.T) {
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
 
-	router := NewTest()
+	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signup/email/verification", bytes.NewReader(body))
 	defer req.Body.Close()
@@ -49,7 +49,7 @@ func TestVerifySignupToken(t *testing.T) {
 	signupToken, err := token.Signup(email, conf.JWTSigninKey)
 	assert.Nil(t, err)
 
-	router := NewTest()
+	router := New()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/signup/email/verification/%s", signupToken)
 	req, err := http.NewRequest("GET", uri, nil)
@@ -78,7 +78,7 @@ func TestSignup(t *testing.T) {
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
 
-	router := NewTest()
+	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signup", bytes.NewReader(body))
 	assert.Nil(t, err)

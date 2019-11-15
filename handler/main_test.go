@@ -4,6 +4,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
 )
@@ -16,7 +18,7 @@ func TestMain(m *testing.M) {
 }
 
 func setup() {
-	os.Setenv("AUTH_TEST", "true")
+	gin.SetMode(gin.TestMode)
 	dbConf := configs.DB()
 	db.ResetDB(dbConf.TCPConnectionString(), dbConf.DBNameForTest())
 	db.Sync(dbConf.ConnectionString(), dbConf.Echo)

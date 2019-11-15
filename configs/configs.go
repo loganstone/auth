@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-gonic/gin"
+
 	_ "github.com/jinzhu/gorm/dialects/mysql" // driver
 )
 
@@ -68,11 +70,9 @@ func (c *DatabaseConfigs) DBNameForTest() string {
 
 // ConnectionString .
 func (c *DatabaseConfigs) ConnectionString() string {
-	if v, ok := os.LookupEnv("AUTH_TEST"); ok {
-		if v == "true" {
-			return fmt.Sprintf(
-				dbConStr, c.id, c.pw, c.DBNameForTest(), dbConOpt)
-		}
+	dbName := c.name
+	if gin.Mode() == gin.TestMode {
+		dbName = c.DBNameForTest()
 	}
 	return fmt.Sprintf(dbConStr, c.id, c.pw, dbName, dbConOpt)
 }

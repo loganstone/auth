@@ -27,7 +27,7 @@ func TestSignin(t *testing.T) {
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
 
-	router := NewTest()
+	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()

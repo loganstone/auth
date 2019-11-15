@@ -15,21 +15,15 @@ func newRouter() *gin.Engine {
 
 	bind(router)
 
-	if gin.Mode() == gin.DebugMode {
-		// Debug uri - /debug/pprof/
-		pprof.Register(router)
-	}
-
 	return router
 }
 
 // New .
 func New() *gin.Engine {
-	return newRouter()
-}
+	router := newRouter()
+	if gin.Mode() == gin.DebugMode {
+		pprof.Register(router)
+	}
 
-// NewTest .
-func NewTest() *gin.Engine {
-	gin.SetMode(gin.TestMode)
-	return newRouter()
+	return router
 }

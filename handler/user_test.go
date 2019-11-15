@@ -34,7 +34,7 @@ func TestUser(t *testing.T) {
 	errPayload := createNewUser(&user)
 	assert.Nil(t, errPayload)
 
-	router := NewTest()
+	router := New()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s", email)
 	req, err := http.NewRequest("GET", uri, nil)
@@ -68,7 +68,7 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 
 	nonexistentEmail := getTestEmail()
 
-	router := NewTest()
+	router := New()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s", nonexistentEmail)
 	req, err := http.NewRequest("GET", uri, nil)
@@ -94,7 +94,7 @@ func TestDeleteUser(t *testing.T) {
 	errPayload := createNewUser(&user)
 	assert.Nil(t, errPayload)
 
-	router := NewTest()
+	router := New()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s", email)
 	req, err := http.NewRequest("DELETE", uri, nil)
@@ -120,7 +120,7 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 	errPayload := createNewUser(&user)
 	assert.Nil(t, errPayload)
 
-	router := NewTest()
+	router := New()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s", email)
 	req, err := http.NewRequest("DELETE", uri, nil)
@@ -153,7 +153,7 @@ func TestDeleteUserAsAdmin(t *testing.T) {
 	errPayload := createNewUser(&user)
 	assert.Nil(t, errPayload)
 
-	router := NewTest()
+	router := New()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s", email)
 	req, err := http.NewRequest("DELETE", uri, nil)
