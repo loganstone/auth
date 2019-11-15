@@ -50,7 +50,7 @@ var appConfigs = AppConfigs{
 type DatabaseConfigs struct {
 	id   string
 	pw   string
-	Name string
+	name string
 	host string
 	port string
 	Echo bool
@@ -63,7 +63,7 @@ var dbConfigs = DatabaseConfigs{
 
 // DBNameForTest .
 func (c *DatabaseConfigs) DBNameForTest() string {
-	return c.Name + "_test"
+	return fmt.Sprintf("%s_test", c.name)
 }
 
 // ConnectionString .
@@ -74,7 +74,7 @@ func (c *DatabaseConfigs) ConnectionString() string {
 				dbConStr, c.id, c.pw, c.DBNameForTest(), dbConOpt)
 		}
 	}
-	return fmt.Sprintf(dbConStr, c.id, c.pw, c.Name, dbConOpt)
+	return fmt.Sprintf(dbConStr, c.id, c.pw, dbName, dbConOpt)
 }
 
 // TCPConnectionString .
@@ -84,29 +84,23 @@ func (c *DatabaseConfigs) TCPConnectionString() string {
 
 // DB ...
 func DB() *DatabaseConfigs {
-	if dbConfigs.id == "" {
-		id, ok := os.LookupEnv(envPrefix + "DB_ID")
-		if !ok {
-			log.Fatalf(failedToLookup, envPrefix+"DB_ID")
-		}
-		dbConfigs.id = id
+	id, ok := os.LookupEnv(envPrefix + "DB_ID")
+	if !ok {
+		log.Fatalf(failedToLookup, envPrefix+"DB_ID")
 	}
+	dbConfigs.id = id
 
-	if dbConfigs.pw == "" {
-		pw, ok := os.LookupEnv(envPrefix + "DB_PW")
-		if !ok {
-			log.Fatalf(failedToLookup, envPrefix+"DB_PW")
-		}
-		dbConfigs.pw = pw
+	pw, ok := os.LookupEnv(envPrefix + "DB_PW")
+	if !ok {
+		log.Fatalf(failedToLookup, envPrefix+"DB_PW")
 	}
+	dbConfigs.pw = pw
 
-	if dbConfigs.Name == "" {
-		name, ok := os.LookupEnv(envPrefix + "DB_NAME")
-		if !ok {
-			log.Fatalf(failedToLookup, envPrefix+"DB_NAME")
-		}
-		dbConfigs.Name = name
+	name, ok := os.LookupEnv(envPrefix + "DB_NAME")
+	if !ok {
+		log.Fatalf(failedToLookup, envPrefix+"DB_NAME")
 	}
+	dbConfigs.name = name
 
 	if h, ok := os.LookupEnv(envPrefix + "DB_HOST"); ok {
 		dbConfigs.host = h
