@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -17,16 +19,34 @@ import (
 	"github.com/loganstone/auth/handler"
 )
 
+const localHost = "localhost"
+
 // Quit .
 var Quit = make(chan os.Signal)
 
+func isListen(host string, port int) bool {
+	conn, err := net.DialTimeout(
+		"tcp",
+		net.JoinHostPort(host, strconv.Itoa(port)),
+		time.Second)
+	if err != nil {
+		return false
+	}
+	defer conn.Close()
+	return true
+}
+
 func main() {
-	// TODO(hs.lee):
-	// 환경 변수로 설정 여부를 지정 하도록 변경.
 	dbConf := configs.DB()
 	db.Sync(dbConf.ConnectionString(), dbConf.Echo)
 
 	conf := configs.App()
+	if isListen(localHost, conf.PortToListen) {
+		log.Fatalf(`'%d' port already in use
+- using env: export AUTH_LISTEN_PORT=<port not in use>
+`, conf.PortToListen)
+	}
+
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", conf.PortToListen),
 		Handler: handler.New(),

@@ -1,12 +1,9 @@
 package main
 
 import (
-	"net"
 	"os"
-	"strconv"
 	"syscall"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -37,20 +34,8 @@ func TestFuncMain(t *testing.T) {
 	}()
 
 	conf := configs.App()
-	for !IsListen("localhost", conf.PortToListen) {
+	for !isListen(localHost, conf.PortToListen) {
 		continue
 	}
 	Quit <- syscall.SIGINT
-}
-
-func IsListen(host string, port int) bool {
-	conn, err := net.DialTimeout(
-		"tcp",
-		net.JoinHostPort(host, strconv.Itoa(port)),
-		time.Second)
-	if err != nil {
-		return false
-	}
-	defer conn.Close()
-	return true
 }
