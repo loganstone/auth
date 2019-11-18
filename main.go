@@ -38,7 +38,11 @@ func isListen(host string, port int) bool {
 
 func main() {
 	dbConf := configs.DB()
-	db.Sync(dbConf.ConnectionString(), dbConf.Echo)
+	if dbConf.AutoSync {
+		log.Println("Sync DB ...")
+		db.Sync(dbConf.ConnectionString(), dbConf.Echo)
+		log.Println("Sync DB Completed")
+	}
 
 	conf := configs.App()
 	if isListen(localHost, conf.PortToListen) {

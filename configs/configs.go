@@ -50,12 +50,13 @@ var appConfigs = AppConfigs{
 
 // DatabaseConfigs ...
 type DatabaseConfigs struct {
-	id   string
-	pw   string
-	name string
-	host string
-	port string
-	Echo bool
+	id       string
+	pw       string
+	name     string
+	host     string
+	port     string
+	Echo     bool
+	AutoSync bool
 }
 
 var dbConfigs = DatabaseConfigs{
@@ -104,6 +105,10 @@ func DB() *DatabaseConfigs {
 
 	if p, ok := os.LookupEnv(envPrefix + "DB_PORT"); ok {
 		dbConfigs.port = p
+	}
+
+	if s, ok := os.LookupEnv(envPrefix + "DB_SYNC"); ok {
+		dbConfigs.AutoSync = (s == "1" || strings.ToLower(s) == "true")
 	}
 
 	echo := os.Getenv(envPrefix + "DB_ECHO")
