@@ -1,4 +1,4 @@
-package middleware
+package handler
 
 import (
 	"fmt"
@@ -12,6 +12,7 @@ import (
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/db/models"
+	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
 
@@ -51,6 +52,51 @@ func Authorize() gin.HandlerFunc {
 		}
 
 		c.Set("SessionUser", user)
+		c.Next()
+	}
+}
+
+// Admin .
+func Admin() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		loginUser, err := GetLoginUser(c)
+
+		if err != nil {
+			c.AbortWithStatusJSON(
+				http.StatusBadRequest,
+				payload.ErrorSession(err))
+			return
+		}
+
+		if !loginUser.IsAdmin {
+			c.AbortWithStatus(http.StatusForbidden)
+			return
+		}
+		c.Next()
+	}
+}
+
+// Self .
+func Self() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		email := c.Param("email")
+		if email == "" {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
+
+		loginUser, err := GetLoginUser(c)
+		if err != nil {
+			c.AbortWithStatusJSON(
+				http.StatusBadRequest,
+				payload.ErrorSession(err))
+			return
+		}
+
+		if loginUser.Email != email {
+			c.AbortWithStatus(http.StatusForbidden)
+			return
+		}
 		c.Next()
 	}
 }

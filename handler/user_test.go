@@ -62,6 +62,7 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 	user := models.User{
 		Email:    email,
 		Password: testPassword,
+		IsAdmin:  true,
 	}
 	errPayload := createNewUser(&user)
 	assert.Nil(t, errPayload)
@@ -70,7 +71,7 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 
 	router := New()
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s", nonexistentEmail)
+	uri := fmt.Sprintf("/admin/users/%s", nonexistentEmail)
 	req, err := http.NewRequest("GET", uri, nil)
 	assert.Nil(t, err)
 
@@ -155,7 +156,7 @@ func TestDeleteUserAsAdmin(t *testing.T) {
 
 	router := New()
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s", email)
+	uri := fmt.Sprintf("/admin/users/%s", email)
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.Nil(t, err)
 

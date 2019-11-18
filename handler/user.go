@@ -69,7 +69,6 @@ func User(c *gin.Context) {
 
 	email := c.Param("email")
 	user := models.User{Email: email}
-
 	if con.Where(&user).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
 			http.StatusNotFound, payload.NotFoundUser())
@@ -85,19 +84,6 @@ func DeleteUser(c *gin.Context) {
 	defer con.Close()
 
 	email := c.Param("email")
-	loginUser, err := GetLoginUser(c)
-	if err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			payload.ErrorSession(err))
-		return
-	}
-
-	if loginUser.Email != email && !loginUser.IsAdmin {
-		c.Status(http.StatusForbidden)
-		return
-	}
-
 	user := models.User{Email: email}
 	if con.Where(&user).First(&user).RecordNotFound() {
 		c.Status(http.StatusNoContent)

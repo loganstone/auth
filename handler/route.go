@@ -3,13 +3,21 @@ package handler
 import (
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
-
-	"github.com/loganstone/auth/middleware"
 )
 
 func bind(r *gin.Engine) {
+	admin := r.Group("/admin")
+	admin.Use(Authorize())
+	admin.Use(Admin())
+	{
+		users := admin.Group("users")
+		users.GET("/:email", User)
+		users.DELETE("/:email", DeleteUser)
+	}
+
 	users := r.Group("/users")
-	users.Use(middleware.Authorize())
+	users.Use(Authorize())
+	users.Use(Self())
 	{
 		users.GET("", Users)
 		users.GET("/:email", User)
@@ -29,8 +37,8 @@ func bind(r *gin.Engine) {
 // New .
 func New() *gin.Engine {
 	router := gin.New()
-	router.Use(middleware.LogFormat())
-	router.Use(middleware.RequestID())
+	router.Use(LogFormat())
+	router.Use(RequestID())
 	router.Use(gin.Recovery())
 
 	bind(router)
