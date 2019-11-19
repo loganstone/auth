@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"gopkg.in/go-playground/assert.v1"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -88,7 +88,7 @@ func TestSendToLocalPostfix(t *testing.T) {
 		defer close(clientDone)
 		email := NewEmail(name, from, to, subject, body)
 		err := email.sendToLocalPostfix(ln.Addr().String())
-		assert.Equal(t, err, nil)
+		assert.Nil(t, err)
 	}()
 
 	<-clientDone

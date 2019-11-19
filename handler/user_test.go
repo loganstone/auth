@@ -59,12 +59,12 @@ func TestUser(t *testing.T) {
 func TestUserWithNonexistentEmail(t *testing.T) {
 	conf := configs.App()
 	email := getTestEmail()
-	user := models.User{
+	admin := models.User{
 		Email:    email,
 		Password: testPassword,
 		IsAdmin:  true,
 	}
-	errPayload := createNewUser(&user)
+	errPayload := createNewUser(&admin)
 	assert.Nil(t, errPayload)
 
 	nonexistentEmail := getTestEmail()
@@ -76,7 +76,7 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 	assert.Nil(t, err)
 
 	token := utils.NewJWTToken(10)
-	sessionToken, err := token.Session(user.ID, user.Email, conf.JWTSigninKey)
+	sessionToken, err := token.Session(admin.ID, admin.Email, conf.JWTSigninKey)
 	assert.Nil(t, err)
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
