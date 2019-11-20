@@ -82,6 +82,27 @@ func createNewUser(user *models.User) (errRes payload.ErrorCodeResponse) {
 	return
 }
 
+func reloadUser(u *models.User) bool {
+	con := GetDBConnection()
+	defer con.Close()
+
+	if con.Where("email = ?", u.Email).First(u).RecordNotFound() {
+		return false
+	}
+	return true
+}
+
 func getTestEmail() string {
 	return fmt.Sprintf(testEmailFmt, uuid.New().String())
+}
+
+func setSessionTokenInReqHeaderForTest(req *http.Request, u *models.User) {
+	conf := configs.App()
+	token := utils.NewJWTToken(10)
+	sessionToken, err := token.Session(u.ID, u.Email, conf.JWTSigninKey)
+	if err != nil {
+		log.Fatalf("fail generate session token: %s\n", err.Error())
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
 }
