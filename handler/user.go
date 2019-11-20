@@ -11,29 +11,6 @@ import (
 	"github.com/loganstone/auth/payload"
 )
 
-func createNewUser(user *models.User) (errRes payload.ErrorCodeResponse) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	if !con.Where("email = ?", user.Email).First(user).RecordNotFound() {
-		errRes = payload.UserAlreadyExists()
-		return
-	}
-
-	if err := user.SetPassword(); err != nil {
-		errRes = payload.ErrorSetPassword(err.Error())
-		return
-	}
-
-	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Create(user).Error
-	}); err != nil {
-		errRes = payload.ErrorDBTransaction(err.Error())
-		return
-	}
-	return
-}
-
 // Users .
 func Users(c *gin.Context) {
 	con := GetDBConnection()
@@ -67,11 +44,8 @@ func User(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	email := c.Param("email")
-	user := models.User{Email: email}
-	if con.Where(&user).First(&user).RecordNotFound() {
-		c.AbortWithStatusJSON(
-			http.StatusNotFound, payload.NotFoundUser())
+	user := fundUserOrAbort(c, con)
+	if user == nil {
 		return
 	}
 

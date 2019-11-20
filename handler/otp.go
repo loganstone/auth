@@ -7,7 +7,6 @@ import (
 	"github.com/jinzhu/gorm"
 
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/db/models"
 	"github.com/loganstone/auth/payload"
 )
 
@@ -16,11 +15,8 @@ func GenerateOTP(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	email := c.Param("email")
-	user := models.User{Email: email}
-	if con.Where(&user).First(&user).RecordNotFound() {
-		c.AbortWithStatusJSON(
-			http.StatusNotFound, payload.NotFoundUser())
+	user := fundUserOrAbort(c, con)
+	if user == nil {
 		return
 	}
 
@@ -55,11 +51,8 @@ func ConfirmOTP(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	email := c.Param("email")
-	user := models.User{Email: email}
-	if con.Where(&user).First(&user).RecordNotFound() {
-		c.AbortWithStatusJSON(
-			http.StatusNotFound, payload.NotFoundUser())
+	user := fundUserOrAbort(c, con)
+	if user == nil {
 		return
 	}
 
@@ -84,10 +77,8 @@ func ResetOTP(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	email := c.Param("email")
-	user := models.User{Email: email}
-	if con.Where(&user).First(&user).RecordNotFound() {
-		c.Status(http.StatusNoContent)
+	user := fundUserOrAbort(c, con)
+	if user == nil {
 		return
 	}
 
