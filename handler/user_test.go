@@ -7,25 +7,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db/models"
-	"github.com/loganstone/auth/utils"
 )
-
-const (
-	testEmailFmt = "test-%s@email.com"
-	testPassword = "ok12345678"
-)
-
-func getTestEmail() string {
-	return fmt.Sprintf(testEmailFmt, uuid.New().String())
-}
 
 func TestUser(t *testing.T) {
-	conf := configs.App()
 	email := getTestEmail()
 	user := models.User{
 		Email:    email,
@@ -40,11 +27,7 @@ func TestUser(t *testing.T) {
 	req, err := http.NewRequest("GET", uri, nil)
 	assert.Nil(t, err)
 
-	token := utils.NewJWTToken(10)
-	sessionToken, err := token.Session(user.ID, user.Email, conf.JWTSigninKey)
-	assert.Nil(t, err)
-
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
+	setSessionTokenInReqHeaderForTest(req, &user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -57,7 +40,6 @@ func TestUser(t *testing.T) {
 }
 
 func TestUserWithNonexistentEmail(t *testing.T) {
-	conf := configs.App()
 	email := getTestEmail()
 	admin := models.User{
 		Email:    email,
@@ -75,18 +57,13 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 	req, err := http.NewRequest("GET", uri, nil)
 	assert.Nil(t, err)
 
-	token := utils.NewJWTToken(10)
-	sessionToken, err := token.Session(admin.ID, admin.Email, conf.JWTSigninKey)
-	assert.Nil(t, err)
-
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
+	setSessionTokenInReqHeaderForTest(req, &admin)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
 func TestDeleteUser(t *testing.T) {
-	conf := configs.App()
 	email := getTestEmail()
 	user := models.User{
 		Email:    email,
@@ -101,18 +78,13 @@ func TestDeleteUser(t *testing.T) {
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.Nil(t, err)
 
-	token := utils.NewJWTToken(10)
-	sessionToken, err := token.Session(user.ID, user.Email, conf.JWTSigninKey)
-	assert.Nil(t, err)
-
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
+	setSessionTokenInReqHeaderForTest(req, &user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
 func TestDeleteUserAsOtherUser(t *testing.T) {
-	conf := configs.App()
 	email := getTestEmail()
 	user := models.User{
 		Email:    email,
@@ -126,8 +98,6 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 	uri := fmt.Sprintf("/users/%s", email)
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.Nil(t, err)
-
-	token := utils.NewJWTToken(10)
 
 	otherUser := models.User{
 		Email:    getTestEmail(),
@@ -135,17 +105,14 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 	}
 	errRes = createNewUser(&otherUser)
 	assert.Equal(t, errRes.ErrorCode, 0)
-	sessionToken, err := token.Session(otherUser.ID, otherUser.Email, conf.JWTSigninKey)
-	assert.Nil(t, err)
 
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
+	setSessionTokenInReqHeaderForTest(req, &otherUser)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusForbidden, w.Code)
 }
 
 func TestDeleteUserAsAdmin(t *testing.T) {
-	conf := configs.App()
 	email := getTestEmail()
 	user := models.User{
 		Email:    email,
@@ -160,8 +127,6 @@ func TestDeleteUserAsAdmin(t *testing.T) {
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.Nil(t, err)
 
-	token := utils.NewJWTToken(10)
-
 	admin := models.User{
 		Email:    getTestEmail(),
 		Password: testPassword,
@@ -169,10 +134,8 @@ func TestDeleteUserAsAdmin(t *testing.T) {
 	}
 	errRes = createNewUser(&admin)
 	assert.Equal(t, errRes.ErrorCode, 0)
-	sessionToken, err := token.Session(admin.ID, admin.Email, conf.JWTSigninKey)
-	assert.Nil(t, err)
 
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
+	setSessionTokenInReqHeaderForTest(req, &admin)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)

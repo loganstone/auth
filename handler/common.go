@@ -2,14 +2,24 @@ package handler
 
 import (
 	"errors"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
+
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/db/models"
 	"github.com/loganstone/auth/payload"
+	"github.com/loganstone/auth/utils"
+)
+
+const (
+	testEmailFmt = "test-%s@email.com"
+	testPassword = "ok12345678"
 )
 
 var (
@@ -70,4 +80,8 @@ func createNewUser(user *models.User) (errRes payload.ErrorCodeResponse) {
 		return
 	}
 	return
+}
+
+func getTestEmail() string {
+	return fmt.Sprintf(testEmailFmt, uuid.New().String())
 }
