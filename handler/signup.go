@@ -54,7 +54,7 @@ type VerificationEmailParam struct {
 // SignupParam .
 type SignupParam struct {
 	Token    string `json:"token" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Password string `json:"password" binding:"required,gte=10,alphanum"`
 }
 
 // SendVerificationEmail .
