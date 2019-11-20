@@ -17,8 +17,8 @@ func TestSignin(t *testing.T) {
 		Email:    email,
 		Password: testPassword,
 	}
-	errPayload := createNewUser(&user)
-	assert.Nil(t, errPayload)
+	errRes := createNewUser(&user)
+	assert.Equal(t, errRes.ErrorCode, 0)
 
 	reqBody := map[string]string{
 		"email":    user.Email,

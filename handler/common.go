@@ -15,12 +15,6 @@ var (
 	errWrongSessionUser = errors.New("'SessionUser' not 'models.User' type")
 )
 
-// ErrorCodeResponse .
-type ErrorCodeResponse struct {
-	ErrorCode    int    `json:"error_code"`
-	ErrorMessage string `json:"error_message"`
-}
-
 // GetLoginUser .
 func GetLoginUser(c *gin.Context) (loginUser models.User, err error) {
 	sessionUser, ok := c.Get("SessionUser")

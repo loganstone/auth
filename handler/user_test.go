@@ -31,8 +31,8 @@ func TestUser(t *testing.T) {
 		Email:    email,
 		Password: testPassword,
 	}
-	errPayload := createNewUser(&user)
-	assert.Nil(t, errPayload)
+	errRes := createNewUser(&user)
+	assert.Equal(t, errRes.ErrorCode, 0)
 
 	router := New()
 	w := httptest.NewRecorder()
@@ -64,8 +64,8 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 		Password: testPassword,
 		IsAdmin:  true,
 	}
-	errPayload := createNewUser(&admin)
-	assert.Nil(t, errPayload)
+	errRes := createNewUser(&admin)
+	assert.Equal(t, errRes.ErrorCode, 0)
 
 	nonexistentEmail := getTestEmail()
 
@@ -92,8 +92,8 @@ func TestDeleteUser(t *testing.T) {
 		Email:    email,
 		Password: testPassword,
 	}
-	errPayload := createNewUser(&user)
-	assert.Nil(t, errPayload)
+	errRes := createNewUser(&user)
+	assert.Equal(t, errRes.ErrorCode, 0)
 
 	router := New()
 	w := httptest.NewRecorder()
@@ -118,8 +118,8 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 		Email:    email,
 		Password: testPassword,
 	}
-	errPayload := createNewUser(&user)
-	assert.Nil(t, errPayload)
+	errRes := createNewUser(&user)
+	assert.Equal(t, errRes.ErrorCode, 0)
 
 	router := New()
 	w := httptest.NewRecorder()
@@ -133,8 +133,8 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 		Email:    getTestEmail(),
 		Password: testPassword,
 	}
-	errPayload = createNewUser(&otherUser)
-	assert.Nil(t, errPayload)
+	errRes = createNewUser(&otherUser)
+	assert.Equal(t, errRes.ErrorCode, 0)
 	sessionToken, err := token.Session(otherUser.ID, otherUser.Email, conf.JWTSigninKey)
 	assert.Nil(t, err)
 
@@ -151,8 +151,8 @@ func TestDeleteUserAsAdmin(t *testing.T) {
 		Email:    email,
 		Password: testPassword,
 	}
-	errPayload := createNewUser(&user)
-	assert.Nil(t, errPayload)
+	errRes := createNewUser(&user)
+	assert.Equal(t, errRes.ErrorCode, 0)
 
 	router := New()
 	w := httptest.NewRecorder()
@@ -167,8 +167,8 @@ func TestDeleteUserAsAdmin(t *testing.T) {
 		Password: testPassword,
 		IsAdmin:  true,
 	}
-	errPayload = createNewUser(&admin)
-	assert.Nil(t, errPayload)
+	errRes = createNewUser(&admin)
+	assert.Equal(t, errRes.ErrorCode, 0)
 	sessionToken, err := token.Session(admin.ID, admin.Email, conf.JWTSigninKey)
 	assert.Nil(t, err)
 

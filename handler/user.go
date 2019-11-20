@@ -11,24 +11,24 @@ import (
 	"github.com/loganstone/auth/payload"
 )
 
-func createNewUser(user *models.User) (errPayload gin.H) {
+func createNewUser(user *models.User) (errRes payload.ErrorCodeResponse) {
 	con := GetDBConnection()
 	defer con.Close()
 
 	if !con.Where("email = ?", user.Email).First(user).RecordNotFound() {
-		errPayload = payload.UserAlreadyExists()
+		errRes = payload.UserAlreadyExists()
 		return
 	}
 
 	if err := user.SetPassword(); err != nil {
-		errPayload = payload.ErrorSetPassword(err.Error())
+		errRes = payload.ErrorSetPassword(err.Error())
 		return
 	}
 
 	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
 		return tx.Create(user).Error
 	}); err != nil {
-		errPayload = payload.ErrorDBTransaction(err.Error())
+		errRes = payload.ErrorDBTransaction(err.Error())
 		return
 	}
 	return

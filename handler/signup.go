@@ -204,13 +204,13 @@ func Signup(c *gin.Context) {
 	user.Email = claims.Email
 	user.Password = param.Password
 
-	errPayload := createNewUser(&user)
-	if errPayload != nil {
+	errRes := createNewUser(&user)
+	if errRes.ErrorCode != 0 {
 		httpStatusCode := http.StatusInternalServerError
-		if errPayload["error_code"] == payload.ErrorCodeUserAlreadyExists {
+		if errRes.ErrorCode == payload.ErrorCodeUserAlreadyExists {
 			httpStatusCode = http.StatusBadRequest
 		}
-		c.AbortWithStatusJSON(httpStatusCode, errPayload)
+		c.AbortWithStatusJSON(httpStatusCode, errRes)
 		return
 	}
 
