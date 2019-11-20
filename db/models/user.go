@@ -70,7 +70,8 @@ func (u User) MarshalJSON() ([]byte, error) {
 	return json.Marshal(user)
 }
 
-func (u *User) getTOTP() (*gotp.TOTP, error) {
+// GetTOTP .
+func (u *User) GetTOTP() (*gotp.TOTP, error) {
 	if u.OTPSecretKey == "" {
 		return nil, errEmptyOTPSecretKey
 	}
@@ -86,16 +87,16 @@ func (u *User) GenerateOTPSecretKey() {
 
 // VerifyOTP .
 func (u *User) VerifyOTP(otp string) bool {
-	totp, err := u.getTOTP()
+	totp, err := u.GetTOTP()
 	if err != nil {
 		return false
 	}
-	return otp == totp.Now()
+	return totp.Verify(otp, int(time.Now().Unix()))
 }
 
 // OTPProvisioningURI .
 func (u *User) OTPProvisioningURI() (string, error) {
-	totp, err := u.getTOTP()
+	totp, err := u.GetTOTP()
 	if err != nil {
 		return "", err
 	}
@@ -121,8 +122,8 @@ func (u *User) ConfirmedOTP() bool {
 }
 
 // SetOTPBackupCodes .
-func (u *User) SetOTPBackupCodes(codes []string) {
-	u.OTPBackupCodes.Scan(codes)
+func (u *User) SetOTPBackupCodes(codes []byte) error {
+	return u.OTPBackupCodes.Scan(codes)
 }
 
 // VerifyOTPBackupCode .

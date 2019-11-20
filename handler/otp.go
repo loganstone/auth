@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,7 +9,13 @@ import (
 
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/payload"
+	"github.com/loganstone/auth/utils"
 )
+
+// ConfirmOTPParam .
+type ConfirmOTPParam struct {
+	OTP string `json:"otp" binding:"required,numeric"`
+}
 
 // GenerateOTP .
 func GenerateOTP(c *gin.Context) {
@@ -56,10 +63,46 @@ func ConfirmOTP(c *gin.Context) {
 		return
 	}
 
+	var param ConfirmOTPParam
+	if err := c.ShouldBindJSON(&param); err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			payload.ErrorBindJSON(err.Error()))
+		return
+	}
+
+	if !user.VerifyOTP(param.OTP) {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			payload.ErrorIncorrectOTP())
+		return
+	}
+
 	user.ConfirmOTP()
 
+	// TODO(hs.lee):
+	// 백업 코드 개수와 자리를 환경 변수 처리해야 한다.
+	codes := utils.DigitCodes(10, 6)
+	result, err := json.Marshal(codes)
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			payload.ErrorMarshalJSON(err.Error()))
+		return
+	}
+
+	err = user.SetOTPBackupCodes(result)
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			payload.ErrorResponse(
+				payload.ErrorCodeSetOTPBackupCodes,
+				err.Error()))
+		return
+	}
+
 	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return con.Save(&user).Error
+		return tx.Save(user).Error
 	}); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
@@ -67,9 +110,7 @@ func ConfirmOTP(c *gin.Context) {
 		return
 	}
 
-	// TODO(hs.lee):
-	// OTP 백업 코드를 반환해야 한다.
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, user.OTPBackupCodes)
 }
 
 // ResetOTP .

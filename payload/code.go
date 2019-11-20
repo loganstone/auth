@@ -28,6 +28,8 @@ const (
 	ErrorCodeSetPassword
 	ErrorCodeIncorrectPassword
 	ErrorCodeOTPProvisioningURI
+	ErrorCodeIncorrectOTP
+	ErrorCodeSetOTPBackupCodes
 )
 
 // Session error codes.
