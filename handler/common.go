@@ -48,7 +48,7 @@ func GetDBConnection() *gorm.DB {
 	return db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 }
 
-func fundUserOrAbort(c *gin.Context, con *gorm.DB) *models.User {
+func findUserOrAbort(c *gin.Context, con *gorm.DB) *models.User {
 	email := c.Param("email")
 	user := models.User{Email: email}
 	if con.Where(&user).First(&user).RecordNotFound() {

@@ -15,7 +15,7 @@ func GenerateOTP(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	user := fundUserOrAbort(c, con)
+	user := findUserOrAbort(c, con)
 	if user == nil {
 		return
 	}
@@ -51,7 +51,7 @@ func ConfirmOTP(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	user := fundUserOrAbort(c, con)
+	user := findUserOrAbort(c, con)
 	if user == nil {
 		return
 	}
@@ -77,7 +77,7 @@ func ResetOTP(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	user := fundUserOrAbort(c, con)
+	user := findUserOrAbort(c, con)
 	if user == nil {
 		return
 	}

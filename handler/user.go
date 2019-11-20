@@ -44,7 +44,7 @@ func User(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	user := fundUserOrAbort(c, con)
+	user := findUserOrAbort(c, con)
 	if user == nil {
 		return
 	}
