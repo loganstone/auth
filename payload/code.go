@@ -27,6 +27,7 @@ const (
 	ErrorCodeUserAlreadyExists
 	ErrorCodeSetPassword
 	ErrorCodeIncorrectPassword
+	ErrorCodeOTPProvisioningURI
 )
 
 // Session error codes.

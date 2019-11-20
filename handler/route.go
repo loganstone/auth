@@ -13,6 +13,7 @@ func bind(r *gin.Engine) {
 		users := admin.Group("users")
 		users.GET("/:email", User)
 		users.DELETE("/:email", DeleteUser)
+		users.DELETE("/:email/otp", ResetOTP)
 	}
 
 	users := r.Group("/users")
@@ -22,6 +23,10 @@ func bind(r *gin.Engine) {
 		users.GET("", Users)
 		users.GET("/:email", User)
 		users.DELETE("/:email", DeleteUser)
+
+		users.POST("/:email/otp", GenerateOTP)
+		users.PUT("/:email/otp", ConfirmOTP)
+		users.DELETE("/:email/otp", ResetOTP)
 	}
 
 	signup := r.Group("/signup")
