@@ -17,6 +17,11 @@ type ConfirmOTPParam struct {
 	OTP string `json:"otp" binding:"required,numeric"`
 }
 
+// ResetOTPParam .
+type ResetOTPParam struct {
+	BackupCode string `json:"backup_code" binding:"required,numeric"`
+}
+
 // GenerateOTP .
 func GenerateOTP(c *gin.Context) {
 	con := GetDBConnection()
@@ -144,6 +149,36 @@ func ResetOTP(c *gin.Context) {
 	user := findUserOrAbort(c, con, http.StatusNoContent)
 	if user == nil {
 		return
+	}
+
+	if !user.ConfirmedOTP() {
+		c.AbortWithStatus(http.StatusNoContent)
+		return
+	}
+
+	if !c.GetBool("IsAdmin") {
+		var param ResetOTPParam
+		if err := c.ShouldBindJSON(&param); err != nil {
+			c.AbortWithStatusJSON(
+				http.StatusBadRequest,
+				payload.ErrorBindJSON(err.Error()))
+			return
+		}
+
+		if user.OTPBackupCodes.IsNull() {
+			c.AbortWithStatusJSON(
+				http.StatusForbidden,
+				payload.ErrorEmptyOTPBackupCodes(
+					"empty otp backup codes. contact administrator"))
+			return
+		}
+
+		if !user.VerifyOTPBackupCode(param.BackupCode) {
+			c.AbortWithStatusJSON(
+				http.StatusForbidden,
+				payload.ErrorIncorrectOTP())
+			return
+		}
 	}
 
 	user.ResetOTP()

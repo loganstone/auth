@@ -72,6 +72,7 @@ func Admin() gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusForbidden)
 			return
 		}
+		c.Set("IsAdmin", true)
 		c.Next()
 	}
 }

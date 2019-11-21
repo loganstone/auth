@@ -149,12 +149,92 @@ func TestResetOTP(t *testing.T) {
 	assert.True(t, user.ConfirmedOTP())
 
 	// Reset
+	var backupCodes []string
+	err = json.Unmarshal(user.OTPBackupCodes, &backupCodes)
+	assert.Nil(t, err)
+	reqBody = map[string]string{
+		"backup_code": backupCodes[0],
+	}
+
+	body, err = json.Marshal(reqBody)
+	assert.Nil(t, err)
 	w = httptest.NewRecorder()
 	uri = fmt.Sprintf("/users/%s/otp", email)
-	req, err = http.NewRequest("DELETE", uri, nil)
+	req, err = http.NewRequest("DELETE", uri, bytes.NewReader(body))
 	assert.Nil(t, err)
 
 	setSessionTokenInReqHeaderForTest(req, &user)
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNoContent, w.Code)
+
+	user = *getUserByEmailForTest(user.Email)
+	assert.False(t, user.ConfirmedOTP())
+	assert.Nil(t, user.OTPConfirmedAt)
+	assert.True(t, user.OTPBackupCodes.IsNull())
+}
+
+func TestResetOTPAsAdmin(t *testing.T) {
+	email := getTestEmail()
+	user := models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errRes := createNewUser(&user)
+	assert.Equal(t, errRes.ErrorCode, 0)
+
+	router := New()
+
+	// Generate
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/users/%s/otp", email)
+	req, err := http.NewRequest("POST", uri, nil)
+	assert.Nil(t, err)
+
+	setSessionTokenInReqHeaderForTest(req, &user)
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	user = *getUserByEmailForTest(user.Email)
+
+	// Confirm
+	totp, err := user.GetTOTP()
+	assert.Nil(t, err)
+	reqBody := map[string]string{
+		"otp": totp.Now(),
+	}
+	body, err := json.Marshal(reqBody)
+	assert.Nil(t, err)
+
+	w = httptest.NewRecorder()
+	uri = fmt.Sprintf("/users/%s/otp", email)
+	req, err = http.NewRequest("PUT", uri, bytes.NewReader(body))
+	assert.Nil(t, err)
+
+	setSessionTokenInReqHeaderForTest(req, &user)
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	user = *getUserByEmailForTest(user.Email)
+	assert.True(t, user.ConfirmedOTP())
+
+	// Reset - Admin
+	w = httptest.NewRecorder()
+	uri = fmt.Sprintf("/admin/users/%s/otp", email)
+	req, err = http.NewRequest("DELETE", uri, nil)
+	assert.Nil(t, err)
+
+	admin := models.User{
+		Email:    getTestEmail(),
+		Password: testPassword,
+		IsAdmin:  true,
+	}
+	errRes = createNewUser(&admin)
+	assert.Equal(t, errRes.ErrorCode, 0)
+
+	setSessionTokenInReqHeaderForTest(req, &admin)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)

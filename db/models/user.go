@@ -129,7 +129,22 @@ func (u *User) SetOTPBackupCodes(codes []byte) error {
 
 // VerifyOTPBackupCode .
 func (u *User) VerifyOTPBackupCode(code string) bool {
-	// TODO(hs.lee): 구현 필요
+	if u.OTPBackupCodes.IsNull() {
+		return false
+	}
+
+	// TODO: 좀 더 스마트한 처리 방법을 생각해 보자.
+	var backupCodes []string
+	err := json.Unmarshal(u.OTPBackupCodes, &backupCodes)
+	if err != nil {
+		return false
+	}
+
+	for _, v := range backupCodes {
+		if string(v) == code {
+			return true
+		}
+	}
 	return false
 }
 
