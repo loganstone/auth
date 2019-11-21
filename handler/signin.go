@@ -11,6 +11,12 @@ import (
 	"github.com/loganstone/auth/utils"
 )
 
+// SiginResponse .
+type SiginResponse struct {
+	User  models.User `json:"user"`
+	Token string      `json:"token"`
+}
+
 // Signin .
 func Signin(c *gin.Context) {
 	conf := configs.App()
@@ -49,5 +55,5 @@ func Signin(c *gin.Context) {
 			payload.ErrorSignJWTToken(err.Error()))
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"user": user, "token": sessionToken})
+	c.JSON(http.StatusOK, SiginResponse{User: user, Token: sessionToken})
 }
