@@ -116,3 +116,8 @@ func ErrorEmptyOTPSecretKey() ErrorCodeResponse {
 func ErrorEmptyOTPBackupCodes(message string) ErrorCodeResponse {
 	return ErrorResponse(ErrorCodeEmptyOTPBackupCodes, message)
 }
+
+// ErrorRequireVerifyOTP .
+func ErrorRequireVerifyOTP() ErrorCodeResponse {
+	return ErrorResponse(ErrorCodeRequireVerifyOTP, "required verify OTP")
+}

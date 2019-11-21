@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -111,15 +110,7 @@ func ConfirmOTP(c *gin.Context) {
 	// TODO(hs.lee):
 	// 백업 코드 개수와 자리를 환경 변수 처리해야 한다.
 	codes := utils.DigitCodes(10, 6)
-	result, err := json.Marshal(codes)
-	if err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorMarshalJSON(err.Error()))
-		return
-	}
-
-	err = user.SetOTPBackupCodes(result)
+	err := user.SetOTPBackupCodes(codes)
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,

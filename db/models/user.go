@@ -123,8 +123,13 @@ func (u *User) ConfirmedOTP() bool {
 }
 
 // SetOTPBackupCodes .
-func (u *User) SetOTPBackupCodes(codes []byte) error {
-	return u.OTPBackupCodes.Scan(codes)
+func (u *User) SetOTPBackupCodes(codes []string) error {
+	result, err := json.Marshal(codes)
+	if err != nil {
+		return err
+	}
+
+	return u.OTPBackupCodes.Scan(result)
 }
 
 // VerifyOTPBackupCode .
@@ -149,7 +154,20 @@ func (u *User) VerifyOTPBackupCode(code string) bool {
 }
 
 // RemoveOTPBackupCode .
-func (u *User) RemoveOTPBackupCode(code string) bool {
-	// TODO(hs.lee): 구현 필요
-	return false
+func (u *User) RemoveOTPBackupCode(code string) error {
+	var backupCodes []string
+	err := json.Unmarshal(u.OTPBackupCodes, &backupCodes)
+	if err != nil {
+		return err
+	}
+
+	var target int
+	for i, v := range backupCodes {
+		if string(v) == code {
+			target = i
+		}
+	}
+
+	backupCodes = append(backupCodes[:target], backupCodes[target+1:]...)
+	return u.SetOTPBackupCodes(backupCodes)
 }

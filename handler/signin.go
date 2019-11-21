@@ -4,8 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 
 	"github.com/loganstone/auth/configs"
+	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/db/models"
 	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
@@ -17,26 +19,36 @@ type SiginResponse struct {
 	Token string      `json:"token"`
 }
 
+// SigninParam .
+type SigninParam struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	OTP      string `json:"otp"`
+}
+
 // Signin .
 func Signin(c *gin.Context) {
 	conf := configs.App()
 	con := GetDBConnection()
 	defer con.Close()
 
-	var user models.User
+	var params SigninParam
 
-	if err := c.ShouldBindJSON(&user); err != nil {
+	if err := c.ShouldBindJSON(&params); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
 			payload.ErrorBindJSON(err.Error()))
 		return
 	}
 
-	if con.Where(&user).First(&user).RecordNotFound() {
+	var user models.User
+	if con.Where("email = ?", params.Email).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
 			http.StatusNotFound, payload.NotFoundUser())
 		return
 	}
+
+	user.Password = params.Password
 
 	if !user.VerifyPassword() {
 		c.AbortWithStatusJSON(
@@ -45,6 +57,41 @@ func Signin(c *gin.Context) {
 				payload.ErrorCodeIncorrectPassword,
 				"incorrect Password"))
 		return
+	}
+
+	if user.ConfirmedOTP() {
+		if params.OTP == "" {
+			c.AbortWithStatusJSON(
+				http.StatusUnauthorized,
+				payload.ErrorRequireVerifyOTP())
+			return
+		}
+
+		if !user.VerifyOTP(params.OTP) {
+			if !user.VerifyOTPBackupCode(params.OTP) {
+				c.AbortWithStatusJSON(
+					http.StatusUnauthorized,
+					payload.ErrorIncorrectOTP())
+				return
+			}
+			err := user.RemoveOTPBackupCode(params.OTP)
+			if err != nil {
+				c.AbortWithStatusJSON(
+					http.StatusInternalServerError,
+					payload.ErrorResponse(
+						payload.ErrorCodeRemoveOTPBackupCode, err.Error()))
+				return
+			}
+
+			if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
+				return tx.Save(&user).Error
+			}); err != nil {
+				c.AbortWithStatusJSON(
+					http.StatusInternalServerError,
+					payload.ErrorDBTransaction(err.Error()))
+				return
+			}
+		}
 	}
 
 	token := utils.NewJWTToken(conf.SessionTokenExpire)
