@@ -44,7 +44,7 @@ func User(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	user := findUserOrAbort(c, con)
+	user := findUserOrAbort(c, con, http.StatusNotFound)
 	if user == nil {
 		return
 	}
@@ -57,15 +57,13 @@ func DeleteUser(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	email := c.Param("email")
-	user := models.User{Email: email}
-	if con.Where(&user).First(&user).RecordNotFound() {
-		c.Status(http.StatusNoContent)
+	user := findUserOrAbort(c, con, http.StatusNoContent)
+	if user == nil {
 		return
 	}
 
 	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Delete(&user).Error
+		return tx.Delete(user).Error
 	}); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,

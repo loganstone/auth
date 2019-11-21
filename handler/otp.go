@@ -22,7 +22,7 @@ func GenerateOTP(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	user := findUserOrAbort(c, con)
+	user := findUserOrAbort(c, con, http.StatusNotFound)
 	if user == nil {
 		return
 	}
@@ -58,7 +58,7 @@ func ConfirmOTP(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	user := findUserOrAbort(c, con)
+	user := findUserOrAbort(c, con, http.StatusNotFound)
 	if user == nil {
 		return
 	}
@@ -118,7 +118,7 @@ func ResetOTP(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	user := findUserOrAbort(c, con)
+	user := findUserOrAbort(c, con, http.StatusNoContent)
 	if user == nil {
 		return
 	}

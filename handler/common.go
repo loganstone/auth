@@ -48,12 +48,12 @@ func GetDBConnection() *gorm.DB {
 	return db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 }
 
-func findUserOrAbort(c *gin.Context, con *gorm.DB) *models.User {
+func findUserOrAbort(c *gin.Context, con *gorm.DB, httpStatusCode int) *models.User {
 	email := c.Param("email")
 	user := models.User{Email: email}
 	if con.Where(&user).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
-			http.StatusNotFound, payload.NotFoundUser())
+			httpStatusCode, payload.NotFoundUser())
 		return nil
 	}
 	return &user
