@@ -36,8 +36,7 @@ func TestGenerateOTP(t *testing.T) {
 	var resBody map[string]string
 	json.NewDecoder(w.Body).Decode(&resBody)
 
-	ok := reloadUser(&user)
-	assert.True(t, ok)
+	user = *getUserByEmailForTest(user.Email)
 
 	assert.Equal(t, user.OTPSecretKey, resBody["secert_key"])
 	otpLink, _ := user.OTPProvisioningURI()
@@ -66,8 +65,7 @@ func TestConfirmOTP(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	ok := reloadUser(&user)
-	assert.True(t, ok)
+	user = *getUserByEmailForTest(user.Email)
 
 	// Confirm
 	totp, err := user.GetTOTP()
@@ -91,10 +89,9 @@ func TestConfirmOTP(t *testing.T) {
 	var resBody map[string][]string
 	json.NewDecoder(w.Body).Decode(&resBody)
 
-	ok = reloadUser(&user)
-	assert.True(t, ok)
+	user = *getUserByEmailForTest(user.Email)
 
-	assert.NotEqual(t, user.OTPConfirmedAt, 0)
+	assert.NotEqual(t, 0, user.OTPConfirmedAt)
 	assert.Equal(t, len(resBody["otp_backup_codes"]), 10)
 	var prev string
 	for _, code := range resBody["otp_backup_codes"] {

@@ -94,16 +94,6 @@ func createNewUser(user *models.User) (errRes payload.ErrorCodeResponse) {
 	return
 }
 
-func reloadUser(u *models.User) bool {
-	con := GetDBConnection()
-	defer con.Close()
-
-	if con.Where("email = ?", u.Email).First(u).RecordNotFound() {
-		return false
-	}
-	return true
-}
-
 func getTestEmail() string {
 	return fmt.Sprintf(testEmailFmt, uuid.New().String())
 }
@@ -117,4 +107,15 @@ func setSessionTokenInReqHeaderForTest(req *http.Request, u *models.User) {
 	}
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
+}
+
+func getUserByEmailForTest(email string) *models.User {
+	con := GetDBConnection()
+	defer con.Close()
+	user := &models.User{}
+
+	if con.Where("email = ?", email).First(user).RecordNotFound() {
+		return nil
+	}
+	return user
 }
