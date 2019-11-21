@@ -13,7 +13,7 @@ import (
 	"github.com/loganstone/auth/db/models"
 )
 
-func TestGenerateOTP(t *testing.T) {
+func generateOTP(t *testing.T) (*models.User, map[string]string) {
 	email := getTestEmail()
 	user := models.User{
 		Email:    email,
@@ -36,38 +36,10 @@ func TestGenerateOTP(t *testing.T) {
 	var resBody map[string]string
 	json.NewDecoder(w.Body).Decode(&resBody)
 
-	user = *getUserByEmailForTest(user.Email)
-
-	assert.Equal(t, user.OTPSecretKey, resBody["secert_key"])
-	otpLink, _ := user.OTPProvisioningURI()
-	assert.Equal(t, otpLink, resBody["key_uri"])
+	return getUserByEmailForTest(user.Email), resBody
 }
 
-func TestConfirmOTP(t *testing.T) {
-	email := getTestEmail()
-	user := models.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	errRes := createNewUser(&user)
-	assert.Equal(t, errRes.ErrorCode, 0)
-
-	router := New()
-
-	// Generate
-	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s/otp", email)
-	req, err := http.NewRequest("POST", uri, nil)
-	assert.Nil(t, err)
-
-	setSessionTokenInReqHeaderForTest(req, &user)
-
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	user = *getUserByEmailForTest(user.Email)
-
-	// Confirm
+func confirmOTP(t *testing.T, user *models.User) (*models.User, map[string][]string) {
 	totp, err := user.GetTOTP()
 	assert.Nil(t, err)
 	reqBody := map[string]string{
@@ -76,21 +48,33 @@ func TestConfirmOTP(t *testing.T) {
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
 
-	w = httptest.NewRecorder()
-	uri = fmt.Sprintf("/users/%s/otp", email)
-	req, err = http.NewRequest("PUT", uri, bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/users/%s/otp", user.Email)
+	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, &user)
+	setSessionTokenInReqHeaderForTest(req, user)
 
+	router := New()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody map[string][]string
 	json.NewDecoder(w.Body).Decode(&resBody)
 
-	user = *getUserByEmailForTest(user.Email)
+	return getUserByEmailForTest(user.Email), resBody
+}
 
+func TestGenerateOTP(t *testing.T) {
+	user, resBody := generateOTP(t)
+	assert.Equal(t, user.OTPSecretKey, resBody["secert_key"])
+	otpLink, _ := user.OTPProvisioningURI()
+	assert.Equal(t, otpLink, resBody["key_uri"])
+}
+
+func TestConfirmOTP(t *testing.T) {
+	user, _ := generateOTP(t)
+	user, resBody := confirmOTP(t, user)
 	assert.NotEqual(t, 0, user.OTPConfirmedAt)
 	assert.Equal(t, len(resBody["otp_backup_codes"]), 10)
 	var prev string
@@ -103,127 +87,44 @@ func TestConfirmOTP(t *testing.T) {
 }
 
 func TestResetOTP(t *testing.T) {
-	email := getTestEmail()
-	user := models.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	errRes := createNewUser(&user)
-	assert.Equal(t, errRes.ErrorCode, 0)
-
-	router := New()
-
-	// Generate
-	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s/otp", email)
-	req, err := http.NewRequest("POST", uri, nil)
-	assert.Nil(t, err)
-
-	setSessionTokenInReqHeaderForTest(req, &user)
-
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	user = *getUserByEmailForTest(user.Email)
-
-	// Confirm
-	totp, err := user.GetTOTP()
-	assert.Nil(t, err)
-	reqBody := map[string]string{
-		"otp": totp.Now(),
-	}
-	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
-
-	w = httptest.NewRecorder()
-	uri = fmt.Sprintf("/users/%s/otp", email)
-	req, err = http.NewRequest("PUT", uri, bytes.NewReader(body))
-	assert.Nil(t, err)
-
-	setSessionTokenInReqHeaderForTest(req, &user)
-
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	user = *getUserByEmailForTest(user.Email)
-	assert.True(t, user.ConfirmedOTP())
+	user, _ := generateOTP(t)
+	user, _ = confirmOTP(t, user)
 
 	// Reset
 	var backupCodes []string
-	err = json.Unmarshal(user.OTPBackupCodes, &backupCodes)
+	err := json.Unmarshal(user.OTPBackupCodes, &backupCodes)
 	assert.Nil(t, err)
-	reqBody = map[string]string{
+	reqBody := map[string]string{
 		"backup_code": backupCodes[0],
 	}
 
-	body, err = json.Marshal(reqBody)
+	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
-	w = httptest.NewRecorder()
-	uri = fmt.Sprintf("/users/%s/otp", email)
-	req, err = http.NewRequest("DELETE", uri, bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/users/%s/otp", user.Email)
+	req, err := http.NewRequest("DELETE", uri, bytes.NewReader(body))
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, &user)
+	setSessionTokenInReqHeaderForTest(req, user)
 
+	router := New()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
 
-	user = *getUserByEmailForTest(user.Email)
+	user = getUserByEmailForTest(user.Email)
 	assert.False(t, user.ConfirmedOTP())
 	assert.Nil(t, user.OTPConfirmedAt)
 	assert.True(t, user.OTPBackupCodes.IsNull())
 }
 
 func TestResetOTPAsAdmin(t *testing.T) {
-	email := getTestEmail()
-	user := models.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	errRes := createNewUser(&user)
-	assert.Equal(t, errRes.ErrorCode, 0)
-
-	router := New()
-
-	// Generate
-	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s/otp", email)
-	req, err := http.NewRequest("POST", uri, nil)
-	assert.Nil(t, err)
-
-	setSessionTokenInReqHeaderForTest(req, &user)
-
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	user = *getUserByEmailForTest(user.Email)
-
-	// Confirm
-	totp, err := user.GetTOTP()
-	assert.Nil(t, err)
-	reqBody := map[string]string{
-		"otp": totp.Now(),
-	}
-	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
-
-	w = httptest.NewRecorder()
-	uri = fmt.Sprintf("/users/%s/otp", email)
-	req, err = http.NewRequest("PUT", uri, bytes.NewReader(body))
-	assert.Nil(t, err)
-
-	setSessionTokenInReqHeaderForTest(req, &user)
-
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	user = *getUserByEmailForTest(user.Email)
-	assert.True(t, user.ConfirmedOTP())
+	user, _ := generateOTP(t)
+	user, _ = confirmOTP(t, user)
 
 	// Reset - Admin
-	w = httptest.NewRecorder()
-	uri = fmt.Sprintf("/admin/users/%s/otp", email)
-	req, err = http.NewRequest("DELETE", uri, nil)
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/admin/users/%s/otp", user.Email)
+	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.Nil(t, err)
 
 	admin := models.User{
@@ -231,15 +132,16 @@ func TestResetOTPAsAdmin(t *testing.T) {
 		Password: testPassword,
 		IsAdmin:  true,
 	}
-	errRes = createNewUser(&admin)
+	errRes := createNewUser(&admin)
 	assert.Equal(t, errRes.ErrorCode, 0)
 
 	setSessionTokenInReqHeaderForTest(req, &admin)
 
+	router := New()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
 
-	user = *getUserByEmailForTest(user.Email)
+	user = getUserByEmailForTest(user.Email)
 	assert.False(t, user.ConfirmedOTP())
 	assert.Nil(t, user.OTPConfirmedAt)
 	assert.True(t, user.OTPBackupCodes.IsNull())
