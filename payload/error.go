@@ -96,3 +96,23 @@ func ErrorSession(err error) ErrorCodeResponse {
 func ErrorIncorrectOTP() ErrorCodeResponse {
 	return ErrorResponse(ErrorCodeIncorrectOTP, "OTP is Incorrect")
 }
+
+// ErrorOTPAlreadyRegistered .
+func ErrorOTPAlreadyRegistered() ErrorCodeResponse {
+	return ErrorResponse(ErrorCodeOTPAlreadyRegistered, "OTP has already been registered")
+}
+
+// ErrorOTPNotRegistered .
+func ErrorOTPNotRegistered() ErrorCodeResponse {
+	return ErrorResponse(ErrorCodeOTPNotRegistered, "OTP not registered")
+}
+
+// ErrorEmptyOTPSecretKey .
+func ErrorEmptyOTPSecretKey() ErrorCodeResponse {
+	return ErrorResponse(ErrorCodeEmptyOTPSecretKey, "empty OTP secert key")
+}
+
+// ErrorEmptyOTPBackupCodes .
+func ErrorEmptyOTPBackupCodes(message string) ErrorCodeResponse {
+	return ErrorResponse(ErrorCodeEmptyOTPBackupCodes, message)
+}

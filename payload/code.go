@@ -30,6 +30,10 @@ const (
 	ErrorCodeOTPProvisioningURI
 	ErrorCodeIncorrectOTP
 	ErrorCodeSetOTPBackupCodes
+	ErrorCodeOTPAlreadyRegistered
+	ErrorCodeOTPNotRegistered
+	ErrorCodeEmptyOTPSecretKey
+	ErrorCodeEmptyOTPBackupCodes
 )
 
 // Session error codes.

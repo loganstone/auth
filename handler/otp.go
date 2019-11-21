@@ -27,6 +27,13 @@ func GenerateOTP(c *gin.Context) {
 		return
 	}
 
+	if user.ConfirmedOTP() {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			payload.ErrorOTPAlreadyRegistered())
+		return
+	}
+
 	user.GenerateOTPSecretKey()
 	uri, err := user.OTPProvisioningURI()
 	if err != nil {
@@ -71,9 +78,25 @@ func ConfirmOTP(c *gin.Context) {
 		return
 	}
 
-	if !user.VerifyOTP(param.OTP) {
+	if user.ConfirmedOTP() {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
+			payload.ErrorOTPAlreadyRegistered())
+		return
+	}
+
+	// TODO(hs.lee):
+	// payload 에 선행 되어야 하는 API URL 을 추가 하자
+	if user.OTPSecretKey == "" {
+		c.AbortWithStatusJSON(
+			http.StatusForbidden,
+			payload.ErrorEmptyOTPSecretKey())
+		return
+	}
+
+	if !user.VerifyOTP(param.OTP) {
+		c.AbortWithStatusJSON(
+			http.StatusForbidden,
 			payload.ErrorIncorrectOTP())
 		return
 	}
