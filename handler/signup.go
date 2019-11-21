@@ -63,7 +63,6 @@ func SendVerificationEmail(c *gin.Context) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	var user models.User
 	var param VerificationEmailParam
 
 	if err := c.ShouldBindJSON(&param); err != nil {
@@ -73,10 +72,7 @@ func SendVerificationEmail(c *gin.Context) {
 		return
 	}
 
-	if !con.Where("email = ?", param.Email).First(&user).RecordNotFound() {
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			payload.UserAlreadyExists())
+	if isAbortedAsUserExist(c, con, param.Email) {
 		return
 	}
 
@@ -153,11 +149,7 @@ func VerifySignupToken(c *gin.Context) {
 		return
 	}
 
-	var user models.User
-	if !con.Where("email = ?", claims.Email).First(&user).RecordNotFound() {
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			payload.UserAlreadyExists())
+	if isAbortedAsUserExist(c, con, claims.Email) {
 		return
 	}
 
@@ -193,14 +185,11 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	var user models.User
-	if !con.Where("email = ?", claims.Email).First(&user).RecordNotFound() {
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			payload.UserAlreadyExists())
+	if isAbortedAsUserExist(c, con, claims.Email) {
 		return
 	}
 
+	var user models.User
 	user.Email = claims.Email
 	user.Password = param.Password
 

@@ -59,6 +59,18 @@ func findUserOrAbort(c *gin.Context, con *gorm.DB, httpStatusCode int) *models.U
 	return &user
 }
 
+func isAbortedAsUserExist(c *gin.Context, con *gorm.DB, email string) bool {
+	var count int
+	con.Where("email = ?", email).Count(&count)
+	if count > 1 {
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			payload.UserAlreadyExists())
+		return true
+	}
+	return false
+}
+
 func createNewUser(user *models.User) (errRes payload.ErrorCodeResponse) {
 	con := GetDBConnection()
 	defer con.Close()
