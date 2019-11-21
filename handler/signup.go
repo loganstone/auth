@@ -29,14 +29,14 @@ const (
 <body>
     <p>Hi. Do you want to create a new account?</p>
 
-    <p>Help us secure your account by verifying your email address ({{ .user_email }})</p>
+    <p>Help us secure your account by verifying your email address ({{ .UserEmail }})</p>
 
-    <p><a href="{{ .signup_url }}">Sign Up</a></p>
+    <p><a href="{{ .SignupURL }}">Sign Up</a></p>
 
-    <p>If you don’t use this link within {{ .expire_min }} minutes, it will expire.</p>
+    <p>If you don’t use this link within {{ .ExpireMin }} minutes, it will expire.</p>
 
     <p>Thanks,</p>
-    <p>Your friends at {{ .organization }}.</p>
+    <p>Your friends at {{ .Organization }}.</p>
 
     <p>You’re receiving this email because you recently created a new account. If this wasn’t you, please ignore this email.</p>
 </body>
@@ -55,6 +55,14 @@ type VerificationEmailParam struct {
 type SignupParam struct {
 	Token    string `json:"token" binding:"required"`
 	Password string `json:"password" binding:"required,gte=10,alphanum"`
+}
+
+// VerificationEmailData .
+type VerificationEmailData struct {
+	UserEmail    string
+	SignupURL    string
+	ExpireMin    int
+	Organization string
 }
 
 // SendVerificationEmail .
@@ -97,11 +105,11 @@ func SendVerificationEmail(c *gin.Context) {
 	// TODO(hs.lee):
 	// organization, from email, signup_url  은 환경 변수로 설정하도록 수정
 	var body bytes.Buffer
-	data := map[string]interface{}{
-		"user_email":   param.Email,
-		"signup_url":   signupToken, // TODO(hs.lee): url 로 변경
-		"expire_min":   conf.SignupTokenExpire / 60,
-		"organization": "auth",
+	data := VerificationEmailData{
+		UserEmail:    param.Email,
+		SignupURL:    signupToken,
+		ExpireMin:    conf.SignupTokenExpire / 60,
+		Organization: "Auth",
 	}
 
 	if err := verificationEmailTmpl.Execute(&body, data); err != nil {
