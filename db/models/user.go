@@ -128,10 +128,12 @@ func (u *User) SetOTPBackupCodes(codes []byte) error {
 
 // VerifyOTPBackupCode .
 func (u *User) VerifyOTPBackupCode(code string) bool {
+	// TODO(hs.lee): 구현 필요
 	return false
 }
 
 // RemoveOTPBackupCode .
 func (u *User) RemoveOTPBackupCode(code string) bool {
+	// TODO(hs.lee): 구현 필요
 	return false
 }
