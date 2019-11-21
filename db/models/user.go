@@ -114,6 +114,7 @@ func (u *User) ConfirmOTP() {
 func (u *User) ResetOTP() {
 	u.OTPSecretKey = ""
 	u.OTPConfirmedAt = nil
+	u.OTPBackupCodes = nil
 }
 
 // ConfirmedOTP .

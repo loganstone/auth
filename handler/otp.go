@@ -126,7 +126,7 @@ func ResetOTP(c *gin.Context) {
 	user.ResetOTP()
 
 	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return con.Save(&user).Error
+		return tx.Save(user).Error
 	}); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
