@@ -110,7 +110,7 @@ func ConfirmOTP(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, user.OTPBackupCodes)
+	c.JSON(http.StatusOK, gin.H{"otp_backup_codes": user.OTPBackupCodes})
 }
 
 // ResetOTP .

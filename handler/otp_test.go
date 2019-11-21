@@ -88,16 +88,16 @@ func TestConfirmOTP(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var resBody []string
+	var resBody map[string][]string
 	json.NewDecoder(w.Body).Decode(&resBody)
 
 	ok = reloadUser(&user)
 	assert.True(t, ok)
 
 	assert.NotEqual(t, user.OTPConfirmedAt, 0)
-	assert.Equal(t, len(resBody), 10)
+	assert.Equal(t, len(resBody["otp_backup_codes"]), 10)
 	var prev string
-	for _, code := range resBody {
+	for _, code := range resBody["otp_backup_codes"] {
 		assert.NotEqual(t, prev, code)
 		prev = code
 	}
