@@ -35,7 +35,6 @@ const (
 	ErrorCodeEmptyOTPSecretKey
 	ErrorCodeEmptyOTPBackupCodes
 	ErrorCodeRequireVerifyOTP
-	ErrorCodeRemoveOTPBackupCode
 )
 
 // Session error codes.

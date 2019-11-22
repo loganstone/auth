@@ -66,26 +66,20 @@ func Signin(c *gin.Context) {
 		}
 
 		if !user.VerifyOTP(params.OTP) {
-			if !user.VerifyOTPBackupCode(params.OTP) {
+			if _, ok := user.OTPBackupCodes.In(params.OTP); !ok {
 				c.AbortWithStatusJSON(
 					http.StatusUnauthorized,
 					payload.ErrorIncorrectOTP())
 				return
 			}
-			err := user.RemoveOTPBackupCode(params.OTP)
-			if err != nil {
-				c.AbortWithStatusJSON(
-					http.StatusInternalServerError,
-					payload.ErrorResponse(
-						payload.ErrorCodeRemoveOTPBackupCode, err.Error()))
-				return
-			}
 
-			if err := user.Save(con); err != nil {
-				c.AbortWithStatusJSON(
-					http.StatusInternalServerError,
-					payload.ErrorDBTransaction(err.Error()))
-				return
+			if ok := user.OTPBackupCodes.Del(params.OTP); ok {
+				if err := user.Save(con); err != nil {
+					c.AbortWithStatusJSON(
+						http.StatusInternalServerError,
+						payload.ErrorDBTransaction(err.Error()))
+					return
+				}
 			}
 		}
 	}

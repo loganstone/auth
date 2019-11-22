@@ -119,7 +119,7 @@ func TestResetOTP(t *testing.T) {
 	// Reset
 	assert.Nil(t, err)
 	reqBody := map[string]string{
-		"backup_code": user.GetOTPBackupCodes()[0],
+		"backup_code": user.OTPBackupCodes.Get()[0],
 	}
 
 	body, err := json.Marshal(reqBody)

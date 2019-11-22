@@ -19,10 +19,65 @@ var (
 	// ErrorUserAlreadyExists .
 	ErrorUserAlreadyExists = errors.New("user already exists")
 	// ErrorFailSetPassword .
-	ErrorFailSetPassword   = errors.New("fail set password")
-	errEmptyOTPSecretKey   = errors.New("empty 'OTPSecretKey'")
-	errEmptyOTPBackupCodes = errors.New("empty 'OTPBackupCodes'")
+	ErrorFailSetPassword = errors.New("fail set password")
+	errEmptyOTPSecretKey = errors.New("empty 'OTPSecretKey'")
 )
+
+// Codes .
+type Codes []byte
+
+// Get .
+func (c Codes) Get() []string {
+	var result []string
+	err := json.Unmarshal(c, &result)
+	if err != nil {
+		return nil
+	}
+	return result
+}
+
+// Set .
+func (c *Codes) Set(codes []string) error {
+	result, err := json.Marshal(codes)
+	if err != nil {
+		return err
+	}
+
+	*c = result
+	return nil
+}
+
+// In .
+func (c Codes) In(code string) (int, bool) {
+	if codes := c.Get(); codes != nil {
+		for i, v := range codes {
+			if v == code {
+				return i, true
+			}
+		}
+	}
+	return 0, false
+}
+
+// Del .
+func (c *Codes) Del(code string) bool {
+	codes := c.Get()
+	if codes == nil {
+		return true
+	}
+
+	i, ok := c.In(code)
+	if !ok {
+		return true
+	}
+
+	codes = append(codes[:i], codes[i+1:]...)
+	err := c.Set(codes)
+	if err != nil {
+		return false
+	}
+	return true
+}
 
 // User .
 type User struct {
@@ -33,7 +88,7 @@ type User struct {
 	IsAdmin        bool   `gorm:"default:false"`
 
 	OTPSecretKey   string `gorm:"size:16"`
-	OTPBackupCodes []byte
+	OTPBackupCodes Codes
 	OTPConfirmedAt *time.Time
 
 	DateTimeFields
@@ -131,57 +186,6 @@ func (u *User) ResetOTP() {
 // ConfirmedOTP .
 func (u *User) ConfirmedOTP() bool {
 	return u.OTPConfirmedAt != nil
-}
-
-// GetOTPBackupCodes .
-func (u *User) GetOTPBackupCodes() []string {
-	var backupCodes []string
-	err := json.Unmarshal(u.OTPBackupCodes, &backupCodes)
-	if err != nil {
-		return nil
-	}
-	return backupCodes
-}
-
-// SetOTPBackupCodes .
-func (u *User) SetOTPBackupCodes(codes []string) error {
-	result, err := json.Marshal(codes)
-	if err != nil {
-		return err
-	}
-
-	u.OTPBackupCodes = result
-	return nil
-}
-
-// VerifyOTPBackupCode .
-func (u *User) VerifyOTPBackupCode(code string) bool {
-	if backupCodes := u.GetOTPBackupCodes(); backupCodes != nil {
-		for _, v := range backupCodes {
-			if v == code {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-// RemoveOTPBackupCode .
-func (u *User) RemoveOTPBackupCode(code string) error {
-	backupCodes := u.GetOTPBackupCodes()
-	if backupCodes == nil {
-		return errEmptyOTPBackupCodes
-	}
-
-	var target int
-	for i, v := range backupCodes {
-		if v == code {
-			target = i
-		}
-	}
-
-	backupCodes = append(backupCodes[:target], backupCodes[target+1:]...)
-	return u.SetOTPBackupCodes(backupCodes)
 }
 
 // Create .

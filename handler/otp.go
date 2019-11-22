@@ -46,7 +46,7 @@ func confirmOTP(con *gorm.DB, user *db.User) *payload.ErrorCodeResponse {
 	// TODO(hs.lee):
 	// 백업 코드 개수와 자리를 환경 변수 처리해야 한다.
 	codes := utils.DigitCodes(10, 6)
-	err := user.SetOTPBackupCodes(codes)
+	err := user.OTPBackupCodes.Set(codes)
 	if err != nil {
 		errRes := payload.ErrorResponse(
 			payload.ErrorCodeSetOTPBackupCodes,
@@ -139,7 +139,7 @@ func ConfirmOTP(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"otp_backup_codes": user.GetOTPBackupCodes()})
+	c.JSON(http.StatusOK, gin.H{"otp_backup_codes": user.OTPBackupCodes.Get()})
 }
 
 // ResetOTP .
@@ -174,7 +174,7 @@ func ResetOTP(c *gin.Context) {
 			return
 		}
 
-		if !user.VerifyOTPBackupCode(param.BackupCode) {
+		if _, ok := user.OTPBackupCodes.In(param.BackupCode); !ok {
 			c.AbortWithStatusJSON(
 				http.StatusForbidden,
 				payload.ErrorIncorrectOTP())
