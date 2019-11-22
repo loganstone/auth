@@ -7,15 +7,13 @@ import (
 	"github.com/jinzhu/gorm"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql" // driver
-
-	"github.com/loganstone/auth/db/models"
 )
 
 // Sync .
 func Sync(option string, echo bool) {
 	con := Connection(option, echo)
 	defer con.Close()
-	con.AutoMigrate(&models.User{})
+	con.AutoMigrate(&User{})
 }
 
 // Connection .

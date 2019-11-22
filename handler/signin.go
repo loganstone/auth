@@ -4,19 +4,17 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/db/models"
 	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
 
 // SiginResponse .
 type SiginResponse struct {
-	User  models.User `json:"user"`
-	Token string      `json:"token"`
+	User  db.User `json:"user"`
+	Token string  `json:"token"`
 }
 
 // SigninParam .
@@ -41,7 +39,7 @@ func Signin(c *gin.Context) {
 		return
 	}
 
-	var user models.User
+	var user db.User
 	if con.Where("email = ?", params.Email).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
 			http.StatusNotFound, payload.NotFoundUser())
@@ -83,9 +81,7 @@ func Signin(c *gin.Context) {
 				return
 			}
 
-			if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-				return tx.Save(&user).Error
-			}); err != nil {
+			if err := user.Save(con); err != nil {
 				c.AbortWithStatusJSON(
 					http.StatusInternalServerError,
 					payload.ErrorDBTransaction(err.Error()))

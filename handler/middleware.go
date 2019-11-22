@@ -11,7 +11,6 @@ import (
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/db/models"
 	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
@@ -39,7 +38,7 @@ func Authorize() gin.HandlerFunc {
 			return
 		}
 
-		user := models.User{}
+		user := db.User{}
 
 		if con.First(&user, sessionClaims.UserID).RecordNotFound() {
 			c.AbortWithStatus(http.StatusUnauthorized)

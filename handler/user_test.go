@@ -9,12 +9,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/loganstone/auth/db/models"
+	"github.com/loganstone/auth/db"
 )
 
 func TestUser(t *testing.T) {
 	email := getTestEmail()
-	user := models.User{
+	user := db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -32,7 +32,7 @@ func TestUser(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var resBody models.JSONUser
+	var resBody db.JSONUser
 	json.NewDecoder(w.Body).Decode(&resBody)
 
 	assert.Equal(t, email, resBody.Email)
@@ -41,7 +41,7 @@ func TestUser(t *testing.T) {
 
 func TestUserWithNonexistentEmail(t *testing.T) {
 	email := getTestEmail()
-	admin := models.User{
+	admin := db.User{
 		Email:    email,
 		Password: testPassword,
 		IsAdmin:  true,
@@ -65,7 +65,7 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 
 func TestDeleteUser(t *testing.T) {
 	email := getTestEmail()
-	user := models.User{
+	user := db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -86,7 +86,7 @@ func TestDeleteUser(t *testing.T) {
 
 func TestDeleteUserAsOtherUser(t *testing.T) {
 	email := getTestEmail()
-	user := models.User{
+	user := db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -99,7 +99,7 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.Nil(t, err)
 
-	otherUser := models.User{
+	otherUser := db.User{
 		Email:    getTestEmail(),
 		Password: testPassword,
 	}
@@ -114,7 +114,7 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 
 func TestDeleteUserAsAdmin(t *testing.T) {
 	email := getTestEmail()
-	user := models.User{
+	user := db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -127,7 +127,7 @@ func TestDeleteUserAsAdmin(t *testing.T) {
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.Nil(t, err)
 
-	admin := models.User{
+	admin := db.User{
 		Email:    getTestEmail(),
 		Password: testPassword,
 		IsAdmin:  true,

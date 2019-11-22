@@ -7,14 +7,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/loganstone/auth/db/models"
+	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/payload"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSignin(t *testing.T) {
 	email := getTestEmail()
-	user := models.User{
+	user := db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -46,7 +46,7 @@ func TestSignin(t *testing.T) {
 
 func TestSigninWithWrongPassword(t *testing.T) {
 	email := getTestEmail()
-	user := models.User{
+	user := db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -77,7 +77,7 @@ func TestSigninWithWrongPassword(t *testing.T) {
 
 func TestSigninWithOutEmail(t *testing.T) {
 	email := getTestEmail()
-	user := models.User{
+	user := db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -107,7 +107,7 @@ func TestSigninWithOutEmail(t *testing.T) {
 
 func TestSigninWithOutPassword(t *testing.T) {
 	email := getTestEmail()
-	user := models.User{
+	user := db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -140,7 +140,7 @@ func TestSigninWithOTP(t *testing.T) {
 	defer con.Close()
 
 	email := getTestEmail()
-	user := &models.User{
+	user := &db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -179,7 +179,7 @@ func TestSigninWithBackupCode(t *testing.T) {
 	defer con.Close()
 
 	email := getTestEmail()
-	user := &models.User{
+	user := &db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -224,7 +224,7 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 	defer con.Close()
 
 	email := getTestEmail()
-	user := &models.User{
+	user := &db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -287,7 +287,7 @@ func TestSigninWithOutOTP(t *testing.T) {
 	defer con.Close()
 
 	email := getTestEmail()
-	user := &models.User{
+	user := &db.User{
 		Email:    email,
 		Password: testPassword,
 	}

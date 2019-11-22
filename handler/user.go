@@ -4,10 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/db/models"
 	"github.com/loganstone/auth/payload"
 )
 
@@ -32,7 +30,7 @@ func Users(c *gin.Context) {
 		return
 	}
 
-	var users []models.User
+	var users []db.User
 
 	con.Limit(pageSize).Offset(page * pageSize).Find(&users)
 
@@ -62,9 +60,7 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Delete(user).Error
-	}); err != nil {
+	if err := user.Delete(con); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			payload.ErrorDBTransaction(err.Error()))

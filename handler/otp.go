@@ -7,7 +7,6 @@ import (
 	"github.com/jinzhu/gorm"
 
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/db/models"
 	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
@@ -22,7 +21,7 @@ type ResetOTPParam struct {
 	BackupCode string `json:"backup_code" binding:"required,numeric"`
 }
 
-func generateOTP(con *gorm.DB, user *models.User) (string, *payload.ErrorCodeResponse) {
+func generateOTP(con *gorm.DB, user *db.User) (string, *payload.ErrorCodeResponse) {
 	user.GenerateOTPSecretKey()
 	uri, err := user.OTPProvisioningURI()
 	if err != nil {
@@ -32,9 +31,8 @@ func generateOTP(con *gorm.DB, user *models.User) (string, *payload.ErrorCodeRes
 		return "", &errRes
 	}
 
-	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Save(user).Error
-	}); err != nil {
+	err = user.Save(con)
+	if err != nil {
 		errRes := payload.ErrorDBTransaction(err.Error())
 		return "", &errRes
 	}
@@ -42,7 +40,7 @@ func generateOTP(con *gorm.DB, user *models.User) (string, *payload.ErrorCodeRes
 	return uri, nil
 }
 
-func confirmOTP(con *gorm.DB, user *models.User) *payload.ErrorCodeResponse {
+func confirmOTP(con *gorm.DB, user *db.User) *payload.ErrorCodeResponse {
 	user.ConfirmOTP()
 
 	// TODO(hs.lee):
@@ -56,9 +54,8 @@ func confirmOTP(con *gorm.DB, user *models.User) *payload.ErrorCodeResponse {
 		return &errRes
 	}
 
-	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Save(user).Error
-	}); err != nil {
+	err = user.Save(con)
+	if err != nil {
 		errRes := payload.ErrorDBTransaction(err.Error())
 		return &errRes
 	}
@@ -186,10 +183,7 @@ func ResetOTP(c *gin.Context) {
 	}
 
 	user.ResetOTP()
-
-	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Save(user).Error
-	}); err != nil {
+	if err := user.Save(con); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			payload.ErrorDBTransaction(err.Error()))

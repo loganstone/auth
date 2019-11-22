@@ -12,7 +12,6 @@ import (
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/db/models"
 	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
@@ -24,17 +23,17 @@ const (
 
 var (
 	errEmptySessionUser = errors.New("'SessionUser' empty")
-	errWrongSessionUser = errors.New("'SessionUser' not 'models.User' type")
+	errWrongSessionUser = errors.New("'SessionUser' not 'db.User' type")
 )
 
 // GetLoginUser .
-func GetLoginUser(c *gin.Context) (loginUser models.User, err error) {
+func GetLoginUser(c *gin.Context) (loginUser db.User, err error) {
 	sessionUser, ok := c.Get("SessionUser")
 	if !ok {
 		err = errEmptySessionUser
 		return
 	}
-	loginUser, ok = sessionUser.(models.User)
+	loginUser, ok = sessionUser.(db.User)
 	if !ok {
 		err = errWrongSessionUser
 		return
@@ -48,9 +47,9 @@ func GetDBConnection() *gorm.DB {
 	return db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 }
 
-func findUserOrAbort(c *gin.Context, con *gorm.DB, httpStatusCode int) *models.User {
+func findUserOrAbort(c *gin.Context, con *gorm.DB, httpStatusCode int) *db.User {
 	email := c.Param("email")
-	user := models.User{Email: email}
+	user := db.User{Email: email}
 	if con.Where(&user).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
 			httpStatusCode, payload.NotFoundUser())
@@ -71,7 +70,7 @@ func isAbortedAsUserExist(c *gin.Context, con *gorm.DB, email string) bool {
 	return false
 }
 
-func createNewUser(user *models.User) (errRes payload.ErrorCodeResponse) {
+func createNewUser(user *db.User) (errRes payload.ErrorCodeResponse) {
 	con := GetDBConnection()
 	defer con.Close()
 
@@ -98,7 +97,7 @@ func getTestEmail() string {
 	return fmt.Sprintf(testEmailFmt, uuid.New().String())
 }
 
-func setSessionTokenInReqHeaderForTest(req *http.Request, u *models.User) {
+func setSessionTokenInReqHeaderForTest(req *http.Request, u *db.User) {
 	conf := configs.App()
 	token := utils.NewJWTToken(10)
 	sessionToken, err := token.Session(u.ID, u.Email, conf.JWTSigninKey)
@@ -109,10 +108,10 @@ func setSessionTokenInReqHeaderForTest(req *http.Request, u *models.User) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
 }
 
-func getUserByEmailForTest(email string) *models.User {
+func getUserByEmailForTest(email string) *db.User {
 	con := GetDBConnection()
 	defer con.Close()
-	user := &models.User{}
+	user := &db.User{}
 
 	if con.Where("email = ?", email).First(user).RecordNotFound() {
 		return nil

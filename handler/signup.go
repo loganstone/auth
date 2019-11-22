@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"errors"
 	"log"
 	"net/http"
 	"text/template"
@@ -10,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/loganstone/auth/configs"
-	"github.com/loganstone/auth/db/models"
+	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
@@ -197,15 +198,19 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	var user models.User
+	var user db.User
 	user.Email = claims.Email
 	user.Password = param.Password
 
-	errRes := createNewUser(&user)
-	if errRes.ErrorCode != 0 {
+	err = user.Create(con)
+	if err != nil {
 		httpStatusCode := http.StatusInternalServerError
-		if errRes.ErrorCode == payload.ErrorCodeUserAlreadyExists {
+		errRes := payload.ErrorDBTransaction(err.Error())
+		if errors.Is(err, db.ErrorUserAlreadyExists) {
 			httpStatusCode = http.StatusBadRequest
+			errRes = payload.UserAlreadyExists()
+		} else if errors.Is(err, db.ErrorFailSetPassword) {
+			errRes = payload.ErrorSetPassword(err.Error())
 		}
 		c.AbortWithStatusJSON(httpStatusCode, errRes)
 		return

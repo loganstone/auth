@@ -10,12 +10,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/loganstone/auth/db/models"
+	"github.com/loganstone/auth/db"
 )
 
 func TestGenerateOTP(t *testing.T) {
 	email := getTestEmail()
-	user := &models.User{
+	user := &db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -48,7 +48,7 @@ func TestConfirmOTP(t *testing.T) {
 	defer con.Close()
 
 	email := getTestEmail()
-	user := &models.User{
+	user := &db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -98,7 +98,7 @@ func TestResetOTP(t *testing.T) {
 	defer con.Close()
 
 	email := getTestEmail()
-	user := &models.User{
+	user := &db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -143,7 +143,7 @@ func TestResetOTPAsAdmin(t *testing.T) {
 	defer con.Close()
 
 	email := getTestEmail()
-	user := &models.User{
+	user := &db.User{
 		Email:    email,
 		Password: testPassword,
 	}
@@ -162,7 +162,7 @@ func TestResetOTPAsAdmin(t *testing.T) {
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.Nil(t, err)
 
-	admin := models.User{
+	admin := db.User{
 		Email:    getTestEmail(),
 		Password: testPassword,
 		IsAdmin:  true,

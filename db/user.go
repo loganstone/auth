@@ -1,15 +1,25 @@
-package models
+package db
 
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/xlzd/gotp"
 	"golang.org/x/crypto/bcrypt"
 )
 
+const (
+	failCreateUserMessage = "fail create user '%s': %w"
+)
+
 var (
+	// ErrorUserAlreadyExists .
+	ErrorUserAlreadyExists = errors.New("user already exists")
+	// ErrorFailSetPassword .
+	ErrorFailSetPassword = errors.New("fail set password")
 	errEmptyOTPSecretKey = errors.New("empty 'OTPSecretKey'")
 )
 
@@ -42,7 +52,7 @@ func (u *User) SetPassword() error {
 	hashedBytes, err := bcrypt.GenerateFromPassword(
 		[]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return ErrorFailSetPassword
 	}
 
 	u.HashedPassword = string(hashedBytes[:])
@@ -170,4 +180,44 @@ func (u *User) RemoveOTPBackupCode(code string) error {
 
 	backupCodes = append(backupCodes[:target], backupCodes[target+1:]...)
 	return u.SetOTPBackupCodes(backupCodes)
+}
+
+// Create .
+func (u *User) Create(con *gorm.DB) error {
+	if u.Email == "" {
+	}
+	if !con.Where("email = ?", u.Email).First(u).RecordNotFound() {
+		return fmt.Errorf(failCreateUserMessage, u.Email, ErrorUserAlreadyExists)
+	}
+
+	if err := u.SetPassword(); err != nil {
+		return fmt.Errorf(failCreateUserMessage, u.Email, err)
+	}
+
+	if err := DoInTransaction(con, func(tx *gorm.DB) error {
+		return tx.Create(u).Error
+	}); err != nil {
+		return fmt.Errorf(failCreateUserMessage, u.Email, err)
+	}
+	return nil
+}
+
+// Save .
+func (u *User) Save(con *gorm.DB) error {
+	if err := DoInTransaction(con, func(tx *gorm.DB) error {
+		return tx.Save(u).Error
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Delete .
+func (u *User) Delete(con *gorm.DB) error {
+	if err := DoInTransaction(con, func(tx *gorm.DB) error {
+		return tx.Delete(u).Error
+	}); err != nil {
+		return err
+	}
+	return nil
 }
