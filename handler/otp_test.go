@@ -14,13 +14,16 @@ import (
 )
 
 func TestGenerateOTP(t *testing.T) {
+	con := GetDBConnection()
+	defer con.Close()
+
 	email := getTestEmail()
 	user := &db.User{
 		Email:    email,
 		Password: testPassword,
 	}
-	errRes := createNewUser(user)
-	assert.Equal(t, errRes.ErrorCode, 0)
+	err := user.Create(con)
+	assert.Nil(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
@@ -52,8 +55,8 @@ func TestConfirmOTP(t *testing.T) {
 		Email:    email,
 		Password: testPassword,
 	}
-	errRes := createNewUser(user)
-	assert.Equal(t, errRes.ErrorCode, 0)
+	err := user.Create(con)
+	assert.Nil(t, err)
 
 	_, errCodeRes := generateOTP(con, user)
 	assert.Nil(t, errCodeRes)
@@ -102,8 +105,8 @@ func TestResetOTP(t *testing.T) {
 		Email:    email,
 		Password: testPassword,
 	}
-	errRes := createNewUser(user)
-	assert.Equal(t, errRes.ErrorCode, 0)
+	err := user.Create(con)
+	assert.Nil(t, err)
 
 	_, errCodeRes := generateOTP(con, user)
 	assert.Nil(t, errCodeRes)
@@ -113,7 +116,7 @@ func TestResetOTP(t *testing.T) {
 
 	// Reset
 	var backupCodes []string
-	err := json.Unmarshal(user.OTPBackupCodes, &backupCodes)
+	err = json.Unmarshal(user.OTPBackupCodes, &backupCodes)
 	assert.Nil(t, err)
 	reqBody := map[string]string{
 		"backup_code": backupCodes[0],
@@ -147,8 +150,8 @@ func TestResetOTPAsAdmin(t *testing.T) {
 		Email:    email,
 		Password: testPassword,
 	}
-	errRes := createNewUser(user)
-	assert.Equal(t, errRes.ErrorCode, 0)
+	err := user.Create(con)
+	assert.Nil(t, err)
 
 	_, errCodeRes := generateOTP(con, user)
 	assert.Nil(t, errCodeRes)
@@ -167,8 +170,8 @@ func TestResetOTPAsAdmin(t *testing.T) {
 		Password: testPassword,
 		IsAdmin:  true,
 	}
-	errRes = createNewUser(&admin)
-	assert.Equal(t, errRes.ErrorCode, 0)
+	err = admin.Create(con)
+	assert.Nil(t, err)
 
 	setSessionTokenInReqHeaderForTest(req, &admin)
 

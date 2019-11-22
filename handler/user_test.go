@@ -13,13 +13,16 @@ import (
 )
 
 func TestUser(t *testing.T) {
+	con := GetDBConnection()
+	defer con.Close()
+
 	email := getTestEmail()
 	user := db.User{
 		Email:    email,
 		Password: testPassword,
 	}
-	errRes := createNewUser(&user)
-	assert.Equal(t, errRes.ErrorCode, 0)
+	err := user.Create(con)
+	assert.Nil(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
@@ -40,14 +43,17 @@ func TestUser(t *testing.T) {
 }
 
 func TestUserWithNonexistentEmail(t *testing.T) {
+	con := GetDBConnection()
+	defer con.Close()
+
 	email := getTestEmail()
 	admin := db.User{
 		Email:    email,
 		Password: testPassword,
 		IsAdmin:  true,
 	}
-	errRes := createNewUser(&admin)
-	assert.Equal(t, errRes.ErrorCode, 0)
+	err := admin.Create(con)
+	assert.Nil(t, err)
 
 	nonexistentEmail := getTestEmail()
 
@@ -64,13 +70,16 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
+	con := GetDBConnection()
+	defer con.Close()
+
 	email := getTestEmail()
 	user := db.User{
 		Email:    email,
 		Password: testPassword,
 	}
-	errRes := createNewUser(&user)
-	assert.Equal(t, errRes.ErrorCode, 0)
+	err := user.Create(con)
+	assert.Nil(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
@@ -85,13 +94,16 @@ func TestDeleteUser(t *testing.T) {
 }
 
 func TestDeleteUserAsOtherUser(t *testing.T) {
+	con := GetDBConnection()
+	defer con.Close()
+
 	email := getTestEmail()
 	user := db.User{
 		Email:    email,
 		Password: testPassword,
 	}
-	errRes := createNewUser(&user)
-	assert.Equal(t, errRes.ErrorCode, 0)
+	err := user.Create(con)
+	assert.Nil(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
@@ -103,8 +115,8 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 		Email:    getTestEmail(),
 		Password: testPassword,
 	}
-	errRes = createNewUser(&otherUser)
-	assert.Equal(t, errRes.ErrorCode, 0)
+	err = otherUser.Create(con)
+	assert.Nil(t, err)
 
 	setSessionTokenInReqHeaderForTest(req, &otherUser)
 
@@ -113,13 +125,16 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 }
 
 func TestDeleteUserAsAdmin(t *testing.T) {
+	con := GetDBConnection()
+	defer con.Close()
+
 	email := getTestEmail()
 	user := db.User{
 		Email:    email,
 		Password: testPassword,
 	}
-	errRes := createNewUser(&user)
-	assert.Equal(t, errRes.ErrorCode, 0)
+	err := user.Create(con)
+	assert.Nil(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
@@ -132,8 +147,8 @@ func TestDeleteUserAsAdmin(t *testing.T) {
 		Password: testPassword,
 		IsAdmin:  true,
 	}
-	errRes = createNewUser(&admin)
-	assert.Equal(t, errRes.ErrorCode, 0)
+	err = admin.Create(con)
+	assert.Nil(t, err)
 
 	setSessionTokenInReqHeaderForTest(req, &admin)
 
