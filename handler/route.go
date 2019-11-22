@@ -23,6 +23,7 @@ func bind(r *gin.Engine) {
 		users.GET("", Users)
 		users.GET("/:email", User)
 		users.DELETE("/:email", DeleteUser)
+		users.PUT("/:email/password", ChangePassword)
 
 		users.POST("/:email/otp", GenerateOTP)
 		users.PUT("/:email/otp", ConfirmOTP)

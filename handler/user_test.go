@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -154,4 +155,60 @@ func TestDeleteUserAsAdmin(t *testing.T) {
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
+}
+
+func TestChangePassword(t *testing.T) {
+	con := GetDBConnection()
+	defer con.Close()
+
+	changedPassword := "changedPassw0rd"
+
+	email := getTestEmail()
+	user := db.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	err := user.Create(con)
+	assert.Nil(t, err)
+
+	reqBody := ChangePasswordParam{
+		CurrentPassword: user.Password,
+		Password:        changedPassword,
+	}
+
+	body, err := json.Marshal(reqBody)
+	assert.Nil(t, err)
+
+	router := New()
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/users/%s/password", email)
+	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
+	assert.Nil(t, err)
+
+	setSessionTokenInReqHeaderForTest(req, &user)
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	// Signin
+	signinReqBody := SigninParam{
+		Email:    user.Email,
+		Password: changedPassword,
+	}
+	body, err = json.Marshal(signinReqBody)
+	assert.Nil(t, err)
+
+	w = httptest.NewRecorder()
+	req, err = http.NewRequest("POST", "/signin", bytes.NewReader(body))
+	defer req.Body.Close()
+	assert.Nil(t, err)
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var resBody SiginResponse
+	json.NewDecoder(w.Body).Decode(&resBody)
+	assert.Equal(t, signinReqBody.Email, resBody.User.Email)
+	assert.NotEqual(t, "", resBody.Token)
 }

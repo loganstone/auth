@@ -121,3 +121,8 @@ func ErrorEmptyOTPBackupCodes(message string) ErrorCodeResponse {
 func ErrorRequireVerifyOTP() ErrorCodeResponse {
 	return ErrorResponse(ErrorCodeRequireVerifyOTP, "required verify OTP")
 }
+
+// ErrorIncorrectPassword .
+func ErrorIncorrectPassword() ErrorCodeResponse {
+	return ErrorResponse(ErrorCodeIncorrectPassword, "incorrect Password")
+}
