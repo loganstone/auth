@@ -36,7 +36,8 @@ func TestGenerateOTP(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	user = getUserByEmailForTest(user.Email)
+	user, err = user.Fetch(con)
+	assert.Nil(t, err)
 	otpLink, err := user.OTPProvisioningURI()
 	assert.Nil(t, err)
 
@@ -83,7 +84,8 @@ func TestConfirmOTP(t *testing.T) {
 	var resBody map[string][]string
 	json.NewDecoder(w.Body).Decode(&resBody)
 
-	user = getUserByEmailForTest(user.Email)
+	user, err = user.Fetch(con)
+	assert.Nil(t, err)
 
 	assert.NotEqual(t, 0, user.OTPConfirmedAt)
 	assert.Equal(t, len(resBody["otp_backup_codes"]), 10)
@@ -115,11 +117,9 @@ func TestResetOTP(t *testing.T) {
 	assert.Nil(t, errCodeRes)
 
 	// Reset
-	var backupCodes []string
-	err = json.Unmarshal(user.OTPBackupCodes, &backupCodes)
 	assert.Nil(t, err)
 	reqBody := map[string]string{
-		"backup_code": backupCodes[0],
+		"backup_code": user.GetOTPBackupCodes()[0],
 	}
 
 	body, err := json.Marshal(reqBody)
@@ -135,10 +135,11 @@ func TestResetOTP(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
 
-	user = getUserByEmailForTest(user.Email)
+	user, err = user.Fetch(con)
+	assert.Nil(t, err)
 	assert.False(t, user.ConfirmedOTP())
 	assert.Nil(t, user.OTPConfirmedAt)
-	assert.True(t, user.OTPBackupCodes.IsNull())
+	assert.Nil(t, user.OTPBackupCodes)
 }
 
 func TestResetOTPAsAdmin(t *testing.T) {
@@ -179,8 +180,9 @@ func TestResetOTPAsAdmin(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
 
-	user = getUserByEmailForTest(user.Email)
+	user, err = user.Fetch(con)
+	assert.Nil(t, err)
 	assert.False(t, user.ConfirmedOTP())
 	assert.Nil(t, user.OTPConfirmedAt)
-	assert.True(t, user.OTPBackupCodes.IsNull())
+	assert.Nil(t, user.OTPBackupCodes)
 }

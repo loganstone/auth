@@ -204,14 +204,10 @@ func TestSigninWithBackupCode(t *testing.T) {
 	errCodeRes = confirmOTP(con, user)
 	assert.Nil(t, errCodeRes)
 
-	var backupCodes []string
-	err = json.Unmarshal(user.OTPBackupCodes, &backupCodes)
-	assert.Nil(t, err)
-
 	reqBody := SigninParam{
 		Email:    user.Email,
 		Password: testPassword,
-		OTP:      backupCodes[0],
+		OTP:      user.GetOTPBackupCodes()[0],
 	}
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
@@ -225,10 +221,9 @@ func TestSigninWithBackupCode(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	user = getUserByEmailForTest(user.Email)
-	err = json.Unmarshal(user.OTPBackupCodes, &backupCodes)
+	user, err = user.Fetch(con)
 	assert.Nil(t, err)
-	assert.Equal(t, 9, len(backupCodes))
+	assert.Equal(t, 9, len(user.GetOTPBackupCodes()))
 }
 
 func TestSigninWithAllBackupCodes(t *testing.T) {
@@ -249,10 +244,7 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 	errCodeRes = confirmOTP(con, user)
 	assert.Nil(t, errCodeRes)
 
-	var backupCodes []string
-	err = json.Unmarshal(user.OTPBackupCodes, &backupCodes)
-	assert.Nil(t, err)
-
+	backupCodes := user.GetOTPBackupCodes()
 	// NOTE(hs.lee): 모든 백업 코드 소모
 	for _, code := range backupCodes {
 		reqBody := SigninParam{
@@ -272,10 +264,10 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
 	}
-	user = getUserByEmailForTest(user.Email)
-	err = json.Unmarshal(user.OTPBackupCodes, &backupCodes)
+
+	user, err = user.Fetch(con)
 	assert.Nil(t, err)
-	assert.Equal(t, 0, len(backupCodes))
+	assert.Equal(t, 0, len(user.GetOTPBackupCodes()))
 
 	reqBody := SigninParam{
 		Email:    user.Email,

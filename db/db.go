@@ -3,11 +3,24 @@ package db
 import (
 	"database/sql"
 	"log"
+	"time"
 
 	"github.com/jinzhu/gorm"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql" // driver
 )
+
+// IDField ...
+type IDField struct {
+	ID uint `gorm:"primary_key"`
+}
+
+// DateTimeFields ...
+type DateTimeFields struct {
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
+}
 
 // Sync .
 func Sync(option string, echo bool) {

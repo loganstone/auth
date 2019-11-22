@@ -19,8 +19,9 @@ var (
 	// ErrorUserAlreadyExists .
 	ErrorUserAlreadyExists = errors.New("user already exists")
 	// ErrorFailSetPassword .
-	ErrorFailSetPassword = errors.New("fail set password")
-	errEmptyOTPSecretKey = errors.New("empty 'OTPSecretKey'")
+	ErrorFailSetPassword   = errors.New("fail set password")
+	errEmptyOTPSecretKey   = errors.New("empty 'OTPSecretKey'")
+	errEmptyOTPBackupCodes = errors.New("empty 'OTPBackupCodes'")
 )
 
 // User .
@@ -32,7 +33,7 @@ type User struct {
 	IsAdmin        bool   `gorm:"default:false"`
 
 	OTPSecretKey   string `gorm:"size:16"`
-	OTPBackupCodes JSON
+	OTPBackupCodes []byte
 	OTPConfirmedAt *time.Time
 
 	DateTimeFields
@@ -132,6 +133,16 @@ func (u *User) ConfirmedOTP() bool {
 	return u.OTPConfirmedAt != nil
 }
 
+// GetOTPBackupCodes .
+func (u *User) GetOTPBackupCodes() []string {
+	var backupCodes []string
+	err := json.Unmarshal(u.OTPBackupCodes, &backupCodes)
+	if err != nil {
+		return nil
+	}
+	return backupCodes
+}
+
 // SetOTPBackupCodes .
 func (u *User) SetOTPBackupCodes(codes []string) error {
 	result, err := json.Marshal(codes)
@@ -145,20 +156,11 @@ func (u *User) SetOTPBackupCodes(codes []string) error {
 
 // VerifyOTPBackupCode .
 func (u *User) VerifyOTPBackupCode(code string) bool {
-	if u.OTPBackupCodes.IsNull() {
-		return false
-	}
-
-	// TODO: 좀 더 스마트한 처리 방법을 생각해 보자.
-	var backupCodes []string
-	err := json.Unmarshal(u.OTPBackupCodes, &backupCodes)
-	if err != nil {
-		return false
-	}
-
-	for _, v := range backupCodes {
-		if string(v) == code {
-			return true
+	if backupCodes := u.GetOTPBackupCodes(); backupCodes != nil {
+		for _, v := range backupCodes {
+			if v == code {
+				return true
+			}
 		}
 	}
 	return false
@@ -166,15 +168,14 @@ func (u *User) VerifyOTPBackupCode(code string) bool {
 
 // RemoveOTPBackupCode .
 func (u *User) RemoveOTPBackupCode(code string) error {
-	var backupCodes []string
-	err := json.Unmarshal(u.OTPBackupCodes, &backupCodes)
-	if err != nil {
-		return err
+	backupCodes := u.GetOTPBackupCodes()
+	if backupCodes == nil {
+		return errEmptyOTPBackupCodes
 	}
 
 	var target int
 	for i, v := range backupCodes {
-		if string(v) == code {
+		if v == code {
 			target = i
 		}
 	}
@@ -221,4 +222,13 @@ func (u *User) Delete(con *gorm.DB) error {
 		return err
 	}
 	return nil
+}
+
+// Fetch .
+func (u *User) Fetch(con *gorm.DB) (*User, error) {
+	user := &User{}
+	if con.Where("email = ? ", u.Email).First(user).RecordNotFound() {
+		return nil, fmt.Errorf("user not found: '%s'", u.Email)
+	}
+	return user, nil
 }

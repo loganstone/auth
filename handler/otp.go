@@ -139,7 +139,7 @@ func ConfirmOTP(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"otp_backup_codes": user.OTPBackupCodes})
+	c.JSON(http.StatusOK, gin.H{"otp_backup_codes": user.GetOTPBackupCodes()})
 }
 
 // ResetOTP .
@@ -166,7 +166,7 @@ func ResetOTP(c *gin.Context) {
 			return
 		}
 
-		if user.OTPBackupCodes.IsNull() {
+		if user.OTPBackupCodes == nil {
 			c.AbortWithStatusJSON(
 				http.StatusForbidden,
 				payload.ErrorEmptyOTPBackupCodes(

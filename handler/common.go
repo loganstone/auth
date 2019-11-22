@@ -84,14 +84,3 @@ func setSessionTokenInReqHeaderForTest(req *http.Request, u *db.User) {
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
 }
-
-func getUserByEmailForTest(email string) *db.User {
-	con := GetDBConnection()
-	defer con.Close()
-	user := &db.User{}
-
-	if con.Where("email = ?", email).First(user).RecordNotFound() {
-		return nil
-	}
-	return user
-}
