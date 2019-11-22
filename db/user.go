@@ -139,7 +139,8 @@ func (u *User) SetOTPBackupCodes(codes []string) error {
 		return err
 	}
 
-	return u.OTPBackupCodes.Scan(result)
+	u.OTPBackupCodes = result
+	return nil
 }
 
 // VerifyOTPBackupCode .
