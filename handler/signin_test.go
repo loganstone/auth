@@ -44,6 +44,97 @@ func TestSignin(t *testing.T) {
 	assert.NotEqual(t, "", resBody.Token)
 }
 
+func TestSigninWithWrongPassword(t *testing.T) {
+	email := getTestEmail()
+	user := models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errRes := createNewUser(&user)
+	assert.Equal(t, errRes.ErrorCode, 0)
+
+	reqBody := SigninParam{
+		Email:    user.Email,
+		Password: "wrongpassword",
+	}
+	body, err := json.Marshal(reqBody)
+	assert.Nil(t, err)
+
+	router := New()
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
+	defer req.Body.Close()
+	assert.Nil(t, err)
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+
+	var resBody payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&resBody)
+
+	assert.Equal(t, payload.ErrorCodeIncorrectPassword, resBody.ErrorCode)
+}
+
+func TestSigninWithOutEmail(t *testing.T) {
+	email := getTestEmail()
+	user := models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errRes := createNewUser(&user)
+	assert.Equal(t, errRes.ErrorCode, 0)
+
+	reqBody := SigninParam{
+		Password: user.Password,
+	}
+	body, err := json.Marshal(reqBody)
+	assert.Nil(t, err)
+
+	router := New()
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
+	defer req.Body.Close()
+	assert.Nil(t, err)
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	var resBody payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&resBody)
+
+	assert.Equal(t, payload.ErrorCodeBindJSON, resBody.ErrorCode)
+}
+
+func TestSigninWithOutPassword(t *testing.T) {
+	email := getTestEmail()
+	user := models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errRes := createNewUser(&user)
+	assert.Equal(t, errRes.ErrorCode, 0)
+
+	reqBody := SigninParam{
+		Email: user.Email,
+	}
+	body, err := json.Marshal(reqBody)
+	assert.Nil(t, err)
+
+	router := New()
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
+	defer req.Body.Close()
+	assert.Nil(t, err)
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	var resBody payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&resBody)
+
+	assert.Equal(t, payload.ErrorCodeBindJSON, resBody.ErrorCode)
+}
+
 func TestSigninWithOTP(t *testing.T) {
 	con := GetDBConnection()
 	defer con.Close()
