@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/loganstone/auth/db/models"
+	"github.com/loganstone/auth/payload"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,9 +21,9 @@ func TestSignin(t *testing.T) {
 	errRes := createNewUser(&user)
 	assert.Equal(t, errRes.ErrorCode, 0)
 
-	reqBody := map[string]string{
-		"email":    user.Email,
-		"password": user.Password,
+	reqBody := SigninParam{
+		Email:    user.Email,
+		Password: user.Password,
 	}
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
@@ -39,7 +40,7 @@ func TestSignin(t *testing.T) {
 	var resBody SiginResponse
 	json.NewDecoder(w.Body).Decode(&resBody)
 
-	assert.Equal(t, reqBody["email"], resBody.User.Email)
+	assert.Equal(t, reqBody.Email, resBody.User.Email)
 	assert.NotEqual(t, "", resBody.Token)
 }
 
@@ -64,12 +65,11 @@ func TestSigninWithOTP(t *testing.T) {
 	totp, err := user.GetTOTP()
 	assert.Nil(t, err)
 
-	reqBody := map[string]string{
-		"email":    user.Email,
-		"password": testPassword,
-		"otp":      totp.Now(),
+	reqBody := SigninParam{
+		Email:    user.Email,
+		Password: testPassword,
+		OTP:      totp.Now(),
 	}
-
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
 
@@ -105,12 +105,11 @@ func TestSigninWithBackupCode(t *testing.T) {
 	err := json.Unmarshal(user.OTPBackupCodes, &backupCodes)
 	assert.Nil(t, err)
 
-	reqBody := map[string]string{
-		"email":    user.Email,
-		"password": testPassword,
-		"otp":      backupCodes[0],
+	reqBody := SigninParam{
+		Email:    user.Email,
+		Password: testPassword,
+		OTP:      backupCodes[0],
 	}
-
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
 
@@ -129,7 +128,7 @@ func TestSigninWithBackupCode(t *testing.T) {
 	assert.Equal(t, 9, len(backupCodes))
 }
 
-func TestSigninWithBackupCodes(t *testing.T) {
+func TestSigninWithAllBackupCodes(t *testing.T) {
 	con := GetDBConnection()
 	defer con.Close()
 
@@ -151,13 +150,13 @@ func TestSigninWithBackupCodes(t *testing.T) {
 	err := json.Unmarshal(user.OTPBackupCodes, &backupCodes)
 	assert.Nil(t, err)
 
+	// NOTE(hs.lee): 모든 백업 코드 소모
 	for _, code := range backupCodes {
-		reqBody := map[string]string{
-			"email":    user.Email,
-			"password": testPassword,
-			"otp":      code,
+		reqBody := SigninParam{
+			Email:    user.Email,
+			Password: testPassword,
+			OTP:      code,
 		}
-
 		body, err := json.Marshal(reqBody)
 		assert.Nil(t, err)
 
@@ -175,9 +174,9 @@ func TestSigninWithBackupCodes(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(backupCodes))
 
-	reqBody := map[string]string{
-		"email":    user.Email,
-		"password": testPassword,
+	reqBody := SigninParam{
+		Email:    user.Email,
+		Password: testPassword,
 	}
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
@@ -210,9 +209,9 @@ func TestSigninWithOutOTP(t *testing.T) {
 	errCodeRes = confirmOTP(con, user)
 	assert.Nil(t, errCodeRes)
 
-	reqBody := map[string]string{
-		"email":    user.Email,
-		"password": testPassword,
+	reqBody := SigninParam{
+		Email:    user.Email,
+		Password: testPassword,
 	}
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
