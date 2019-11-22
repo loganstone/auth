@@ -7,6 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 
 	"github.com/loganstone/auth/db"
+	"github.com/loganstone/auth/db/models"
 	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
@@ -19,6 +20,49 @@ type ConfirmOTPParam struct {
 // ResetOTPParam .
 type ResetOTPParam struct {
 	BackupCode string `json:"backup_code" binding:"required,numeric"`
+}
+
+func generateOTP(con *gorm.DB, user *models.User) (string, *payload.ErrorCodeResponse) {
+	user.GenerateOTPSecretKey()
+	uri, err := user.OTPProvisioningURI()
+	if err != nil {
+		errRes := payload.ErrorResponse(
+			payload.ErrorCodeOTPProvisioningURI,
+			err.Error())
+		return "", &errRes
+	}
+
+	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
+		return tx.Save(user).Error
+	}); err != nil {
+		errRes := payload.ErrorDBTransaction(err.Error())
+		return "", &errRes
+	}
+
+	return uri, nil
+}
+
+func confirmOTP(con *gorm.DB, user *models.User) *payload.ErrorCodeResponse {
+	user.ConfirmOTP()
+
+	// TODO(hs.lee):
+	// 백업 코드 개수와 자리를 환경 변수 처리해야 한다.
+	codes := utils.DigitCodes(10, 6)
+	err := user.SetOTPBackupCodes(codes)
+	if err != nil {
+		errRes := payload.ErrorResponse(
+			payload.ErrorCodeSetOTPBackupCodes,
+			err.Error())
+		return &errRes
+	}
+
+	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
+		return tx.Save(user).Error
+	}); err != nil {
+		errRes := payload.ErrorDBTransaction(err.Error())
+		return &errRes
+	}
+	return nil
 }
 
 // GenerateOTP .
@@ -37,24 +81,10 @@ func GenerateOTP(c *gin.Context) {
 			payload.ErrorOTPAlreadyRegistered())
 		return
 	}
-
-	user.GenerateOTPSecretKey()
-	uri, err := user.OTPProvisioningURI()
-	if err != nil {
+	uri, errRes := generateOTP(con, user)
+	if errRes != nil {
 		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorResponse(
-				payload.ErrorCodeOTPProvisioningURI,
-				err.Error()))
-		return
-	}
-
-	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Save(user).Error
-	}); err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorDBTransaction(err.Error()))
+			http.StatusInternalServerError, errRes)
 		return
 	}
 
@@ -105,27 +135,10 @@ func ConfirmOTP(c *gin.Context) {
 		return
 	}
 
-	user.ConfirmOTP()
-
-	// TODO(hs.lee):
-	// 백업 코드 개수와 자리를 환경 변수 처리해야 한다.
-	codes := utils.DigitCodes(10, 6)
-	err := user.SetOTPBackupCodes(codes)
-	if err != nil {
+	errRes := confirmOTP(con, user)
+	if errRes != nil {
 		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorResponse(
-				payload.ErrorCodeSetOTPBackupCodes,
-				err.Error()))
-		return
-	}
-
-	if err := db.DoInTransaction(con, func(tx *gorm.DB) error {
-		return tx.Save(user).Error
-	}); err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorDBTransaction(err.Error()))
+			http.StatusInternalServerError, errRes)
 		return
 	}
 

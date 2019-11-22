@@ -44,8 +44,22 @@ func TestSignin(t *testing.T) {
 }
 
 func TestSigninWithOTP(t *testing.T) {
-	user, _ := generateOTP(t)
-	user, _ = confirmOTP(t, user)
+	con := GetDBConnection()
+	defer con.Close()
+
+	email := getTestEmail()
+	user := &models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errRes := createNewUser(user)
+	assert.Equal(t, errRes.ErrorCode, 0)
+
+	_, errCodeRes := generateOTP(con, user)
+	assert.Nil(t, errCodeRes)
+
+	errCodeRes = confirmOTP(con, user)
+	assert.Nil(t, errCodeRes)
 
 	totp, err := user.GetTOTP()
 	assert.Nil(t, err)
@@ -70,8 +84,22 @@ func TestSigninWithOTP(t *testing.T) {
 }
 
 func TestSigninWithBackupCode(t *testing.T) {
-	user, _ := generateOTP(t)
-	user, _ = confirmOTP(t, user)
+	con := GetDBConnection()
+	defer con.Close()
+
+	email := getTestEmail()
+	user := &models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errRes := createNewUser(user)
+	assert.Equal(t, errRes.ErrorCode, 0)
+
+	_, errCodeRes := generateOTP(con, user)
+	assert.Nil(t, errCodeRes)
+
+	errCodeRes = confirmOTP(con, user)
+	assert.Nil(t, errCodeRes)
 
 	var backupCodes []string
 	err := json.Unmarshal(user.OTPBackupCodes, &backupCodes)
@@ -102,8 +130,22 @@ func TestSigninWithBackupCode(t *testing.T) {
 }
 
 func TestSigninWithBackupCodes(t *testing.T) {
-	user, _ := generateOTP(t)
-	user, _ = confirmOTP(t, user)
+	con := GetDBConnection()
+	defer con.Close()
+
+	email := getTestEmail()
+	user := &models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errRes := createNewUser(user)
+	assert.Equal(t, errRes.ErrorCode, 0)
+
+	_, errCodeRes := generateOTP(con, user)
+	assert.Nil(t, errCodeRes)
+
+	errCodeRes = confirmOTP(con, user)
+	assert.Nil(t, errCodeRes)
 
 	var backupCodes []string
 	err := json.Unmarshal(user.OTPBackupCodes, &backupCodes)
@@ -151,8 +193,22 @@ func TestSigninWithBackupCodes(t *testing.T) {
 }
 
 func TestSigninWithOutOTP(t *testing.T) {
-	user, _ := generateOTP(t)
-	user, _ = confirmOTP(t, user)
+	con := GetDBConnection()
+	defer con.Close()
+
+	email := getTestEmail()
+	user := &models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errRes := createNewUser(user)
+	assert.Equal(t, errRes.ErrorCode, 0)
+
+	_, errCodeRes := generateOTP(con, user)
+	assert.Nil(t, errCodeRes)
+
+	errCodeRes = confirmOTP(con, user)
+	assert.Nil(t, errCodeRes)
 
 	reqBody := map[string]string{
 		"email":    user.Email,

@@ -13,13 +13,13 @@ import (
 	"github.com/loganstone/auth/db/models"
 )
 
-func generateOTP(t *testing.T) (*models.User, map[string]string) {
+func TestGenerateOTP(t *testing.T) {
 	email := getTestEmail()
-	user := models.User{
+	user := &models.User{
 		Email:    email,
 		Password: testPassword,
 	}
-	errRes := createNewUser(&user)
+	errRes := createNewUser(user)
 	assert.Equal(t, errRes.ErrorCode, 0)
 
 	router := New()
@@ -28,18 +28,36 @@ func generateOTP(t *testing.T) (*models.User, map[string]string) {
 	req, err := http.NewRequest("POST", uri, nil)
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, &user)
+	setSessionTokenInReqHeaderForTest(req, user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
+	user = getUserByEmailForTest(user.Email)
+	otpLink, err := user.OTPProvisioningURI()
+	assert.Nil(t, err)
+
 	var resBody map[string]string
 	json.NewDecoder(w.Body).Decode(&resBody)
-
-	return getUserByEmailForTest(user.Email), resBody
+	assert.Equal(t, user.OTPSecretKey, resBody["secert_key"])
+	assert.Equal(t, otpLink, resBody["key_uri"])
 }
 
-func confirmOTP(t *testing.T, user *models.User) (*models.User, map[string][]string) {
+func TestConfirmOTP(t *testing.T) {
+	con := GetDBConnection()
+	defer con.Close()
+
+	email := getTestEmail()
+	user := &models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errRes := createNewUser(user)
+	assert.Equal(t, errRes.ErrorCode, 0)
+
+	_, errCodeRes := generateOTP(con, user)
+	assert.Nil(t, errCodeRes)
+
 	totp, err := user.GetTOTP()
 	assert.Nil(t, err)
 	reqBody := map[string]string{
@@ -62,19 +80,8 @@ func confirmOTP(t *testing.T, user *models.User) (*models.User, map[string][]str
 	var resBody map[string][]string
 	json.NewDecoder(w.Body).Decode(&resBody)
 
-	return getUserByEmailForTest(user.Email), resBody
-}
+	user = getUserByEmailForTest(user.Email)
 
-func TestGenerateOTP(t *testing.T) {
-	user, resBody := generateOTP(t)
-	assert.Equal(t, user.OTPSecretKey, resBody["secert_key"])
-	otpLink, _ := user.OTPProvisioningURI()
-	assert.Equal(t, otpLink, resBody["key_uri"])
-}
-
-func TestConfirmOTP(t *testing.T) {
-	user, _ := generateOTP(t)
-	user, resBody := confirmOTP(t, user)
 	assert.NotEqual(t, 0, user.OTPConfirmedAt)
 	assert.Equal(t, len(resBody["otp_backup_codes"]), 10)
 	var prev string
@@ -87,8 +94,22 @@ func TestConfirmOTP(t *testing.T) {
 }
 
 func TestResetOTP(t *testing.T) {
-	user, _ := generateOTP(t)
-	user, _ = confirmOTP(t, user)
+	con := GetDBConnection()
+	defer con.Close()
+
+	email := getTestEmail()
+	user := &models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errRes := createNewUser(user)
+	assert.Equal(t, errRes.ErrorCode, 0)
+
+	_, errCodeRes := generateOTP(con, user)
+	assert.Nil(t, errCodeRes)
+
+	errCodeRes = confirmOTP(con, user)
+	assert.Nil(t, errCodeRes)
 
 	// Reset
 	var backupCodes []string
@@ -118,8 +139,22 @@ func TestResetOTP(t *testing.T) {
 }
 
 func TestResetOTPAsAdmin(t *testing.T) {
-	user, _ := generateOTP(t)
-	user, _ = confirmOTP(t, user)
+	con := GetDBConnection()
+	defer con.Close()
+
+	email := getTestEmail()
+	user := &models.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	errRes := createNewUser(user)
+	assert.Equal(t, errRes.ErrorCode, 0)
+
+	_, errCodeRes := generateOTP(con, user)
+	assert.Nil(t, errCodeRes)
+
+	errCodeRes = confirmOTP(con, user)
+	assert.Nil(t, errCodeRes)
 
 	// Reset - Admin
 	w := httptest.NewRecorder()
@@ -132,7 +167,7 @@ func TestResetOTPAsAdmin(t *testing.T) {
 		Password: testPassword,
 		IsAdmin:  true,
 	}
-	errRes := createNewUser(&admin)
+	errRes = createNewUser(&admin)
 	assert.Equal(t, errRes.ErrorCode, 0)
 
 	setSessionTokenInReqHeaderForTest(req, &admin)
