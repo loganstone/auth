@@ -14,6 +14,10 @@ import (
 	"github.com/loganstone/auth/payload"
 )
 
+const (
+	changedPassword = "changedPassw0rd"
+)
+
 func TestUser(t *testing.T) {
 	con := GetDBConnection()
 	defer con.Close()
@@ -162,8 +166,6 @@ func TestChangePassword(t *testing.T) {
 	con := GetDBConnection()
 	defer con.Close()
 
-	changedPassword := "changedPassw0rd"
-
 	email := getTestEmail()
 	user := db.User{
 		Email:    email,
@@ -212,6 +214,41 @@ func TestChangePassword(t *testing.T) {
 	json.NewDecoder(w.Body).Decode(&resBody)
 	assert.Equal(t, signinReqBody.Email, resBody.User.Email)
 	assert.NotEqual(t, "", resBody.Token)
+}
+
+func TestChangePasswordWithIncorrectCurrentPassword(t *testing.T) {
+	con := GetDBConnection()
+	defer con.Close()
+
+	email := getTestEmail()
+	user := db.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	err := user.Create(con)
+	assert.Nil(t, err)
+
+	reqBody := ChangePasswordParam{
+		CurrentPassword: "incorrectcurrentpassword",
+		Password:        changedPassword,
+	}
+
+	body, err := json.Marshal(reqBody)
+	assert.Nil(t, err)
+
+	router := New()
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/users/%s/password", email)
+	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
+	assert.Nil(t, err)
+
+	setSessionTokenInReqHeaderForTest(req, &user)
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+	var errRes payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&errRes)
+	assert.Equal(t, payload.ErrorCodeIncorrectPassword, errRes.ErrorCode)
 }
 
 func TestChangePasswordWithOutPassword(t *testing.T) {
