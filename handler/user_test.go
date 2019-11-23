@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/loganstone/auth/db"
+	"github.com/loganstone/auth/payload"
 )
 
 func TestUser(t *testing.T) {
@@ -211,4 +212,38 @@ func TestChangePassword(t *testing.T) {
 	json.NewDecoder(w.Body).Decode(&resBody)
 	assert.Equal(t, signinReqBody.Email, resBody.User.Email)
 	assert.NotEqual(t, "", resBody.Token)
+}
+
+func TestChangePasswordWithOutPassword(t *testing.T) {
+	con := GetDBConnection()
+	defer con.Close()
+
+	email := getTestEmail()
+	user := db.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	err := user.Create(con)
+	assert.Nil(t, err)
+
+	reqBody := ChangePasswordParam{
+		CurrentPassword: user.Password,
+	}
+
+	body, err := json.Marshal(reqBody)
+	assert.Nil(t, err)
+
+	router := New()
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/users/%s/password", email)
+	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
+	assert.Nil(t, err)
+
+	setSessionTokenInReqHeaderForTest(req, &user)
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	var errRes payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&errRes)
+	assert.Equal(t, payload.ErrorCodeBindJSON, errRes.ErrorCode)
 }
