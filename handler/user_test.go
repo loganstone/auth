@@ -73,6 +73,10 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
+
+	var errRes payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&errRes)
+	assert.Equal(t, payload.ErrorCodeNotFoundUser, errRes.ErrorCode)
 }
 
 func TestDeleteUser(t *testing.T) {
@@ -246,6 +250,7 @@ func TestChangePasswordWithIncorrectCurrentPassword(t *testing.T) {
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
+
 	var errRes payload.ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)
 	assert.Equal(t, payload.ErrorCodeIncorrectPassword, errRes.ErrorCode)
@@ -280,6 +285,7 @@ func TestChangePasswordWithOutPassword(t *testing.T) {
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
+
 	var errRes payload.ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)
 	assert.Equal(t, payload.ErrorCodeBindJSON, errRes.ErrorCode)
