@@ -226,6 +226,47 @@ func TestSigninWithBackupCode(t *testing.T) {
 	assert.Equal(t, 9, len(user.OTPBackupCodes.Get()))
 }
 
+func TestSigninWithIncorrectOTP(t *testing.T) {
+	con := GetDBConnection()
+	defer con.Close()
+
+	email := getTestEmail()
+	user := &db.User{
+		Email:    email,
+		Password: testPassword,
+	}
+	err := user.Create(con)
+	assert.Nil(t, err)
+
+	_, errCodeRes := generateOTP(con, user)
+	assert.Nil(t, errCodeRes)
+
+	errCodeRes = confirmOTP(con, user)
+	assert.Nil(t, errCodeRes)
+
+	reqBody := SigninParam{
+		Email:    user.Email,
+		Password: testPassword,
+		OTP:      "111111", // incorrect otp
+	}
+	body, err := json.Marshal(reqBody)
+	assert.Nil(t, err)
+
+	router := New()
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
+	defer req.Body.Close()
+	assert.Nil(t, err)
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+
+	var errRes payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&errRes)
+
+	assert.Equal(t, payload.ErrorCodeIncorrectOTP, errRes.ErrorCode)
+}
+
 func TestSigninWithAllBackupCodes(t *testing.T) {
 	con := GetDBConnection()
 	defer con.Close()
