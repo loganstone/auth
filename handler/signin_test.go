@@ -283,6 +283,11 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
+
+	var errRes payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&errRes)
+
+	assert.Equal(t, payload.ErrorCodeRequireVerifyOTP, errRes.ErrorCode)
 }
 
 func TestSigninWithOutOTP(t *testing.T) {
@@ -318,4 +323,9 @@ func TestSigninWithOutOTP(t *testing.T) {
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
+
+	var errRes payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&errRes)
+
+	assert.Equal(t, payload.ErrorCodeRequireVerifyOTP, errRes.ErrorCode)
 }
