@@ -116,8 +116,8 @@ func TestSignupWithShortPassword(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	var resBody payload.ErrorCodeResponse
-	json.NewDecoder(w.Body).Decode(&resBody)
+	var errRes payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&errRes)
 
-	assert.Equal(t, payload.ErrorCodeBindJSON, resBody.ErrorCode)
+	assert.Equal(t, payload.ErrorCodeBindJSON, errRes.ErrorCode)
 }

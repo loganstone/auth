@@ -75,10 +75,10 @@ func TestSigninWithWrongPassword(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	var resBody payload.ErrorCodeResponse
-	json.NewDecoder(w.Body).Decode(&resBody)
+	var errRes payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&errRes)
 
-	assert.Equal(t, payload.ErrorCodeIncorrectPassword, resBody.ErrorCode)
+	assert.Equal(t, payload.ErrorCodeIncorrectPassword, errRes.ErrorCode)
 }
 
 func TestSigninWithOutEmail(t *testing.T) {
@@ -108,10 +108,10 @@ func TestSigninWithOutEmail(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	var resBody payload.ErrorCodeResponse
-	json.NewDecoder(w.Body).Decode(&resBody)
+	var errRes payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&errRes)
 
-	assert.Equal(t, payload.ErrorCodeBindJSON, resBody.ErrorCode)
+	assert.Equal(t, payload.ErrorCodeBindJSON, errRes.ErrorCode)
 }
 
 func TestSigninWithOutPassword(t *testing.T) {
@@ -141,10 +141,10 @@ func TestSigninWithOutPassword(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	var resBody payload.ErrorCodeResponse
-	json.NewDecoder(w.Body).Decode(&resBody)
+	var errRes payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&errRes)
 
-	assert.Equal(t, payload.ErrorCodeBindJSON, resBody.ErrorCode)
+	assert.Equal(t, payload.ErrorCodeBindJSON, errRes.ErrorCode)
 }
 
 func TestSigninWithOTP(t *testing.T) {
