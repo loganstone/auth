@@ -19,24 +19,16 @@ const (
 )
 
 func TestUser(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s", email)
+	uri := fmt.Sprintf("/users/%s", user.Email)
 	req, err := http.NewRequest("GET", uri, nil)
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, &user)
+	setSessionTokenInReqHeaderForTest(req, user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -44,24 +36,15 @@ func TestUser(t *testing.T) {
 	var resBody db.JSONUser
 	json.NewDecoder(w.Body).Decode(&resBody)
 
-	assert.Equal(t, email, resBody.Email)
+	assert.Equal(t, user.Email, resBody.Email)
 	assert.Equal(t, int64(0), resBody.OTPConfirmedAt)
 }
 
 func TestUserWithNonexistentEmail(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	admin := db.User{
-		Email:    email,
-		Password: testPassword,
-		IsAdmin:  true,
-	}
-	err := admin.Create(con)
+	admin, err := testAdmin(testDBCon)
 	assert.Nil(t, err)
 
-	nonexistentEmail := getTestEmail()
+	nonexistentEmail := testEmail()
 
 	router := New()
 	w := httptest.NewRecorder()
@@ -69,7 +52,7 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 	req, err := http.NewRequest("GET", uri, nil)
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, &admin)
+	setSessionTokenInReqHeaderForTest(req, admin)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
@@ -80,52 +63,36 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s", email)
+	uri := fmt.Sprintf("/users/%s", user.Email)
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, &user)
+	setSessionTokenInReqHeaderForTest(req, user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
 func TestDeleteUserAsOtherUser(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s", email)
+	uri := fmt.Sprintf("/users/%s", user.Email)
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.Nil(t, err)
 
 	otherUser := db.User{
-		Email:    getTestEmail(),
+		Email:    testEmail(),
 		Password: testPassword,
 	}
-	err = otherUser.Create(con)
+	err = otherUser.Create(testDBCon)
 	assert.Nil(t, err)
 
 	setSessionTokenInReqHeaderForTest(req, &otherUser)
@@ -135,47 +102,26 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 }
 
 func TestDeleteUserAsAdmin(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/admin/users/%s", email)
+	uri := fmt.Sprintf("/admin/users/%s", user.Email)
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.Nil(t, err)
 
-	admin := db.User{
-		Email:    getTestEmail(),
-		Password: testPassword,
-		IsAdmin:  true,
-	}
-	err = admin.Create(con)
+	admin, err := testAdmin(testDBCon)
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, &admin)
+	setSessionTokenInReqHeaderForTest(req, admin)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
 func TestChangePassword(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
 	reqBody := ChangePasswordParam{
@@ -188,11 +134,11 @@ func TestChangePassword(t *testing.T) {
 
 	router := New()
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s/password", email)
+	uri := fmt.Sprintf("/users/%s/password", user.Email)
 	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, &user)
+	setSessionTokenInReqHeaderForTest(req, user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -221,15 +167,7 @@ func TestChangePassword(t *testing.T) {
 }
 
 func TestChangePasswordWithIncorrectCurrentPassword(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
 	reqBody := ChangePasswordParam{
@@ -242,11 +180,11 @@ func TestChangePasswordWithIncorrectCurrentPassword(t *testing.T) {
 
 	router := New()
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s/password", email)
+	uri := fmt.Sprintf("/users/%s/password", user.Email)
 	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, &user)
+	setSessionTokenInReqHeaderForTest(req, user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
@@ -257,15 +195,7 @@ func TestChangePasswordWithIncorrectCurrentPassword(t *testing.T) {
 }
 
 func TestChangePasswordWithOutPassword(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
 	reqBody := ChangePasswordParam{
@@ -277,11 +207,11 @@ func TestChangePasswordWithOutPassword(t *testing.T) {
 
 	router := New()
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s/password", email)
+	uri := fmt.Sprintf("/users/%s/password", user.Email)
 	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, &user)
+	setSessionTokenInReqHeaderForTest(req, user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)

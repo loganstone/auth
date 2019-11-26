@@ -18,7 +18,7 @@ import (
 func TestSendVerificationEmail(t *testing.T) {
 	conf := configs.App()
 	reqBody := map[string]string{
-		"email": getTestEmail(),
+		"email": testEmail(),
 	}
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
@@ -46,7 +46,7 @@ func TestSendVerificationEmail(t *testing.T) {
 
 func TestVerifySignupToken(t *testing.T) {
 	conf := configs.App()
-	email := getTestEmail()
+	email := testEmail()
 	token := utils.NewJWTToken(conf.SignupTokenExpire)
 	signupToken, err := token.Signup(email, conf.JWTSigninKey)
 	assert.Nil(t, err)
@@ -68,7 +68,7 @@ func TestVerifySignupToken(t *testing.T) {
 
 func TestSignup(t *testing.T) {
 	conf := configs.App()
-	email := getTestEmail()
+	email := testEmail()
 	token := utils.NewJWTToken(conf.SignupTokenExpire)
 	signupToken, err := token.Signup(email, conf.JWTSigninKey)
 	assert.Nil(t, err)
@@ -96,7 +96,7 @@ func TestSignup(t *testing.T) {
 
 func TestSignupWithShortPassword(t *testing.T) {
 	conf := configs.App()
-	email := getTestEmail()
+	email := testEmail()
 	token := utils.NewJWTToken(conf.SignupTokenExpire)
 	signupToken, err := token.Signup(email, conf.JWTSigninKey)
 	assert.Nil(t, err)

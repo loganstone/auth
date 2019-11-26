@@ -9,25 +9,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/loganstone/auth/db"
 )
 
 func TestGenerateOTP(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := &db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s/otp", email)
+	uri := fmt.Sprintf("/users/%s/otp", user.Email)
 	req, err := http.NewRequest("POST", uri, nil)
 	assert.Nil(t, err)
 
@@ -36,7 +26,7 @@ func TestGenerateOTP(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	user, err = user.Fetch(con)
+	user, err = user.Fetch(testDBCon)
 	assert.Nil(t, err)
 	otpLink, err := user.OTPProvisioningURI()
 	assert.Nil(t, err)
@@ -48,18 +38,10 @@ func TestGenerateOTP(t *testing.T) {
 }
 
 func TestConfirmOTP(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := &db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
-	_, errCodeRes := generateOTP(con, user)
+	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
 	totp, err := user.GetTOTP()
@@ -84,7 +66,7 @@ func TestConfirmOTP(t *testing.T) {
 	var resBody map[string][]string
 	json.NewDecoder(w.Body).Decode(&resBody)
 
-	user, err = user.Fetch(con)
+	user, err = user.Fetch(testDBCon)
 	assert.Nil(t, err)
 
 	assert.NotEqual(t, 0, user.OTPConfirmedAt)
@@ -99,21 +81,13 @@ func TestConfirmOTP(t *testing.T) {
 }
 
 func TestResetOTP(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := &db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
-	_, errCodeRes := generateOTP(con, user)
+	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
-	errCodeRes = confirmOTP(con, user)
+	errCodeRes = confirmOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
 	// Reset
@@ -135,7 +109,7 @@ func TestResetOTP(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
 
-	user, err = user.Fetch(con)
+	user, err = user.Fetch(testDBCon)
 	assert.Nil(t, err)
 	assert.False(t, user.ConfirmedOTP())
 	assert.Nil(t, user.OTPConfirmedAt)
@@ -143,21 +117,13 @@ func TestResetOTP(t *testing.T) {
 }
 
 func TestResetOTPAsAdmin(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := &db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
-	_, errCodeRes := generateOTP(con, user)
+	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
-	errCodeRes = confirmOTP(con, user)
+	errCodeRes = confirmOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
 	// Reset - Admin
@@ -166,21 +132,16 @@ func TestResetOTPAsAdmin(t *testing.T) {
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.Nil(t, err)
 
-	admin := db.User{
-		Email:    getTestEmail(),
-		Password: testPassword,
-		IsAdmin:  true,
-	}
-	err = admin.Create(con)
+	admin, err := testAdmin(testDBCon)
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, &admin)
+	setSessionTokenInReqHeaderForTest(req, admin)
 
 	router := New()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
 
-	user, err = user.Fetch(con)
+	user, err = user.Fetch(testDBCon)
 	assert.Nil(t, err)
 	assert.False(t, user.ConfirmedOTP())
 	assert.Nil(t, user.OTPConfirmedAt)

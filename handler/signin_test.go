@@ -7,21 +7,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/payload"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSignin(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
 	reqBody := SigninParam{
@@ -48,15 +39,7 @@ func TestSignin(t *testing.T) {
 }
 
 func TestSigninWithWrongPassword(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
 	reqBody := SigninParam{
@@ -82,15 +65,7 @@ func TestSigninWithWrongPassword(t *testing.T) {
 }
 
 func TestSigninWithOutEmail(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
 	reqBody := SigninParam{
@@ -115,15 +90,7 @@ func TestSigninWithOutEmail(t *testing.T) {
 }
 
 func TestSigninWithOutPassword(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
 	reqBody := SigninParam{
@@ -148,21 +115,13 @@ func TestSigninWithOutPassword(t *testing.T) {
 }
 
 func TestSigninWithOTP(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := &db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
-	_, errCodeRes := generateOTP(con, user)
+	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
-	errCodeRes = confirmOTP(con, user)
+	errCodeRes = confirmOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
 	totp, err := user.GetTOTP()
@@ -187,21 +146,13 @@ func TestSigninWithOTP(t *testing.T) {
 }
 
 func TestSigninWithBackupCode(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := &db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
-	_, errCodeRes := generateOTP(con, user)
+	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
-	errCodeRes = confirmOTP(con, user)
+	errCodeRes = confirmOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
 	reqBody := SigninParam{
@@ -221,27 +172,19 @@ func TestSigninWithBackupCode(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	user, err = user.Fetch(con)
+	user, err = user.Fetch(testDBCon)
 	assert.Nil(t, err)
 	assert.Equal(t, 9, len(user.OTPBackupCodes.Get()))
 }
 
 func TestSigninWithIncorrectOTP(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := &db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
-	_, errCodeRes := generateOTP(con, user)
+	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
-	errCodeRes = confirmOTP(con, user)
+	errCodeRes = confirmOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
 	reqBody := SigninParam{
@@ -268,21 +211,13 @@ func TestSigninWithIncorrectOTP(t *testing.T) {
 }
 
 func TestSigninWithAllBackupCodes(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := &db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
-	_, errCodeRes := generateOTP(con, user)
+	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
-	errCodeRes = confirmOTP(con, user)
+	errCodeRes = confirmOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
 	// NOTE(hs.lee): 모든 백업 코드 소모
@@ -305,7 +240,7 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 	}
 
-	user, err = user.Fetch(con)
+	user, err = user.Fetch(testDBCon)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, len(user.OTPBackupCodes.Get()))
 
@@ -332,21 +267,13 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 }
 
 func TestSigninWithOutOTP(t *testing.T) {
-	con := GetDBConnection()
-	defer con.Close()
-
-	email := getTestEmail()
-	user := &db.User{
-		Email:    email,
-		Password: testPassword,
-	}
-	err := user.Create(con)
+	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
-	_, errCodeRes := generateOTP(con, user)
+	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
-	errCodeRes = confirmOTP(con, user)
+	errCodeRes = confirmOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
 	reqBody := SigninParam{

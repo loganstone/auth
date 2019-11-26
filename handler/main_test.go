@@ -5,10 +5,13 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
 )
+
+var testDBCon *gorm.DB
 
 func TestMain(m *testing.M) {
 	setup()
@@ -22,7 +25,9 @@ func setup() {
 	dbConf := configs.DB()
 	db.ResetDB(dbConf.TCPConnectionString(), dbConf.DBNameForTest())
 	db.Sync(dbConf.ConnectionString(), dbConf.Echo)
+	testDBCon = GetDBConnection()
 }
 
 func teardown() {
+	testDBCon.Close()
 }

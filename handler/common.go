@@ -70,7 +70,7 @@ func isAbortedAsUserExist(c *gin.Context, con *gorm.DB, email string) bool {
 	return false
 }
 
-func getTestEmail() string {
+func testEmail() string {
 	return fmt.Sprintf(testEmailFmt, uuid.New().String())
 }
 
@@ -83,4 +83,25 @@ func setSessionTokenInReqHeaderForTest(req *http.Request, u *db.User) {
 	}
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
+}
+
+func newUserForTest(con *gorm.DB, isAdmin bool) (*db.User, error) {
+	email := testEmail()
+	user := db.User{
+		Email:    email,
+		Password: testPassword,
+		IsAdmin:  isAdmin,
+	}
+	if err := user.Create(con); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func testUser(con *gorm.DB) (*db.User, error) {
+	return newUserForTest(con, false)
+}
+
+func testAdmin(con *gorm.DB) (*db.User, error) {
+	return newUserForTest(con, true)
 }
