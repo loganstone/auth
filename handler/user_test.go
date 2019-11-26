@@ -187,7 +187,7 @@ func TestChangePasswordWithIncorrectCurrentPassword(t *testing.T) {
 	setSessionTokenInReqHeaderForTest(req, user)
 
 	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusUnauthorized, w.Code)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	var errRes payload.ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)

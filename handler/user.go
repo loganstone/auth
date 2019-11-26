@@ -97,7 +97,7 @@ func ChangePassword(c *gin.Context) {
 	user.Password = param.CurrentPassword
 	if !user.VerifyPassword() {
 		c.AbortWithStatusJSON(
-			http.StatusUnauthorized,
+			http.StatusBadRequest,
 			payload.ErrorIncorrectPassword())
 		return
 	}
