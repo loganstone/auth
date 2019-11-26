@@ -62,6 +62,15 @@ func confirmOTP(con *gorm.DB, user *db.User) *payload.ErrorCodeResponse {
 	return nil
 }
 
+func resetOTP(con *gorm.DB, user *db.User) *payload.ErrorCodeResponse {
+	user.ResetOTP()
+	if err := user.Save(con); err != nil {
+		errRes := payload.ErrorDBTransaction(err.Error())
+		return &errRes
+	}
+	return nil
+}
+
 // GenerateOTP .
 func GenerateOTP(c *gin.Context) {
 	con := GetDBConnection()
@@ -182,11 +191,10 @@ func ResetOTP(c *gin.Context) {
 		}
 	}
 
-	user.ResetOTP()
-	if err := user.Save(con); err != nil {
+	errRes := resetOTP(con, user)
+	if errRes != nil {
 		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorDBTransaction(err.Error()))
+			http.StatusInternalServerError, errRes)
 		return
 	}
 
