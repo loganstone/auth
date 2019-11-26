@@ -43,9 +43,11 @@ func bind(r *gin.Engine) {
 // New .
 func New() *gin.Engine {
 	router := gin.New()
-	router.Use(LogFormat())
-	router.Use(RequestID())
-	router.Use(gin.Recovery())
+	if gin.Mode() != gin.TestMode {
+		router.Use(LogFormat())
+		router.Use(RequestID())
+		router.Use(gin.Recovery())
+	}
 
 	bind(router)
 
