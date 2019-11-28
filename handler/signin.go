@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -70,12 +71,17 @@ func Signin(c *gin.Context) {
 				return
 			}
 
-			if ok := user.OTPBackupCodes.Del(params.OTP); ok {
+			// 백업코드 확인은 성공 했으니,
+			// 삭제를 실패해도 Signin 은 그대로 진행.
+			message := "fail delete backup code '%s', error '%s'"
+			ok, err := user.OTPBackupCodes.Del(params.OTP)
+			if err != nil {
+				log.Printf(message, params.OTP, err.Error())
+			}
+
+			if ok {
 				if err := user.Save(con); err != nil {
-					c.AbortWithStatusJSON(
-						http.StatusInternalServerError,
-						payload.ErrorDBTransaction(err.Error()))
-					return
+					log.Printf(message, params.OTP, err.Error())
 				}
 			}
 		}

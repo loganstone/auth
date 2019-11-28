@@ -60,23 +60,23 @@ func (c Codes) In(code string) (int, bool) {
 }
 
 // Del .
-func (c *Codes) Del(code string) bool {
+func (c *Codes) Del(code string) (bool, error) {
 	codes := c.Get()
 	if codes == nil {
-		return true
+		return true, nil
 	}
 
 	i, ok := c.In(code)
 	if !ok {
-		return true
+		return true, nil
 	}
 
 	codes = append(codes[:i], codes[i+1:]...)
 	err := c.Set(codes)
 	if err != nil {
-		return false
+		return false, err
 	}
-	return true
+	return true, nil
 }
 
 // User .
