@@ -21,7 +21,7 @@ func TestGenerateOTP(t *testing.T) {
 	req, err := http.NewRequest("POST", uri, nil)
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, user)
+	setAuthJWTForTest(req, user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -57,7 +57,7 @@ func TestConfirmOTP(t *testing.T) {
 	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, user)
+	setAuthJWTForTest(req, user)
 
 	router := New()
 	router.ServeHTTP(w, req)
@@ -103,7 +103,7 @@ func TestResetOTP(t *testing.T) {
 	req, err := http.NewRequest("DELETE", uri, bytes.NewReader(body))
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, user)
+	setAuthJWTForTest(req, user)
 
 	router := New()
 	router.ServeHTTP(w, req)
@@ -135,7 +135,7 @@ func TestResetOTPAsAdmin(t *testing.T) {
 	admin, err := testAdmin(testDBCon)
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, admin)
+	setAuthJWTForTest(req, admin)
 
 	router := New()
 	router.ServeHTTP(w, req)

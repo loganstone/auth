@@ -87,7 +87,7 @@ func Signin(c *gin.Context) {
 		}
 	}
 
-	token := utils.NewJWTToken(conf.SessionTokenExpire)
+	token := utils.NewJWT(conf.SessionTokenExpire)
 	sessionToken, err := token.Session(user.ID, user.Email, conf.JWTSigninKey)
 	if err != nil {
 		c.AbortWithStatusJSON(

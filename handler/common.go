@@ -74,9 +74,9 @@ func testEmail() string {
 	return fmt.Sprintf(testEmailFmt, uuid.New().String())
 }
 
-func setSessionTokenInReqHeaderForTest(req *http.Request, u *db.User) {
+func setAuthJWTForTest(req *http.Request, u *db.User) {
 	conf := configs.App()
-	token := utils.NewJWTToken(10)
+	token := utils.NewJWT(10)
 	sessionToken, err := token.Session(u.ID, u.Email, conf.JWTSigninKey)
 	if err != nil {
 		log.Fatalf("fail generate session token: %s\n", err.Error())

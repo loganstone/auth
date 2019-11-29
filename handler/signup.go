@@ -85,7 +85,7 @@ func SendVerificationEmail(c *gin.Context) {
 		return
 	}
 
-	token := utils.NewJWTToken(conf.SignupTokenExpire)
+	token := utils.NewJWT(conf.SignupTokenExpire)
 	signupToken, err := token.Signup(param.Email, conf.JWTSigninKey)
 	if err != nil {
 		c.AbortWithStatusJSON(
@@ -143,7 +143,7 @@ func VerifySignupToken(c *gin.Context) {
 	defer con.Close()
 
 	token := c.Param("token")
-	claims, err := utils.ParseJWTSignupToken(token, conf.JWTSigninKey)
+	claims, err := utils.ParseSignupJWT(token, conf.JWTSigninKey)
 	if err != nil {
 		ve, ok := err.(*jwt.ValidationError)
 		if !ok || ve.Errors != jwt.ValidationErrorExpired {
@@ -179,7 +179,7 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	claims, err := utils.ParseJWTSignupToken(param.Token, conf.JWTSigninKey)
+	claims, err := utils.ParseSignupJWT(param.Token, conf.JWTSigninKey)
 	if err != nil {
 		ve, ok := err.(*jwt.ValidationError)
 		if !ok || ve.Errors != jwt.ValidationErrorExpired {

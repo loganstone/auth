@@ -31,7 +31,7 @@ func Authorize() gin.HandlerFunc {
 		}
 
 		sessionToken := bearerToken[1]
-		sessionClaims, err := utils.ParseJWTSessionToken(
+		sessionClaims, err := utils.ParseSessionJWT(
 			sessionToken, conf.JWTSigninKey)
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)

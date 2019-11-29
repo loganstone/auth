@@ -38,7 +38,7 @@ func TestSendVerificationEmail(t *testing.T) {
 	assert.NotEqual(t, resBody["token"], "")
 	token := resBody["token"]
 
-	claims, err := utils.ParseJWTSignupToken(token, conf.JWTSigninKey)
+	claims, err := utils.ParseSignupJWT(token, conf.JWTSigninKey)
 	assert.Nil(t, err)
 
 	assert.Equal(t, reqBody["email"], claims.Email)
@@ -47,7 +47,7 @@ func TestSendVerificationEmail(t *testing.T) {
 func TestVerifySignupToken(t *testing.T) {
 	conf := configs.App()
 	email := testEmail()
-	token := utils.NewJWTToken(conf.SignupTokenExpire)
+	token := utils.NewJWT(conf.SignupTokenExpire)
 	signupToken, err := token.Signup(email, conf.JWTSigninKey)
 	assert.Nil(t, err)
 
@@ -69,7 +69,7 @@ func TestVerifySignupToken(t *testing.T) {
 func TestSignup(t *testing.T) {
 	conf := configs.App()
 	email := testEmail()
-	token := utils.NewJWTToken(conf.SignupTokenExpire)
+	token := utils.NewJWT(conf.SignupTokenExpire)
 	signupToken, err := token.Signup(email, conf.JWTSigninKey)
 	assert.Nil(t, err)
 
@@ -97,7 +97,7 @@ func TestSignup(t *testing.T) {
 func TestSignupWithShortPassword(t *testing.T) {
 	conf := configs.App()
 	email := testEmail()
-	token := utils.NewJWTToken(conf.SignupTokenExpire)
+	token := utils.NewJWT(conf.SignupTokenExpire)
 	signupToken, err := token.Signup(email, conf.JWTSigninKey)
 	assert.Nil(t, err)
 

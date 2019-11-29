@@ -28,7 +28,7 @@ func TestUser(t *testing.T) {
 	req, err := http.NewRequest("GET", uri, nil)
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, user)
+	setAuthJWTForTest(req, user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -52,7 +52,7 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 	req, err := http.NewRequest("GET", uri, nil)
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, admin)
+	setAuthJWTForTest(req, admin)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
@@ -72,7 +72,7 @@ func TestDeleteUser(t *testing.T) {
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, user)
+	setAuthJWTForTest(req, user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
@@ -95,7 +95,7 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 	err = otherUser.Create(testDBCon)
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, &otherUser)
+	setAuthJWTForTest(req, &otherUser)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusForbidden, w.Code)
@@ -114,7 +114,7 @@ func TestDeleteUserAsAdmin(t *testing.T) {
 	admin, err := testAdmin(testDBCon)
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, admin)
+	setAuthJWTForTest(req, admin)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
@@ -138,7 +138,7 @@ func TestChangePassword(t *testing.T) {
 	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, user)
+	setAuthJWTForTest(req, user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -184,7 +184,7 @@ func TestChangePasswordWithIncorrectCurrentPassword(t *testing.T) {
 	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, user)
+	setAuthJWTForTest(req, user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -211,7 +211,7 @@ func TestChangePasswordWithOutPassword(t *testing.T) {
 	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
 	assert.Nil(t, err)
 
-	setSessionTokenInReqHeaderForTest(req, user)
+	setAuthJWTForTest(req, user)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)

@@ -20,18 +20,18 @@ func getTestEmail() string {
 	return fmt.Sprintf(testEmailFmt, uuid.New().String())
 }
 
-func TestNewJWTToken(t *testing.T) {
-	token := NewJWTToken(1)
+func TestNewJWT(t *testing.T) {
+	token := NewJWT(1)
 	assert.Equal(t, jwt.MapClaims{}, token.Claims)
 }
 
-func TestParseToken(t *testing.T) {
+func TestParseJWT(t *testing.T) {
 	testEmail := getTestEmail()
-	token := NewJWTToken(5)
+	token := NewJWT(5)
 	signupToken, err := token.Signup(testEmail, testSecretkey)
 	assert.Nil(t, err)
 
-	signupClaims, err := ParseJWTSignupToken(signupToken, testSecretkey)
+	signupClaims, err := ParseSignupJWT(signupToken, testSecretkey)
 	assert.Nil(t, err)
 	assert.Equal(t, testEmail, signupClaims.Email)
 	assert.Equal(t, Signup, signupClaims.Subject)
@@ -42,7 +42,7 @@ func TestParseToken(t *testing.T) {
 	sessionToken, err := token.Session(userID, userEmail, testSecretkey)
 	assert.Nil(t, err)
 
-	sessionClaims, err := ParseJWTSessionToken(sessionToken, testSecretkey)
+	sessionClaims, err := ParseSessionJWT(sessionToken, testSecretkey)
 	assert.Nil(t, err)
 	assert.Equal(t, Session, sessionClaims.Subject)
 
@@ -50,13 +50,13 @@ func TestParseToken(t *testing.T) {
 	assert.Equal(t, userID, sessionClaims.UserID)
 }
 
-func TestParseTokenWithExpired(t *testing.T) {
+func TestParseJWTWithExpired(t *testing.T) {
 	testEmail := getTestEmail()
-	token := NewJWTToken(-1)
+	token := NewJWT(-1)
 	signupToken, err := token.Signup(testEmail, testSecretkey)
 	assert.Nil(t, err)
 
-	_, err = ParseJWTSignupToken(signupToken, testSecretkey)
+	_, err = ParseSignupJWT(signupToken, testSecretkey)
 	ve, ok := err.(*jwt.ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, jwt.ValidationErrorExpired, ve.Errors)

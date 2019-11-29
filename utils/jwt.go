@@ -38,8 +38,8 @@ type SessionClaims struct {
 	jwt.StandardClaims
 }
 
-// NewJWTToken .
-func NewJWTToken(expireAfterSec int) *Token {
+// NewJWT .
+func NewJWT(expireAfterSec int) *Token {
 	return &Token{
 		time.Duration(expireAfterSec),
 		*jwt.New(jwt.SigningMethodHS256),
@@ -93,8 +93,8 @@ func parseWithClaims(signedString, secretkey string, claims jwt.Claims) (*jwt.To
 		})
 }
 
-// ParseJWTSignupToken .
-func ParseJWTSignupToken(signedString, secretkey string) (*SignupClaims, error) {
+// ParseSignupJWT .
+func ParseSignupJWT(signedString, secretkey string) (*SignupClaims, error) {
 	token, err := parseWithClaims(signedString, secretkey, &SignupClaims{})
 	if err != nil {
 		return nil, err
@@ -108,8 +108,8 @@ func ParseJWTSignupToken(signedString, secretkey string) (*SignupClaims, error) 
 	return claims, nil
 }
 
-// ParseJWTSessionToken .
-func ParseJWTSessionToken(signedString, secretkey string) (*SessionClaims, error) {
+// ParseSessionJWT .
+func ParseSessionJWT(signedString, secretkey string) (*SessionClaims, error) {
 	token, err := parseWithClaims(signedString, secretkey, &SessionClaims{})
 	if err != nil {
 		return nil, err
