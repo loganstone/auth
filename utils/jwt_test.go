@@ -16,7 +16,7 @@ const (
 	testSecretkey = "thisissecertkey"
 )
 
-func getTestEmail() string {
+func testEmail() string {
 	return fmt.Sprintf(testEmailFmt, uuid.New().String())
 }
 
@@ -26,18 +26,18 @@ func TestNewJWT(t *testing.T) {
 }
 
 func TestParseJWT(t *testing.T) {
-	testEmail := getTestEmail()
+	email := testEmail()
 	token := NewJWT(5)
-	signupToken, err := token.Signup(testEmail, testSecretkey)
+	signupToken, err := token.Signup(email, testSecretkey)
 	assert.Nil(t, err)
 
 	signupClaims, err := ParseSignupJWT(signupToken, testSecretkey)
 	assert.Nil(t, err)
-	assert.Equal(t, testEmail, signupClaims.Email)
+	assert.Equal(t, email, signupClaims.Email)
 	assert.Equal(t, Signup, signupClaims.Subject)
 
 	var userID uint = 1
-	userEmail := getTestEmail()
+	userEmail := testEmail()
 
 	sessionToken, err := token.Session(userID, userEmail, testSecretkey)
 	assert.Nil(t, err)
@@ -51,9 +51,9 @@ func TestParseJWT(t *testing.T) {
 }
 
 func TestParseJWTWithExpired(t *testing.T) {
-	testEmail := getTestEmail()
+	email := testEmail()
 	token := NewJWT(-1)
-	signupToken, err := token.Signup(testEmail, testSecretkey)
+	signupToken, err := token.Signup(email, testSecretkey)
 	assert.Nil(t, err)
 
 	_, err = ParseSignupJWT(signupToken, testSecretkey)

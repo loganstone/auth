@@ -124,7 +124,7 @@ func TestSigninWithOTP(t *testing.T) {
 	errCodeRes = confirmOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
-	totp, err := user.GetTOTP()
+	totp, err := user.TOTP()
 	assert.Nil(t, err)
 
 	reqBody := SigninParam{
@@ -158,7 +158,7 @@ func TestSigninWithBackupCode(t *testing.T) {
 	reqBody := SigninParam{
 		Email:    user.Email,
 		Password: testPassword,
-		OTP:      user.OTPBackupCodes.Get()[0],
+		OTP:      user.OTPBackupCodes.Value()[0],
 	}
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
@@ -174,7 +174,7 @@ func TestSigninWithBackupCode(t *testing.T) {
 
 	user, err = user.Fetch(testDBCon)
 	assert.Nil(t, err)
-	assert.Equal(t, 9, len(user.OTPBackupCodes.Get()))
+	assert.Equal(t, 9, len(user.OTPBackupCodes.Value()))
 }
 
 func TestSigninWithIncorrectOTP(t *testing.T) {
@@ -221,7 +221,7 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 	assert.Nil(t, errCodeRes)
 
 	// NOTE(hs.lee): 모든 백업 코드 소모
-	for _, code := range user.OTPBackupCodes.Get() {
+	for _, code := range user.OTPBackupCodes.Value() {
 		reqBody := SigninParam{
 			Email:    user.Email,
 			Password: testPassword,
@@ -242,7 +242,7 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 
 	user, err = user.Fetch(testDBCon)
 	assert.Nil(t, err)
-	assert.Equal(t, 0, len(user.OTPBackupCodes.Get()))
+	assert.Equal(t, 0, len(user.OTPBackupCodes.Value()))
 
 	reqBody := SigninParam{
 		Email:    user.Email,

@@ -26,8 +26,8 @@ var (
 	errWrongSessionUser = errors.New("'SessionUser' not 'db.User' type")
 )
 
-// GetLoginUser .
-func GetLoginUser(c *gin.Context) (loginUser db.User, err error) {
+// LoginUser .
+func LoginUser(c *gin.Context) (loginUser db.User, err error) {
 	sessionUser, ok := c.Get("SessionUser")
 	if !ok {
 		err = errEmptySessionUser
@@ -41,8 +41,8 @@ func GetLoginUser(c *gin.Context) (loginUser db.User, err error) {
 	return
 }
 
-// GetDBConnection .
-func GetDBConnection() *gorm.DB {
+// DBConnection .
+func DBConnection() *gorm.DB {
 	dbConf := configs.DB()
 	return db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 }

@@ -73,7 +73,7 @@ func resetOTP(con *gorm.DB, user *db.User) *payload.ErrorCodeResponse {
 
 // GenerateOTP .
 func GenerateOTP(c *gin.Context) {
-	con := GetDBConnection()
+	con := DBConnection()
 	defer con.Close()
 
 	user := findUserOrAbort(c, con, http.StatusNotFound)
@@ -102,7 +102,7 @@ func GenerateOTP(c *gin.Context) {
 
 // ConfirmOTP .
 func ConfirmOTP(c *gin.Context) {
-	con := GetDBConnection()
+	con := DBConnection()
 	defer con.Close()
 
 	user := findUserOrAbort(c, con, http.StatusNotFound)
@@ -148,12 +148,12 @@ func ConfirmOTP(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"otp_backup_codes": user.OTPBackupCodes.Get()})
+	c.JSON(http.StatusOK, gin.H{"otp_backup_codes": user.OTPBackupCodes.Value()})
 }
 
 // ResetOTP .
 func ResetOTP(c *gin.Context) {
-	con := GetDBConnection()
+	con := DBConnection()
 	defer con.Close()
 
 	user := findUserOrAbort(c, con, http.StatusNoContent)

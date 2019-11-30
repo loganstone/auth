@@ -44,7 +44,7 @@ func TestConfirmOTP(t *testing.T) {
 	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
-	totp, err := user.GetTOTP()
+	totp, err := user.TOTP()
 	assert.Nil(t, err)
 	reqBody := map[string]string{
 		"otp": totp.Now(),
@@ -93,7 +93,7 @@ func TestResetOTP(t *testing.T) {
 	// Reset
 	assert.Nil(t, err)
 	reqBody := map[string]string{
-		"backup_code": user.OTPBackupCodes.Get()[0],
+		"backup_code": user.OTPBackupCodes.Value()[0],
 	}
 
 	body, err := json.Marshal(reqBody)

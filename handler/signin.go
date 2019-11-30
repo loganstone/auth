@@ -28,7 +28,7 @@ type SigninParam struct {
 // Signin .
 func Signin(c *gin.Context) {
 	conf := configs.App()
-	con := GetDBConnection()
+	con := DBConnection()
 	defer con.Close()
 
 	var params SigninParam

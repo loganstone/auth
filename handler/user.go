@@ -17,7 +17,7 @@ type ChangePasswordParam struct {
 
 // Users .
 func Users(c *gin.Context) {
-	con := GetDBConnection()
+	con := DBConnection()
 	defer con.Close()
 
 	page, err := Page(c)
@@ -45,7 +45,7 @@ func Users(c *gin.Context) {
 
 // User .
 func User(c *gin.Context) {
-	con := GetDBConnection()
+	con := DBConnection()
 	defer con.Close()
 
 	user := findUserOrAbort(c, con, http.StatusNotFound)
@@ -58,7 +58,7 @@ func User(c *gin.Context) {
 
 // DeleteUser .
 func DeleteUser(c *gin.Context) {
-	con := GetDBConnection()
+	con := DBConnection()
 	defer con.Close()
 
 	user := findUserOrAbort(c, con, http.StatusNoContent)
@@ -78,7 +78,7 @@ func DeleteUser(c *gin.Context) {
 
 // ChangePassword .
 func ChangePassword(c *gin.Context) {
-	con := GetDBConnection()
+	con := DBConnection()
 	defer con.Close()
 
 	var param ChangePasswordParam

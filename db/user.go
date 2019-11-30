@@ -26,8 +26,8 @@ var (
 // Codes .
 type Codes []byte
 
-// Get .
-func (c Codes) Get() []string {
+// Value .
+func (c Codes) Value() []string {
 	var result []string
 	err := json.Unmarshal(c, &result)
 	if err != nil {
@@ -49,7 +49,7 @@ func (c *Codes) Set(codes []string) error {
 
 // In .
 func (c Codes) In(code string) (int, bool) {
-	if codes := c.Get(); codes != nil {
+	if codes := c.Value(); codes != nil {
 		for i, v := range codes {
 			if v == code {
 				return i, true
@@ -61,7 +61,7 @@ func (c Codes) In(code string) (int, bool) {
 
 // Del .
 func (c *Codes) Del(code string) (bool, error) {
-	codes := c.Get()
+	codes := c.Value()
 	if codes == nil {
 		return true, nil
 	}
@@ -136,8 +136,8 @@ func (u User) MarshalJSON() ([]byte, error) {
 	return json.Marshal(user)
 }
 
-// GetTOTP .
-func (u *User) GetTOTP() (*gotp.TOTP, error) {
+// TOTP .
+func (u *User) TOTP() (*gotp.TOTP, error) {
 	if u.OTPSecretKey == "" {
 		return nil, errEmptyOTPSecretKey
 	}
@@ -153,7 +153,7 @@ func (u *User) GenerateOTPSecretKey() {
 
 // VerifyOTP .
 func (u *User) VerifyOTP(otp string) bool {
-	totp, err := u.GetTOTP()
+	totp, err := u.TOTP()
 	if err != nil {
 		return false
 	}
@@ -162,7 +162,7 @@ func (u *User) VerifyOTP(otp string) bool {
 
 // OTPProvisioningURI .
 func (u *User) OTPProvisioningURI() (string, error) {
-	totp, err := u.GetTOTP()
+	totp, err := u.TOTP()
 	if err != nil {
 		return "", err
 	}

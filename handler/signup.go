@@ -69,7 +69,7 @@ type VerificationEmailData struct {
 // SendVerificationEmail .
 func SendVerificationEmail(c *gin.Context) {
 	conf := configs.App()
-	con := GetDBConnection()
+	con := DBConnection()
 	defer con.Close()
 
 	var param VerificationEmailParam
@@ -139,7 +139,7 @@ func SendVerificationEmail(c *gin.Context) {
 // VerifySignupToken .
 func VerifySignupToken(c *gin.Context) {
 	conf := configs.App()
-	con := GetDBConnection()
+	con := DBConnection()
 	defer con.Close()
 
 	token := c.Param("token")
@@ -168,7 +168,7 @@ func VerifySignupToken(c *gin.Context) {
 // Signup .
 func Signup(c *gin.Context) {
 	conf := configs.App()
-	con := GetDBConnection()
+	con := DBConnection()
 	defer con.Close()
 
 	var param SignupParam

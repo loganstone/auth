@@ -58,7 +58,7 @@ func Authorize() gin.HandlerFunc {
 // Admin .
 func Admin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		loginUser, err := GetLoginUser(c)
+		loginUser, err := LoginUser(c)
 
 		if err != nil {
 			c.AbortWithStatusJSON(
@@ -85,7 +85,7 @@ func Self() gin.HandlerFunc {
 			return
 		}
 
-		loginUser, err := GetLoginUser(c)
+		loginUser, err := LoginUser(c)
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,

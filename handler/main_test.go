@@ -25,7 +25,7 @@ func setup() {
 	dbConf := configs.DB()
 	db.ResetDB(dbConf.TCPConnectionString(), dbConf.DBNameForTest())
 	db.Sync(dbConf.ConnectionString(), dbConf.Echo)
-	testDBCon = GetDBConnection()
+	testDBCon = DBConnection()
 }
 
 func teardown() {
