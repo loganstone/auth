@@ -11,6 +11,11 @@ import (
 	"github.com/loganstone/auth/utils"
 )
 
+const (
+	backupCodesLen = 10
+	backupCodeLen  = 6
+)
+
 // ConfirmOTPParam .
 type ConfirmOTPParam struct {
 	OTP string `json:"otp" binding:"required,numeric"`
@@ -43,9 +48,7 @@ func generateOTP(con *gorm.DB, user *db.User) (string, *payload.ErrorCodeRespons
 func confirmOTP(con *gorm.DB, user *db.User) *payload.ErrorCodeResponse {
 	user.ConfirmOTP()
 
-	// TODO(hs.lee):
-	// 백업 코드 개수와 자리를 환경 변수 처리해야 한다.
-	codes := utils.DigitCodes(10, 6)
+	codes := utils.DigitCodes(backupCodesLen, backupCodeLen)
 	err := user.OTPBackupCodes.Set(codes)
 	if err != nil {
 		errRes := payload.ErrorResponse(
