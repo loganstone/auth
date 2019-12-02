@@ -13,6 +13,7 @@ import (
 
 const (
 	failCreateUserMessage = "fail create user '%s': %w"
+	secretKeyLen          = 16
 )
 
 var (
@@ -146,9 +147,7 @@ func (u *User) TOTP() (*gotp.TOTP, error) {
 
 // GenerateOTPSecretKey .
 func (u *User) GenerateOTPSecretKey() {
-	// TODO: export config
-	secretLength := 16
-	u.OTPSecretKey = gotp.RandomSecret(secretLength)
+	u.OTPSecretKey = gotp.RandomSecret(secretKeyLen)
 }
 
 // VerifyOTP .
