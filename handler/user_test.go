@@ -37,7 +37,7 @@ func TestUser(t *testing.T) {
 	json.NewDecoder(w.Body).Decode(&resBody)
 
 	assert.Equal(t, user.Email, resBody.Email)
-	assert.Equal(t, int64(0), resBody.OTPConfirmedAt)
+	assert.Nil(t, resBody.OTPConfirmedAt)
 }
 
 func TestUserWithNonexistentEmail(t *testing.T) {

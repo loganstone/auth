@@ -101,7 +101,8 @@ type JSONUser struct {
 	IsAdmin        bool   `json:"is_admin"`
 	CreatedAt      int64  `json:"created_at"`
 	UpdatedAt      int64  `json:"updated_at"`
-	OTPConfirmedAt int64  `json:"otp_confirmed_at"`
+	DeletedAt      *int64 `json:"deleted_at"`
+	OTPConfirmedAt *int64 `json:"otp_confirmed_at"`
 }
 
 // SetPassword .
@@ -131,8 +132,13 @@ func (u User) MarshalJSON() ([]byte, error) {
 		CreatedAt: u.CreatedAt.Unix(),
 		UpdatedAt: u.UpdatedAt.Unix(),
 	}
+	if u.DeletedAt != nil {
+		ts := u.DeletedAt.Unix()
+		user.DeletedAt = &ts
+	}
 	if u.OTPConfirmedAt != nil {
-		user.OTPConfirmedAt = u.OTPConfirmedAt.Unix()
+		ts := u.OTPConfirmedAt.Unix()
+		user.OTPConfirmedAt = &ts
 	}
 	return json.Marshal(user)
 }
