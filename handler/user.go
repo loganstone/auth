@@ -15,6 +15,14 @@ type ChangePasswordParam struct {
 	Password        string `json:"password" binding:"required,gte=10,alphanum"`
 }
 
+// UsersResponse .
+type UsersResponse struct {
+	Page     int       `json:"page"`
+	PageSize int       `json:"page_size"`
+	HasNext  bool      `json:"has_next"`
+	Users    []db.User `json:"users"`
+}
+
 // Users .
 func Users(c *gin.Context) {
 	con := DBConnection()
@@ -37,10 +45,21 @@ func Users(c *gin.Context) {
 	}
 
 	var users []db.User
+	con.Unscoped().Order("id desc").Limit(pageSize + 1).Offset(page * pageSize).Find(&users)
 
-	con.Limit(pageSize).Offset(page * pageSize).Find(&users)
+	r := UsersResponse{
+		Page:     page,
+		PageSize: pageSize,
+		HasNext:  false,
+		Users:    users,
+	}
 
-	c.JSON(http.StatusOK, users)
+	if len(users) > pageSize {
+		r.HasNext = true
+		r.Users = users[:len(users)-1]
+	}
+
+	c.JSON(http.StatusOK, r)
 }
 
 // User .

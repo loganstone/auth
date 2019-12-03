@@ -11,6 +11,7 @@ func bind(r *gin.Engine) {
 	admin.Use(Admin())
 	{
 		users := admin.Group("users")
+		users.GET("", Users)
 		users.GET("/:email", User)
 		users.DELETE("/:email", DeleteUser)
 		users.DELETE("/:email/otp", ResetOTP)
@@ -20,7 +21,6 @@ func bind(r *gin.Engine) {
 	users.Use(Authorize())
 	users.Use(Self())
 	{
-		users.GET("", Users)
 		users.GET("/:email", User)
 		users.DELETE("/:email", DeleteUser)
 		users.PUT("/:email/password", ChangePassword)
