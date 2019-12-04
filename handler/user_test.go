@@ -220,3 +220,59 @@ func TestChangePasswordWithOutPassword(t *testing.T) {
 	json.NewDecoder(w.Body).Decode(&errRes)
 	assert.Equal(t, payload.ErrorCodeBindJSON, errRes.ErrorCode)
 }
+
+type usersTestCase struct {
+	Page     int
+	PageSize int
+	UsersLen int
+	HasNext  bool
+}
+
+func TestUsersAsAdmin(t *testing.T) {
+	admin, err := testAdmin(testDBCon)
+	assert.Nil(t, err)
+
+	userCount := 10
+	users := make([]*db.User, 10)
+	for i := 0; i < userCount; i++ {
+		user, err := testUser(testDBCon)
+		assert.Nil(t, err)
+		users[i] = user
+	}
+
+	router := New()
+	w := httptest.NewRecorder()
+	uri := "/admin/users"
+	req, err := http.NewRequest("GET", uri, nil)
+	assert.Nil(t, err)
+
+	setAuthJWTForTest(req, admin)
+	q := req.URL.Query()
+
+	// TODO(hs.lee):
+	// 검색 조건 추가 후 테스트 수정 필요.
+	tables := []usersTestCase{
+		usersTestCase{0, 3, 3, true},
+		usersTestCase{1, 3, 3, true},
+		usersTestCase{2, 3, 3, true},
+		usersTestCase{3, 3, 3, true},
+		// usersTestCase{3, 3, 1, true},
+	}
+
+	for _, v := range tables {
+		q.Set("page", fmt.Sprintf("%d", v.Page))
+		q.Set("page_size", fmt.Sprintf("%d", v.PageSize))
+
+		req.URL.RawQuery = q.Encode()
+
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusOK, w.Code)
+		var resBody UsersResponse
+		json.NewDecoder(w.Body).Decode(&resBody)
+
+		assert.Equal(t, v.Page, resBody.Page)
+		assert.Equal(t, v.PageSize, resBody.PageSize)
+		assert.Equal(t, v.HasNext, resBody.HasNext)
+		assert.Equal(t, v.UsersLen, len(resBody.Users))
+	}
+}

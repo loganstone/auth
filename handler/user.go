@@ -28,6 +28,8 @@ func Users(c *gin.Context) {
 	con := DBConnection()
 	defer con.Close()
 
+	// TODO(hs.lee):
+	// 검색 조건을 추가해야 한다.
 	page, err := Page(c)
 	if err != nil {
 		c.AbortWithStatusJSON(
