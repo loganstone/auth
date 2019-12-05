@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"runtime"
 	"sync"
 	"testing"
 
@@ -290,6 +291,25 @@ func BenchmarkCreateUsersWithLoop(b *testing.B) {
 }
 
 func BenchmarkCreateUsersWithGoroutine(b *testing.B) {
+	userCount := 10
+	for i := 0; i < b.N; i++ {
+		wg := sync.WaitGroup{}
+		wg.Add(userCount)
+		for i := 0; i < userCount; i++ {
+			go func() {
+				defer wg.Done()
+				_, err := testUser(testDBCon)
+				if err != nil {
+					log.Println(err)
+				}
+			}()
+		}
+		wg.Wait()
+	}
+}
+
+func BenchmarkCreateUsersWithGoroutineOnOneCPU(b *testing.B) {
+	runtime.GOMAXPROCS(1)
 	userCount := 10
 	for i := 0; i < b.N; i++ {
 		wg := sync.WaitGroup{}
