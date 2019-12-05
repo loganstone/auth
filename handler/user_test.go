@@ -221,13 +221,6 @@ func TestChangePasswordWithOutPassword(t *testing.T) {
 	assert.Equal(t, payload.ErrorCodeBindJSON, errRes.ErrorCode)
 }
 
-type usersTestCase struct {
-	Page     int
-	PageSize int
-	UsersLen int
-	HasNext  bool
-}
-
 func TestUsersAsAdmin(t *testing.T) {
 	admin, err := testAdmin(testDBCon)
 	assert.Nil(t, err)
@@ -251,12 +244,17 @@ func TestUsersAsAdmin(t *testing.T) {
 
 	// TODO(hs.lee):
 	// 검색 조건 추가 후 테스트 수정 필요.
-	tables := []usersTestCase{
-		usersTestCase{0, 3, 3, true},
-		usersTestCase{1, 3, 3, true},
-		usersTestCase{2, 3, 3, true},
-		usersTestCase{3, 3, 3, true},
-		// usersTestCase{3, 3, 1, true},
+	tables := []struct {
+		Page     int
+		PageSize int
+		UsersLen int
+		HasNext  bool
+	}{
+		{0, 3, 3, true},
+		{1, 3, 3, true},
+		{2, 3, 3, true},
+		{3, 3, 3, true},
+		// {3, 3, 1, true},
 	}
 
 	for _, v := range tables {
