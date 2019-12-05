@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -272,5 +274,35 @@ func TestUsersAsAdmin(t *testing.T) {
 		assert.Equal(t, v.PageSize, resBody.PageSize)
 		assert.Equal(t, v.HasNext, resBody.HasNext)
 		assert.Equal(t, v.UsersLen, len(resBody.Users))
+	}
+}
+
+func BenchmarkCreateUsersWithLoop(b *testing.B) {
+	userCount := 10
+	for i := 0; i < b.N; i++ {
+		for i := 0; i < userCount; i++ {
+			_, err := testUser(testDBCon)
+			if err != nil {
+				log.Println(err)
+			}
+		}
+	}
+}
+
+func BenchmarkCreateUsersWithGoroutine(b *testing.B) {
+	userCount := 10
+	for i := 0; i < b.N; i++ {
+		wg := sync.WaitGroup{}
+		wg.Add(userCount)
+		for i := 0; i < userCount; i++ {
+			go func() {
+				defer wg.Done()
+				_, err := testUser(testDBCon)
+				if err != nil {
+					log.Println(err)
+				}
+			}()
+		}
+		wg.Wait()
 	}
 }
