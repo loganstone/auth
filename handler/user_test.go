@@ -229,7 +229,7 @@ func TestUsersAsAdmin(t *testing.T) {
 	assert.Nil(t, err)
 
 	userCount := 10
-	users := make([]*db.User, 10)
+	users := make([]*db.User, userCount)
 	for i := 0; i < userCount; i++ {
 		user, err := testUser(testDBCon)
 		assert.Nil(t, err)
