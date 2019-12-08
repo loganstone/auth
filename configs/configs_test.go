@@ -2,6 +2,7 @@ package configs
 
 import (
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -30,4 +31,35 @@ func TestAppDefault(t *testing.T) {
 	assert.Equal(t, defaultSessionTokenExpire, conf.SessionTokenExpire)
 	assert.Equal(t, defaultJWTSigninKey, conf.JWTSigninKey)
 	assert.Equal(t, defaultPageSize, conf.PageSize)
+}
+
+func TestApp(t *testing.T) {
+	data := map[string]string{
+		envPrefix + "LISTEN_PORT":          "8080",
+		envPrefix + "JWT_SIGNIN_KEY":       "testkey",
+		envPrefix + "SIGNUP_TOKEN_EXPIRE":  "3600",
+		envPrefix + "SESSION_TOKEN_EXPIRE": "3600",
+		envPrefix + "PAGE_SIZE":            "50",
+	}
+
+	for k, v := range data {
+		os.Setenv(k, v)
+	}
+
+	conf := App()
+	val, err := strconv.Atoi(data[envPrefix+"LISTEN_PORT"])
+	assert.Nil(t, err)
+	assert.Equal(t, val, conf.PortToListen)
+
+	assert.Equal(t, data[envPrefix+"JWT_SIGNIN_KEY"], conf.JWTSigninKey)
+
+	val, err = strconv.Atoi(data[envPrefix+"SIGNUP_TOKEN_EXPIRE"])
+	assert.Nil(t, err)
+	assert.Equal(t, val, conf.SignupTokenExpire)
+
+	val, err = strconv.Atoi(data[envPrefix+"SESSION_TOKEN_EXPIRE"])
+	assert.Nil(t, err)
+	assert.Equal(t, val, conf.SessionTokenExpire)
+
+	assert.Equal(t, data[envPrefix+"PAGE_SIZE"], conf.PageSize)
 }
