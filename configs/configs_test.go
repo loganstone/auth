@@ -26,11 +26,25 @@ func TestDB(t *testing.T) {
 
 func TestAppDefault(t *testing.T) {
 	conf := App()
-	assert.Equal(t, defaultPortToListen, conf.PortToListen)
-	assert.Equal(t, defaultSignupTokenExpire, conf.SignupTokenExpire)
-	assert.Equal(t, defaultSessionTokenExpire, conf.SessionTokenExpire)
-	assert.Equal(t, defaultJWTSigninKey, conf.JWTSigninKey)
-	assert.Equal(t, defaultPageSize, conf.PageSize)
+	if _, ok := os.LookupEnv(envPrefix + "LISTEN_PORT"); !ok {
+		assert.Equal(t, defaultPortToListen, conf.PortToListen)
+	}
+
+	if _, ok := os.LookupEnv(envPrefix + "SIGNUP_TOKEN_EXPIRE"); !ok {
+		assert.Equal(t, defaultSignupTokenExpire, conf.SignupTokenExpire)
+	}
+
+	if _, ok := os.LookupEnv(envPrefix + "SESSION_TOKEN_EXPIRE"); !ok {
+		assert.Equal(t, defaultSessionTokenExpire, conf.SessionTokenExpire)
+	}
+
+	if _, ok := os.LookupEnv(envPrefix + "JWT_SIGNIN_KEY"); !ok {
+		assert.Equal(t, defaultJWTSigninKey, conf.JWTSigninKey)
+	}
+
+	if _, ok := os.LookupEnv(envPrefix + "PAGE_SIZE"); !ok {
+		assert.Equal(t, defaultPageSize, conf.PageSize)
+	}
 }
 
 func TestApp(t *testing.T) {
