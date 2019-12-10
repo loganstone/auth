@@ -245,8 +245,6 @@ func TestUsersAsAdmin(t *testing.T) {
 	setAuthJWTForTest(req, admin)
 	q := req.URL.Query()
 
-	// TODO(hs.lee):
-	// 검색 조건 추가 후 테스트 수정 필요.
 	tables := []struct {
 		Page     int
 		PageSize int
@@ -256,8 +254,11 @@ func TestUsersAsAdmin(t *testing.T) {
 		{0, 3, 3, true},
 		{1, 3, 3, true},
 		{2, 3, 3, true},
-		{3, 3, 3, true},
-		// {3, 3, 1, true},
+		{3, 3, 1, false},
+	}
+
+	for _, user := range users {
+		q.Add("email", user.Email)
 	}
 
 	for _, v := range tables {
@@ -276,6 +277,49 @@ func TestUsersAsAdmin(t *testing.T) {
 		assert.Equal(t, v.HasNext, resBody.HasNext)
 		assert.Equal(t, v.UsersLen, len(resBody.Users))
 	}
+}
+
+func TestSearchUserAsAdmin(t *testing.T) {
+	admin, err := testAdmin(testDBCon)
+	assert.Nil(t, err)
+
+	user, err := testUser(testDBCon)
+	assert.Nil(t, err)
+
+	router := New()
+	w := httptest.NewRecorder()
+	uri := "/admin/users"
+	req, err := http.NewRequest("GET", uri, nil)
+	assert.Nil(t, err)
+
+	setAuthJWTForTest(req, admin)
+	q := req.URL.Query()
+
+	expected := struct {
+		Page     int
+		PageSize int
+		UsersLen int
+		HasNext  bool
+	}{
+		0, 2, 1, false,
+	}
+
+	q.Add("email", user.Email)
+
+	q.Set("page", fmt.Sprintf("%d", expected.Page))
+	q.Set("page_size", fmt.Sprintf("%d", expected.PageSize))
+
+	req.URL.RawQuery = q.Encode()
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	var resBody UsersResponse
+	json.NewDecoder(w.Body).Decode(&resBody)
+
+	assert.Equal(t, expected.Page, resBody.Page)
+	assert.Equal(t, expected.PageSize, resBody.PageSize)
+	assert.Equal(t, expected.HasNext, resBody.HasNext)
+	assert.Equal(t, expected.UsersLen, len(resBody.Users))
 }
 
 func BenchmarkCreateUsersWithLoop(b *testing.B) {

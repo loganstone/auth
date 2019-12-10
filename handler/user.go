@@ -28,8 +28,6 @@ func Users(c *gin.Context) {
 	con := DBConnection()
 	defer con.Close()
 
-	// TODO(hs.lee):
-	// 검색 조건을 추가해야 한다.
 	page, err := Page(c)
 	if err != nil {
 		c.AbortWithStatusJSON(
@@ -46,8 +44,17 @@ func Users(c *gin.Context) {
 		return
 	}
 
+	emails := c.QueryArray("email")
 	var users []db.User
-	con.Unscoped().Order("id desc").Limit(pageSize + 1).Offset(page * pageSize).Find(&users)
+	baseQuery := con.Unscoped()
+	if len(emails) > 1 {
+		baseQuery = baseQuery.Where("email IN (?)", emails)
+	} else if len(emails) == 1 {
+		baseQuery = baseQuery.Where("email = ?", emails[0])
+	}
+	baseQuery = baseQuery.Order("id desc")
+	baseQuery = baseQuery.Limit(pageSize + 1).Offset(page * pageSize)
+	baseQuery.Find(&users)
 
 	r := UsersResponse{
 		Page:     page,
