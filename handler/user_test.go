@@ -353,7 +353,9 @@ func BenchmarkCreateUsersWithGoroutine(b *testing.B) {
 }
 
 func BenchmarkCreateUsersWithGoroutineOnOneCPU(b *testing.B) {
+	CPUNum := runtime.GOMAXPROCS(0)
 	runtime.GOMAXPROCS(1)
+	defer runtime.GOMAXPROCS(CPUNum)
 	userCount := 10
 	for i := 0; i < b.N; i++ {
 		wg := sync.WaitGroup{}
