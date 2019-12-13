@@ -97,6 +97,7 @@ func Self() gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusForbidden)
 			return
 		}
+		c.Set("IsSelf", true)
 		c.Next()
 	}
 }

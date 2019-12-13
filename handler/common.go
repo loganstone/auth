@@ -49,6 +49,22 @@ func DBConnection() *gorm.DB {
 
 func findUserOrAbort(c *gin.Context, con *gorm.DB, httpStatusCode int) *db.User {
 	email := c.Param("email")
+	if email == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return nil
+	}
+
+	if c.GetBool("IsSelf") {
+		loginUser, err := LoginUser(c)
+		if err != nil {
+			c.AbortWithStatusJSON(
+				http.StatusBadRequest,
+				payload.ErrorSession(err))
+			return nil
+		}
+		return &loginUser
+	}
+
 	user := db.User{Email: email}
 	if con.Where(&user).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
