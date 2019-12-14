@@ -5,8 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/payload"
+	"github.com/loganstone/auth/utils"
 )
 
 // ChangePasswordParam .
@@ -146,4 +148,26 @@ func ChangePassword(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+}
+
+// RenewSession .
+func RenewSession(c *gin.Context) {
+	conf := configs.App()
+	con := DBConnection()
+	defer con.Close()
+
+	user := findUserOrAbort(c, con, http.StatusNoContent)
+	if user == nil {
+		return
+	}
+
+	token := utils.NewJWT(conf.SessionTokenExpire)
+	sessionToken, err := token.Session(user.ID, user.Email, conf.JWTSigninKey)
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			payload.ErrorSignJWTToken(err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"token": sessionToken})
 }

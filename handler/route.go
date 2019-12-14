@@ -28,6 +28,8 @@ func bind(r *gin.Engine) {
 		users.POST("/:email/otp", GenerateOTP)
 		users.PUT("/:email/otp", ConfirmOTP)
 		users.DELETE("/:email/otp", ResetOTP)
+
+		users.PUT("/:email/session", RenewSession)
 	}
 
 	signup := r.Group("/signup")
