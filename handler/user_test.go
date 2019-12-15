@@ -322,6 +322,43 @@ func TestSearchUserAsAdmin(t *testing.T) {
 	assert.Equal(t, expected.UsersLen, len(resBody.Users))
 }
 
+func TestRenewSession(t *testing.T) {
+	user, err := testUser(testDBCon)
+	assert.Nil(t, err)
+
+	router := New()
+
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/users/%s/session", user.Email)
+	req, err := http.NewRequest("PUT", uri, nil)
+	assert.Nil(t, err)
+
+	setAuthJWTForTest(req, user)
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var resToken map[string]string
+	json.NewDecoder(w.Body).Decode(&resToken)
+	assert.True(t, resToken["token"] != "")
+
+	uri = fmt.Sprintf("/users/%s", user.Email)
+	req, err = http.NewRequest("GET", uri, nil)
+	assert.Nil(t, err)
+
+	sessionToken := resToken["token"]
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var resBody db.JSONUser
+	json.NewDecoder(w.Body).Decode(&resBody)
+
+	assert.Equal(t, user.Email, resBody.Email)
+	assert.Nil(t, resBody.OTPConfirmedAt)
+}
+
 func BenchmarkCreateUsersWithLoop(b *testing.B) {
 	userCount := 10
 	for i := 0; i < b.N; i++ {
