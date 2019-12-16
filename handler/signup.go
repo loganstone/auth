@@ -104,13 +104,13 @@ func SendVerificationEmail(c *gin.Context) {
 	}
 
 	// TODO(hs.lee):
-	// organization, from email, signup_url  은 환경 변수로 설정하도록 수정
+	// from email, signup_url  은 환경 변수로 설정하도록 수정
 	var body bytes.Buffer
 	data := VerificationEmailData{
 		UserEmail:    param.Email,
 		SignupURL:    signupToken,
 		ExpireMin:    conf.SignupTokenExpire / 60,
-		Organization: "Auth",
+		Organization: conf.Org,
 	}
 
 	if err := verificationEmailTmpl.Execute(&body, data); err != nil {

@@ -152,7 +152,7 @@ func (u *User) TOTP() (*gotp.TOTP, error) {
 }
 
 // GenerateOTPSecretKey .
-func (u *User) GenerateOTPSecretKey() {
+func (u *User) GenerateOTPSecretKey(secretKeyLen int) {
 	u.OTPSecretKey = gotp.RandomSecret(secretKeyLen)
 }
 
@@ -166,13 +166,12 @@ func (u *User) VerifyOTP(otp string) bool {
 }
 
 // OTPProvisioningURI .
-func (u *User) OTPProvisioningURI() (string, error) {
+func (u *User) OTPProvisioningURI(issuer string) (string, error) {
 	totp, err := u.TOTP()
 	if err != nil {
 		return "", err
 	}
-	// TODO: export config - accountName, issuerName
-	return totp.ProvisioningUri("demoAccountName", "issuerName"), nil
+	return totp.ProvisioningUri(u.Email, issuer), nil
 }
 
 // ConfirmOTP .

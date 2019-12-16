@@ -23,11 +23,13 @@ const (
 	defaultSessionTokenExpire = 3600 // 60 minutes
 	defaultJWTSigninKey       = "PlzSetYourSigninKey"
 	defaultPageSize           = "20"
+	defaultOrg                = "Auth"
 	envPrefix                 = "AUTH_"
 	defaultDBHost             = "127.0.0.1"
 	defaultDBPort             = "3306"
 	dbConStr                  = "%s:%s@/%s?%s"
 	dbTCPConStr               = "%s:%s@tcp(%s:%s)/"
+	secretKeyLen              = 16
 )
 
 // AppConfigs .
@@ -38,6 +40,8 @@ type AppConfigs struct {
 	JWTSigninKey       string
 	PageSize           string
 	PageSizeLimit      int
+	Org                string
+	SecretKeyLen       int
 }
 
 var appConfigs = AppConfigs{
@@ -46,6 +50,8 @@ var appConfigs = AppConfigs{
 	SessionTokenExpire: defaultSessionTokenExpire,
 	JWTSigninKey:       defaultJWTSigninKey,
 	PageSize:           defaultPageSize,
+	Org:                defaultOrg,
+	SecretKeyLen:       secretKeyLen,
 }
 
 // DatabaseConfigs ...
@@ -152,6 +158,10 @@ func App() *AppConfigs {
 		if v, err := strconv.Atoi(pageSizeLimit); err == nil {
 			appConfigs.PageSizeLimit = v
 		}
+	}
+
+	if org, ok := os.LookupEnv(envPrefix + "ORG"); ok {
+		appConfigs.Org = org
 	}
 
 	return &appConfigs

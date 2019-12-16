@@ -8,10 +8,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/loganstone/auth/configs"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGenerateOTP(t *testing.T) {
+	conf := configs.App()
 	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
@@ -28,7 +30,7 @@ func TestGenerateOTP(t *testing.T) {
 
 	user, err = user.Fetch(testDBCon)
 	assert.Nil(t, err)
-	otpLink, err := user.OTPProvisioningURI()
+	otpLink, err := user.OTPProvisioningURI(conf.Org)
 	assert.Nil(t, err)
 
 	var resBody map[string]string

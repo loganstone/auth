@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 
+	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
@@ -27,8 +28,9 @@ type ResetOTPParam struct {
 }
 
 func generateOTP(con *gorm.DB, user *db.User) (string, *payload.ErrorCodeResponse) {
-	user.GenerateOTPSecretKey()
-	uri, err := user.OTPProvisioningURI()
+	conf := configs.App()
+	user.GenerateOTPSecretKey(conf.SecretKeyLen)
+	uri, err := user.OTPProvisioningURI(conf.Org)
 	if err != nil {
 		errRes := payload.ErrorResponse(
 			payload.ErrorCodeOTPProvisioningURI,
