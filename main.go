@@ -74,7 +74,7 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		configs.TimeoutToGracefulShutdown*time.Second)
+		conf.TimeoutToGracefulShutdown*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
@@ -84,7 +84,7 @@ func main() {
 	// catching ctx.Done(). timeout of 5 seconds.
 	select {
 	case <-ctx.Done():
-		log.Printf("timeout of %d seconds.", configs.TimeoutToGracefulShutdown)
+		log.Printf("timeout of %d seconds.", conf.TimeoutToGracefulShutdown)
 	}
 	log.Println("Server exiting")
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -13,9 +14,6 @@ import (
 )
 
 const (
-	// TimeoutToGracefulShutdown .
-	TimeoutToGracefulShutdown = 5
-
 	failedToLookup            = "must set '%s' environment variable\n"
 	dbConOpt                  = "charset=utf8mb4&parseTime=True&loc=Local"
 	defaultPortToListen       = 9999
@@ -35,26 +33,28 @@ const (
 
 // AppConfigs .
 type AppConfigs struct {
-	PortToListen       int
-	SignupTokenExpire  int
-	SessionTokenExpire int
-	JWTSigninKey       string
-	PageSize           string
-	PageSizeLimit      int
-	Org                string
-	SecretKeyLen       int
-	siginupURL         string
+	TimeoutToGracefulShutdown time.Duration
+	PortToListen              int
+	SignupTokenExpire         int
+	SessionTokenExpire        int
+	JWTSigninKey              string
+	PageSize                  string
+	PageSizeLimit             int
+	Org                       string
+	SecretKeyLen              int
+	siginupURL                string
 }
 
 var appConfigs = AppConfigs{
-	PortToListen:       defaultPortToListen,
-	SignupTokenExpire:  defaultSignupTokenExpire,
-	SessionTokenExpire: defaultSessionTokenExpire,
-	JWTSigninKey:       defaultJWTSigninKey,
-	PageSize:           defaultPageSize,
-	Org:                defaultOrg,
-	SecretKeyLen:       secretKeyLen,
-	siginupURL:         defaultSignupURL,
+	TimeoutToGracefulShutdown: 5,
+	PortToListen:              defaultPortToListen,
+	SignupTokenExpire:         defaultSignupTokenExpire,
+	SessionTokenExpire:        defaultSessionTokenExpire,
+	JWTSigninKey:              defaultJWTSigninKey,
+	PageSize:                  defaultPageSize,
+	Org:                       defaultOrg,
+	SecretKeyLen:              secretKeyLen,
+	siginupURL:                defaultSignupURL,
 }
 
 // DatabaseConfigs ...
