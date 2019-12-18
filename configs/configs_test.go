@@ -1,6 +1,7 @@
 package configs
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"testing"
@@ -76,4 +77,31 @@ func TestApp(t *testing.T) {
 	assert.Equal(t, val, conf.SessionTokenExpire)
 
 	assert.Equal(t, data[envPrefix+"PAGE_SIZE"], conf.PageSize)
+}
+
+func TestSignupURL(t *testing.T) {
+	conf := App()
+	token := "testtoken"
+	expected := fmt.Sprintf(defaultSignupURL, conf.PortToListen, token)
+	url := conf.SignupURL(token)
+	assert.Equal(t, expected, url)
+}
+
+func TestSignupURLWithSetEnv(t *testing.T) {
+	token := "testtoken"
+	table := []struct {
+		URL      string
+		Expected string
+	}{
+		{"", ""},
+		{"http://example.com/", "http://example.com/" + token},
+		{"http://example.com", "http://example.com/" + token},
+	}
+
+	for _, v := range table {
+		os.Setenv(envPrefix+"SIGNUP_URL", v.URL)
+		conf := App()
+		url := conf.SignupURL(token)
+		assert.Equal(t, v.Expected, url)
+	}
 }

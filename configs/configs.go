@@ -24,6 +24,7 @@ const (
 	defaultJWTSigninKey       = "PlzSetYourSigninKey"
 	defaultPageSize           = "20"
 	defaultOrg                = "Auth"
+	defaultSignupURL          = "http://localhost:%d/signup/email/verification/%s"
 	envPrefix                 = "AUTH_"
 	defaultDBHost             = "127.0.0.1"
 	defaultDBPort             = "3306"
@@ -42,6 +43,7 @@ type AppConfigs struct {
 	PageSizeLimit      int
 	Org                string
 	SecretKeyLen       int
+	siginupURL         string
 }
 
 var appConfigs = AppConfigs{
@@ -52,6 +54,7 @@ var appConfigs = AppConfigs{
 	PageSize:           defaultPageSize,
 	Org:                defaultOrg,
 	SecretKeyLen:       secretKeyLen,
+	siginupURL:         defaultSignupURL,
 }
 
 // DatabaseConfigs ...
@@ -150,6 +153,10 @@ func App() *AppConfigs {
 		}
 	}
 
+	if siginupURL, ok := os.LookupEnv(envPrefix + "SIGNUP_URL"); ok {
+		appConfigs.siginupURL = siginupURL
+	}
+
 	if pageSize, ok := os.LookupEnv(envPrefix + "PAGE_SIZE"); ok {
 		appConfigs.PageSize = pageSize
 	}
@@ -165,4 +172,21 @@ func App() *AppConfigs {
 	}
 
 	return &appConfigs
+}
+
+// SignupURL .
+func (*AppConfigs) SignupURL(token string) string {
+	if appConfigs.siginupURL == "" {
+		return ""
+	}
+
+	if appConfigs.siginupURL == defaultSignupURL {
+		return fmt.Sprintf(appConfigs.siginupURL, appConfigs.PortToListen, token)
+	}
+
+	last := appConfigs.siginupURL[len(appConfigs.siginupURL)-1]
+	if string(last) != "/" {
+		token = "/" + token
+	}
+	return fmt.Sprintf("%s%s", appConfigs.siginupURL, token)
 }
