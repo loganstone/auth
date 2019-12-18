@@ -81,10 +81,5 @@ func main() {
 		log.Fatal("Server Shutdown:", err)
 	}
 
-	// catching ctx.Done(). timeout of 5 seconds.
-	select {
-	case <-ctx.Done():
-		log.Printf("timeout of %d seconds.", conf.TimeoutToGracefulShutdown)
-	}
 	log.Println("Server exiting")
 }
