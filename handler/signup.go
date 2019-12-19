@@ -103,8 +103,6 @@ func SendVerificationEmail(c *gin.Context) {
 		return
 	}
 
-	// TODO(hs.lee):
-	// from email 은 환경 변수로 설정하도록 수정
 	var body bytes.Buffer
 	data := VerificationEmailData{
 		UserEmail:    param.Email,
@@ -122,7 +120,7 @@ func SendVerificationEmail(c *gin.Context) {
 
 	if err = utils.NewEmail(
 		utils.NameFromEmail(param.Email),
-		"auth@email.com",
+		conf.SupportEmail,
 		param.Email,
 		verificationEmailTitle,
 		body.String(),

@@ -22,6 +22,7 @@ const (
 	defaultJWTSigninKey       = "PlzSetYourSigninKey"
 	defaultPageSize           = "20"
 	defaultOrg                = "Auth"
+	defaultSupportEmail       = "auth@email.com"
 	defaultSignupURL          = "http://localhost:%d/signup/email/verification/%s"
 	envPrefix                 = "AUTH_"
 	defaultDBHost             = "127.0.0.1"
@@ -41,8 +42,9 @@ type AppConfigs struct {
 	PageSize                  string
 	PageSizeLimit             int
 	Org                       string
-	SecretKeyLen              int
 	siginupURL                string
+	SecretKeyLen              int
+	SupportEmail              string
 }
 
 var appConfigs = AppConfigs{
@@ -53,6 +55,7 @@ var appConfigs = AppConfigs{
 	JWTSigninKey:              defaultJWTSigninKey,
 	PageSize:                  defaultPageSize,
 	Org:                       defaultOrg,
+	SupportEmail:              defaultSupportEmail,
 	SecretKeyLen:              secretKeyLen,
 	siginupURL:                defaultSignupURL,
 }
@@ -169,6 +172,10 @@ func App() *AppConfigs {
 
 	if org, ok := os.LookupEnv(envPrefix + "ORG"); ok {
 		appConfigs.Org = org
+	}
+
+	if email, ok := os.LookupEnv(envPrefix + "SUPPORT_EMAIL"); ok {
+		appConfigs.SupportEmail = email
 	}
 
 	return &appConfigs
