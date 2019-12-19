@@ -45,19 +45,19 @@ func main() {
 	}
 
 	conf := configs.App()
-	if isListen(localHost, conf.PortToListen) {
+	if isListen(localHost, conf.ListenPort) {
 		log.Fatalf(`'%d' port already in use
 - using env: export AUTH_LISTEN_PORT=<port not in use>
-`, conf.PortToListen)
+`, conf.ListenPort)
 	}
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", conf.PortToListen),
+		Addr:    fmt.Sprintf(":%d", conf.ListenPort),
 		Handler: handler.New(),
 	}
 
 	go func() {
-		log.Printf("listen port: %d\n", conf.PortToListen)
+		log.Printf("listen port: %d\n", conf.ListenPort)
 		// service connections
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)

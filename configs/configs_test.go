@@ -28,7 +28,7 @@ func TestDB(t *testing.T) {
 func TestAppDefault(t *testing.T) {
 	conf := App()
 	if _, ok := os.LookupEnv(envPrefix + "LISTEN_PORT"); !ok {
-		assert.Equal(t, defaultPortToListen, conf.PortToListen)
+		assert.Equal(t, defaultListenPort, conf.ListenPort)
 	}
 
 	if _, ok := os.LookupEnv(envPrefix + "SIGNUP_TOKEN_EXPIRE"); !ok {
@@ -64,7 +64,7 @@ func TestApp(t *testing.T) {
 	conf := App()
 	val, err := strconv.Atoi(data[envPrefix+"LISTEN_PORT"])
 	assert.Nil(t, err)
-	assert.Equal(t, val, conf.PortToListen)
+	assert.Equal(t, val, conf.ListenPort)
 
 	assert.Equal(t, data[envPrefix+"JWT_SIGNIN_KEY"], conf.JWTSigninKey)
 
@@ -82,7 +82,7 @@ func TestApp(t *testing.T) {
 func TestSignupURL(t *testing.T) {
 	conf := App()
 	token := "testtoken"
-	expected := fmt.Sprintf(defaultSignupURL, conf.PortToListen, token)
+	expected := fmt.Sprintf(defaultSignupURL, conf.ListenPort, token)
 	url := conf.SignupURL(token)
 	assert.Equal(t, expected, url)
 }

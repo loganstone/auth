@@ -14,50 +14,63 @@ import (
 )
 
 const (
-	failedToLookup            = "must set '%s' environment variable\n"
-	dbConOpt                  = "charset=utf8mb4&parseTime=True&loc=Local"
-	defaultPortToListen       = 9999
+	failedToLookup = "must set '%s' environment variable\n"
+	dbConOpt       = "charset=utf8mb4&parseTime=True&loc=Local"
+	dbConStr       = "%s:%s@/%s?%s"
+	dbTCPConStr    = "%s:%s@tcp(%s:%s)/"
+	secretKeyLen   = 16
+	envPrefix      = "AUTH_"
+)
+
+const (
+	defaultListenPort         = 9999
 	defaultSignupTokenExpire  = 1800 // 30 minutes
 	defaultSessionTokenExpire = 3600 // 60 minutes
 	defaultJWTSigninKey       = "PlzSetYourSigninKey"
-	defaultPageSize           = "20"
 	defaultOrg                = "Auth"
 	defaultSupportEmail       = "auth@email.com"
-	defaultSignupURL          = "http://localhost:%d/signup/email/verification/%s"
-	envPrefix                 = "AUTH_"
-	defaultDBHost             = "127.0.0.1"
-	defaultDBPort             = "3306"
-	dbConStr                  = "%s:%s@/%s?%s"
-	dbTCPConStr               = "%s:%s@tcp(%s:%s)/"
-	secretKeyLen              = 16
+	defaultPageSize           = "20"
+
+	defaultSignupURL = "http://localhost:%d/signup/email/verification/%s"
+)
+
+const (
+	defaultDBHost = "127.0.0.1"
+	defaultDBPort = "3306"
 )
 
 // AppConfigs .
 type AppConfigs struct {
 	TimeoutToGracefulShutdown time.Duration
-	PortToListen              int
-	SignupTokenExpire         int
-	SessionTokenExpire        int
-	JWTSigninKey              string
-	PageSize                  string
-	PageSizeLimit             int
-	Org                       string
-	siginupURL                string
-	SecretKeyLen              int
-	SupportEmail              string
+
+	ListenPort         int
+	SignupTokenExpire  int
+	SessionTokenExpire int
+	JWTSigninKey       string
+	Org                string
+	SupportEmail       string
+	PageSize           string
+	PageSizeLimit      int
+
+	SecretKeyLen int
+
+	siginupURL string
 }
 
 var appConfigs = AppConfigs{
 	TimeoutToGracefulShutdown: 5,
-	PortToListen:              defaultPortToListen,
-	SignupTokenExpire:         defaultSignupTokenExpire,
-	SessionTokenExpire:        defaultSessionTokenExpire,
-	JWTSigninKey:              defaultJWTSigninKey,
-	PageSize:                  defaultPageSize,
-	Org:                       defaultOrg,
-	SupportEmail:              defaultSupportEmail,
-	SecretKeyLen:              secretKeyLen,
-	siginupURL:                defaultSignupURL,
+
+	ListenPort:         defaultListenPort,
+	SignupTokenExpire:  defaultSignupTokenExpire,
+	SessionTokenExpire: defaultSessionTokenExpire,
+	JWTSigninKey:       defaultJWTSigninKey,
+	Org:                defaultOrg,
+	SupportEmail:       defaultSupportEmail,
+	PageSize:           defaultPageSize,
+
+	SecretKeyLen: secretKeyLen,
+
+	siginupURL: defaultSignupURL,
 }
 
 // DatabaseConfigs ...
@@ -119,7 +132,7 @@ func DB() *DatabaseConfigs {
 		dbConfigs.port = p
 	}
 
-	if s, ok := os.LookupEnv(envPrefix + "DB_SYNC"); ok {
+	if s, ok := os.LookupEnv(envPrefix + "DB_AUTO_SYNC"); ok {
 		dbConfigs.AutoSync = (s == "1" || strings.ToLower(s) == "true")
 	}
 
@@ -134,12 +147,8 @@ func App() *AppConfigs {
 	if port, ok := os.LookupEnv(envPrefix + "LISTEN_PORT"); ok {
 		v, err := strconv.Atoi(port)
 		if err == nil {
-			appConfigs.PortToListen = v
+			appConfigs.ListenPort = v
 		}
-	}
-
-	if key, ok := os.LookupEnv(envPrefix + "JWT_SIGNIN_KEY"); ok {
-		appConfigs.JWTSigninKey = key
 	}
 
 	if expire, ok := os.LookupEnv(envPrefix + "SIGNUP_TOKEN_EXPIRE"); ok {
@@ -156,6 +165,18 @@ func App() *AppConfigs {
 		}
 	}
 
+	if key, ok := os.LookupEnv(envPrefix + "JWT_SIGNIN_KEY"); ok {
+		appConfigs.JWTSigninKey = key
+	}
+
+	if org, ok := os.LookupEnv(envPrefix + "ORG"); ok {
+		appConfigs.Org = org
+	}
+
+	if email, ok := os.LookupEnv(envPrefix + "SUPPORT_EMAIL"); ok {
+		appConfigs.SupportEmail = email
+	}
+
 	if siginupURL, ok := os.LookupEnv(envPrefix + "SIGNUP_URL"); ok {
 		appConfigs.siginupURL = siginupURL
 	}
@@ -170,14 +191,6 @@ func App() *AppConfigs {
 		}
 	}
 
-	if org, ok := os.LookupEnv(envPrefix + "ORG"); ok {
-		appConfigs.Org = org
-	}
-
-	if email, ok := os.LookupEnv(envPrefix + "SUPPORT_EMAIL"); ok {
-		appConfigs.SupportEmail = email
-	}
-
 	return &appConfigs
 }
 
@@ -188,7 +201,7 @@ func (*AppConfigs) SignupURL(token string) string {
 	}
 
 	if appConfigs.siginupURL == defaultSignupURL {
-		return fmt.Sprintf(appConfigs.siginupURL, appConfigs.PortToListen, token)
+		return fmt.Sprintf(appConfigs.siginupURL, appConfigs.ListenPort, token)
 	}
 
 	last := appConfigs.siginupURL[len(appConfigs.siginupURL)-1]

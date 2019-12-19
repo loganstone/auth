@@ -38,7 +38,7 @@ func TestFuncMain(t *testing.T) {
 	}()
 
 	conf := configs.App()
-	for !isListen(localHost, conf.PortToListen) {
+	for !isListen(localHost, conf.ListenPort) {
 		continue
 	}
 	Quit <- syscall.SIGINT
@@ -46,16 +46,16 @@ func TestFuncMain(t *testing.T) {
 }
 
 func TestFuncMainWithDBSync(t *testing.T) {
-	os.Setenv("AUTH_DB_SYNC", "1")
+	os.Setenv("AUTH_DB_AUTO_SYNC", "1")
 	go func() {
 		main()
 	}()
 
 	conf := configs.App()
-	for !isListen(localHost, conf.PortToListen) {
+	for !isListen(localHost, conf.ListenPort) {
 		continue
 	}
 	Quit <- syscall.SIGINT
-	os.Unsetenv("AUTH_DB_SYNC")
+	os.Unsetenv("AUTH_DB_AUTO_SYNC")
 	assert.True(t, testDBCon.HasTable("users"))
 }
