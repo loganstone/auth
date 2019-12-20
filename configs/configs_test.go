@@ -43,8 +43,20 @@ func TestAppDefault(t *testing.T) {
 		assert.Equal(t, defaultJWTSigninKey, conf.JWTSigninKey)
 	}
 
+	if _, ok := os.LookupEnv(envPrefix + "ORG"); !ok {
+		assert.Equal(t, defaultOrg, conf.Org)
+	}
+
+	if _, ok := os.LookupEnv(envPrefix + "SUPPORT_EMAIL"); !ok {
+		assert.Equal(t, defaultSupportEmail, conf.SupportEmail)
+	}
+
 	if _, ok := os.LookupEnv(envPrefix + "PAGE_SIZE"); !ok {
 		assert.Equal(t, defaultPageSize, conf.PageSize)
+	}
+
+	if _, ok := os.LookupEnv(envPrefix + "PAGE_SIZE_LIMIT"); !ok {
+		assert.Equal(t, 0, conf.PageSizeLimit)
 	}
 }
 
@@ -54,7 +66,10 @@ func TestApp(t *testing.T) {
 		envPrefix + "JWT_SIGNIN_KEY":       "testkey",
 		envPrefix + "SIGNUP_TOKEN_EXPIRE":  "3600",
 		envPrefix + "SESSION_TOKEN_EXPIRE": "3600",
+		envPrefix + "ORG":                  "test org",
+		envPrefix + "SUPPORT_EMAIL":        "test.support@email.com",
 		envPrefix + "PAGE_SIZE":            "50",
+		envPrefix + "PAGE_SIZE_LIMIT":      "100",
 	}
 
 	for k, v := range data {
@@ -76,7 +91,15 @@ func TestApp(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, val, conf.SessionTokenExpire)
 
+	assert.Equal(t, data[envPrefix+"ORG"], conf.Org)
+
+	assert.Equal(t, data[envPrefix+"SUPPORT_EMAIL"], conf.SupportEmail)
+
 	assert.Equal(t, data[envPrefix+"PAGE_SIZE"], conf.PageSize)
+
+	val, err = strconv.Atoi(data[envPrefix+"PAGE_SIZE_LIMIT"])
+	assert.Nil(t, err)
+	assert.Equal(t, val, conf.PageSizeLimit)
 }
 
 func TestSignupURL(t *testing.T) {
