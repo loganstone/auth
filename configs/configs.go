@@ -195,7 +195,7 @@ func App() *AppConfigs {
 }
 
 // SignupURL .
-func (*AppConfigs) SignupURL(token string) string {
+func (c *AppConfigs) SignupURL(token string) string {
 	if appConfigs.siginupURL == "" {
 		return ""
 	}
