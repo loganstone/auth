@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -209,4 +210,20 @@ func (c *AppConfigs) SignupURL(token string) string {
 		token = "/" + token
 	}
 	return fmt.Sprintf("%s%s", appConfigs.siginupURL, token)
+}
+
+// Fields .
+func (c *AppConfigs) Fields() map[string]reflect.Type {
+
+	target := reflect.ValueOf(c)
+	elements := target.Elem()
+
+	fields := make(map[string]reflect.Type)
+
+	for i := 0; i < elements.NumField(); i++ {
+		mType := elements.Type().Field(i)
+		fields[mType.Name] = mType.Type
+	}
+
+	return fields
 }
