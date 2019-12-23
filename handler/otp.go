@@ -29,7 +29,7 @@ type ResetOTPParam struct {
 
 func generateOTP(con *gorm.DB, user *db.User) (string, *payload.ErrorCodeResponse) {
 	conf := configs.App()
-	user.GenerateOTPSecretKey(conf.SecretKeyLen)
+	user.GenerateOTPSecretKey(conf.SecretKeyLen())
 	uri, err := user.OTPProvisioningURI(conf.Org)
 	if err != nil {
 		errRes := payload.ErrorResponse(

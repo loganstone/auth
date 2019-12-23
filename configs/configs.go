@@ -18,7 +18,6 @@ const (
 	dbConOpt       = "charset=utf8mb4&parseTime=True&loc=Local"
 	dbConStr       = "%s:%s@/%s?%s"
 	dbTCPConStr    = "%s:%s@tcp(%s:%s)/"
-	secretKeyLen   = 16
 	envPrefix      = "AUTH_"
 )
 
@@ -41,7 +40,7 @@ const (
 
 // AppConfigs .
 type AppConfigs struct {
-	TimeoutToGracefulShutdown time.Duration
+	gracefulShutdownTimeout time.Duration
 
 	ListenPort         int
 	SignupTokenExpire  int
@@ -52,13 +51,14 @@ type AppConfigs struct {
 	PageSize           string
 	PageSizeLimit      int
 
-	SecretKeyLen int
+	secretKeyLen int
 
 	siginupURL string
 }
 
 var appConfigs = AppConfigs{
-	TimeoutToGracefulShutdown: 5,
+	gracefulShutdownTimeout: 5,
+	secretKeyLen:            16,
 
 	ListenPort:         defaultListenPort,
 	SignupTokenExpire:  defaultSignupTokenExpire,
@@ -67,10 +67,7 @@ var appConfigs = AppConfigs{
 	Org:                defaultOrg,
 	SupportEmail:       defaultSupportEmail,
 	PageSize:           defaultPageSize,
-
-	SecretKeyLen: secretKeyLen,
-
-	siginupURL: defaultSignupURL,
+	siginupURL:         defaultSignupURL,
 }
 
 // DatabaseConfigs ...
@@ -191,4 +188,14 @@ func (c *AppConfigs) SignupURL(token string) string {
 		token = "/" + token
 	}
 	return fmt.Sprintf("%s%s", appConfigs.siginupURL, token)
+}
+
+// SecretKeyLen .
+func (c *AppConfigs) SecretKeyLen() int {
+	return c.secretKeyLen
+}
+
+// GracefulShutdownTimeout .
+func (c *AppConfigs) GracefulShutdownTimeout() time.Duration {
+	return c.gracefulShutdownTimeout
 }
