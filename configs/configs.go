@@ -143,52 +143,34 @@ func DB() *DatabaseConfigs {
 	return &dbConfigs
 }
 
+var stringAppConf = map[string]*string{
+	envPrefix + "JWT_SIGNIN_KEY": &appConfigs.JWTSigninKey,
+	envPrefix + "ORG":            &appConfigs.Org,
+	envPrefix + "SUPPORT_EMAIL":  &appConfigs.SupportEmail,
+	envPrefix + "SIGNUP_URL":     &appConfigs.siginupURL,
+	envPrefix + "PAGE_SIZE":      &appConfigs.PageSize,
+}
+
+var intAppConf = map[string]*int{
+	envPrefix + "LISTEN_PORT":          &appConfigs.ListenPort,
+	envPrefix + "SIGNUP_TOKEN_EXPIRE":  &appConfigs.SignupTokenExpire,
+	envPrefix + "SESSION_TOKEN_EXPIRE": &appConfigs.SessionTokenExpire,
+	envPrefix + "PAGE_SIZE_LIMIT":      &appConfigs.PageSizeLimit,
+}
+
 // App .
 func App() *AppConfigs {
-	if port, ok := os.LookupEnv(envPrefix + "LISTEN_PORT"); ok {
-		v, err := strconv.Atoi(port)
-		if err == nil {
-			appConfigs.ListenPort = v
+	for k, p := range stringAppConf {
+		if v, ok := os.LookupEnv(k); ok {
+			*p = v
 		}
 	}
 
-	if expire, ok := os.LookupEnv(envPrefix + "SIGNUP_TOKEN_EXPIRE"); ok {
-		v, err := strconv.Atoi(expire)
-		if err == nil {
-			appConfigs.SignupTokenExpire = v
-		}
-	}
-
-	if expire, ok := os.LookupEnv(envPrefix + "SESSION_TOKEN_EXPIRE"); ok {
-		v, err := strconv.Atoi(expire)
-		if err == nil {
-			appConfigs.SessionTokenExpire = v
-		}
-	}
-
-	if key, ok := os.LookupEnv(envPrefix + "JWT_SIGNIN_KEY"); ok {
-		appConfigs.JWTSigninKey = key
-	}
-
-	if org, ok := os.LookupEnv(envPrefix + "ORG"); ok {
-		appConfigs.Org = org
-	}
-
-	if email, ok := os.LookupEnv(envPrefix + "SUPPORT_EMAIL"); ok {
-		appConfigs.SupportEmail = email
-	}
-
-	if siginupURL, ok := os.LookupEnv(envPrefix + "SIGNUP_URL"); ok {
-		appConfigs.siginupURL = siginupURL
-	}
-
-	if pageSize, ok := os.LookupEnv(envPrefix + "PAGE_SIZE"); ok {
-		appConfigs.PageSize = pageSize
-	}
-
-	if pageSizeLimit, ok := os.LookupEnv(envPrefix + "PAGE_SIZE_LIMIT"); ok {
-		if v, err := strconv.Atoi(pageSizeLimit); err == nil {
-			appConfigs.PageSizeLimit = v
+	for k, p := range intAppConf {
+		if v, ok := os.LookupEnv(k); ok {
+			if i, err := strconv.Atoi(v); err == nil {
+				*p = i
+			}
 		}
 	}
 
