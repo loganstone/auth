@@ -38,38 +38,6 @@ const (
 	defaultDBPort = "3306"
 )
 
-// AppConfigs .
-type AppConfigs struct {
-	gracefulShutdownTimeout time.Duration
-
-	ListenPort         int
-	SignupTokenExpire  int
-	SessionTokenExpire int
-	JWTSigninKey       string
-	Org                string
-	SupportEmail       string
-	PageSize           string
-	PageSizeLimit      int
-
-	secretKeyLen int
-
-	siginupURL string
-}
-
-var appConfigs = AppConfigs{
-	gracefulShutdownTimeout: 5,
-	secretKeyLen:            16,
-
-	ListenPort:         defaultListenPort,
-	SignupTokenExpire:  defaultSignupTokenExpire,
-	SessionTokenExpire: defaultSessionTokenExpire,
-	JWTSigninKey:       defaultJWTSigninKey,
-	Org:                defaultOrg,
-	SupportEmail:       defaultSupportEmail,
-	PageSize:           defaultPageSize,
-	siginupURL:         defaultSignupURL,
-}
-
 // DatabaseConfigs ...
 type DatabaseConfigs struct {
 	id       string
@@ -79,17 +47,6 @@ type DatabaseConfigs struct {
 	port     string
 	Echo     bool
 	AutoSync bool
-}
-
-var dbConfigs = DatabaseConfigs{
-	host: defaultDBHost,
-	port: defaultDBPort,
-}
-
-var requiredDBConf = map[string]*string{
-	envPrefix + "DB_ID":   &dbConfigs.id,
-	envPrefix + "DB_PW":   &dbConfigs.pw,
-	envPrefix + "DB_NAME": &dbConfigs.name,
 }
 
 // DBNameForTest .
@@ -109,6 +66,17 @@ func (c *DatabaseConfigs) ConnectionString() string {
 // TCPConnectionString .
 func (c *DatabaseConfigs) TCPConnectionString() string {
 	return fmt.Sprintf(dbTCPConStr, c.id, c.pw, c.host, c.port)
+}
+
+var dbConfigs = DatabaseConfigs{
+	host: defaultDBHost,
+	port: defaultDBPort,
+}
+
+var requiredDBConf = map[string]*string{
+	envPrefix + "DB_ID":   &dbConfigs.id,
+	envPrefix + "DB_PW":   &dbConfigs.pw,
+	envPrefix + "DB_NAME": &dbConfigs.name,
 }
 
 // DB ...
@@ -137,6 +105,65 @@ func DB() *DatabaseConfigs {
 	dbConfigs.Echo = (echo == "1" || strings.ToLower(echo) == "true")
 
 	return &dbConfigs
+}
+
+// AppConfigs .
+type AppConfigs struct {
+	gracefulShutdownTimeout time.Duration
+
+	ListenPort         int
+	SignupTokenExpire  int
+	SessionTokenExpire int
+	JWTSigninKey       string
+	Org                string
+	SupportEmail       string
+	PageSize           string
+	PageSizeLimit      int
+
+	secretKeyLen int
+
+	siginupURL string
+}
+
+// SignupURL .
+func (c *AppConfigs) SignupURL(token string) string {
+	if appConfigs.siginupURL == "" {
+		return ""
+	}
+
+	if appConfigs.siginupURL == defaultSignupURL {
+		return fmt.Sprintf(appConfigs.siginupURL, appConfigs.ListenPort, token)
+	}
+
+	last := appConfigs.siginupURL[len(appConfigs.siginupURL)-1]
+	if string(last) != "/" {
+		token = "/" + token
+	}
+	return fmt.Sprintf("%s%s", appConfigs.siginupURL, token)
+}
+
+// SecretKeyLen .
+func (c *AppConfigs) SecretKeyLen() int {
+	return c.secretKeyLen
+}
+
+// GracefulShutdownTimeout .
+func (c *AppConfigs) GracefulShutdownTimeout() time.Duration {
+	return c.gracefulShutdownTimeout
+}
+
+var appConfigs = AppConfigs{
+	gracefulShutdownTimeout: 5,
+	secretKeyLen:            16,
+
+	ListenPort:         defaultListenPort,
+	SignupTokenExpire:  defaultSignupTokenExpire,
+	SessionTokenExpire: defaultSessionTokenExpire,
+	JWTSigninKey:       defaultJWTSigninKey,
+	Org:                defaultOrg,
+	SupportEmail:       defaultSupportEmail,
+	PageSize:           defaultPageSize,
+	siginupURL:         defaultSignupURL,
 }
 
 var stringAppConf = map[string]*string{
@@ -171,31 +198,4 @@ func App() *AppConfigs {
 	}
 
 	return &appConfigs
-}
-
-// SignupURL .
-func (c *AppConfigs) SignupURL(token string) string {
-	if appConfigs.siginupURL == "" {
-		return ""
-	}
-
-	if appConfigs.siginupURL == defaultSignupURL {
-		return fmt.Sprintf(appConfigs.siginupURL, appConfigs.ListenPort, token)
-	}
-
-	last := appConfigs.siginupURL[len(appConfigs.siginupURL)-1]
-	if string(last) != "/" {
-		token = "/" + token
-	}
-	return fmt.Sprintf("%s%s", appConfigs.siginupURL, token)
-}
-
-// SecretKeyLen .
-func (c *AppConfigs) SecretKeyLen() int {
-	return c.secretKeyLen
-}
-
-// GracefulShutdownTimeout .
-func (c *AppConfigs) GracefulShutdownTimeout() time.Duration {
-	return c.gracefulShutdownTimeout
 }
