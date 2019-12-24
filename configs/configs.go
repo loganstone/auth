@@ -79,6 +79,13 @@ var requiredDBConf = map[string]*string{
 	envPrefix + "DB_NAME": &dbConfigs.name,
 }
 
+var dbConf = map[string]interface{}{
+	envPrefix + "DB_HOST":      &dbConfigs.host,
+	envPrefix + "DB_PORT":      &dbConfigs.port,
+	envPrefix + "DB_ECHO":      &dbConfigs.Echo,
+	envPrefix + "DB_AUTO_SYNC": &dbConfigs.AutoSync,
+}
+
 // DB ...
 func DB() *DatabaseConfigs {
 	for k, p := range requiredDBConf {
@@ -89,20 +96,18 @@ func DB() *DatabaseConfigs {
 		*p = v
 	}
 
-	if h, ok := os.LookupEnv(envPrefix + "DB_HOST"); ok {
-		dbConfigs.host = h
+	for k, p := range dbConf {
+		if v, ok := os.LookupEnv(k); ok {
+			switch pt := p.(type) {
+			case *string:
+				*pt = v
+			case *bool:
+				*pt = (v == "1" || strings.ToLower(v) == "true")
+			default:
+				log.Fatalf("unknow type %T\n", pt)
+			}
+		}
 	}
-
-	if p, ok := os.LookupEnv(envPrefix + "DB_PORT"); ok {
-		dbConfigs.port = p
-	}
-
-	if s, ok := os.LookupEnv(envPrefix + "DB_AUTO_SYNC"); ok {
-		dbConfigs.AutoSync = (s == "1" || strings.ToLower(s) == "true")
-	}
-
-	echo := os.Getenv(envPrefix + "DB_ECHO")
-	dbConfigs.Echo = (echo == "1" || strings.ToLower(echo) == "true")
 
 	return &dbConfigs
 }
@@ -166,33 +171,31 @@ var appConfigs = AppConfigs{
 	siginupURL:         defaultSignupURL,
 }
 
-var stringAppConf = map[string]*string{
-	envPrefix + "JWT_SIGNIN_KEY": &appConfigs.JWTSigninKey,
-	envPrefix + "ORG":            &appConfigs.Org,
-	envPrefix + "SUPPORT_EMAIL":  &appConfigs.SupportEmail,
-	envPrefix + "SIGNUP_URL":     &appConfigs.siginupURL,
-	envPrefix + "PAGE_SIZE":      &appConfigs.PageSize,
-}
-
-var intAppConf = map[string]*int{
+var appConf = map[string]interface{}{
 	envPrefix + "LISTEN_PORT":          &appConfigs.ListenPort,
 	envPrefix + "SIGNUP_TOKEN_EXPIRE":  &appConfigs.SignupTokenExpire,
 	envPrefix + "SESSION_TOKEN_EXPIRE": &appConfigs.SessionTokenExpire,
+	envPrefix + "JWT_SIGNIN_KEY":       &appConfigs.JWTSigninKey,
+	envPrefix + "ORG":                  &appConfigs.Org,
+	envPrefix + "SUPPORT_EMAIL":        &appConfigs.SupportEmail,
+	envPrefix + "PAGE_SIZE":            &appConfigs.PageSize,
 	envPrefix + "PAGE_SIZE_LIMIT":      &appConfigs.PageSizeLimit,
+	envPrefix + "SIGNUP_URL":           &appConfigs.siginupURL,
 }
 
 // App .
 func App() *AppConfigs {
-	for k, p := range stringAppConf {
+	for k, p := range appConf {
 		if v, ok := os.LookupEnv(k); ok {
-			*p = v
-		}
-	}
-
-	for k, p := range intAppConf {
-		if v, ok := os.LookupEnv(k); ok {
-			if i, err := strconv.Atoi(v); err == nil {
-				*p = i
+			switch pt := p.(type) {
+			case *string:
+				*pt = v
+			case *int:
+				if i, err := strconv.Atoi(v); err == nil {
+					*pt = i
+				}
+			default:
+				log.Fatalf("unknow type %T\n", pt)
 			}
 		}
 	}
