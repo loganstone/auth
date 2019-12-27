@@ -5,6 +5,9 @@ import (
 	"os"
 	"strconv"
 	"testing"
+	"time"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -19,10 +22,18 @@ func TestDB(t *testing.T) {
 	// Assertions
 	conf := DB()
 	expected := "test_db_id:test_db_pw@/test_db_name?" + dbConOpt
-	assert.Equal(t, conf.ConnectionString(), expected)
+	assert.Equal(t, expected, conf.ConnectionString())
+
+	gin.SetMode(gin.TestMode)
+	expected = "test_db_id:test_db_pw@/test_db_name_test?" + dbConOpt
+	assert.Equal(t, expected, conf.ConnectionString())
 
 	expected = "test_db_id:test_db_pw@tcp(127.0.0.1:3306)/"
-	assert.Equal(t, conf.TCPConnectionString(), expected)
+	assert.Equal(t, expected, conf.TCPConnectionString())
+
+	expected = "test_db_name_test"
+	dbName := conf.DBNameForTest()
+	assert.Equal(t, expected, dbName)
 }
 
 func TestAppDefault(t *testing.T) {
@@ -58,6 +69,9 @@ func TestAppDefault(t *testing.T) {
 	if _, ok := os.LookupEnv(envPrefix + "PAGE_SIZE_LIMIT"); !ok {
 		assert.Equal(t, 0, conf.PageSizeLimit)
 	}
+
+	assert.Equal(t, 16, conf.SecretKeyLen())
+	assert.Equal(t, time.Duration(5), conf.GracefulShutdownTimeout())
 }
 
 func TestApp(t *testing.T) {
