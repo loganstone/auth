@@ -88,17 +88,19 @@ var dbConf = map[string]interface{}{
 
 // DB ...
 func DB() *DatabaseConfigs {
-	requiredEnvNotSet := []string{}
+	notSet := make([]string, 0, len(requiredDBConf))
 	for k, p := range requiredDBConf {
-		v, ok := os.LookupEnv(k)
-		if !ok {
-			requiredEnvNotSet = append(requiredEnvNotSet, k)
+		notSet = append(notSet, k)
+		if v, ok := os.LookupEnv(k); ok {
+			trimmedV := strings.TrimSpace(v)
+			if trimmedV != "" {
+				*p = trimmedV
+				notSet = notSet[:len(notSet)-1]
+			}
 		}
-		*p = v
 	}
-
-	if len(requiredEnvNotSet) > 0 {
-		log.Fatalf(failedToLookup, strings.Join(requiredEnvNotSet, ", "))
+	if len(notSet) > 0 {
+		log.Fatalf(failedToLookup, strings.Join(notSet, ", "))
 	}
 
 	for k, p := range dbConf {
