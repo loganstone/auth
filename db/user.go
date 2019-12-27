@@ -17,6 +17,8 @@ const (
 )
 
 var (
+	// ErrorNoEmail .
+	ErrorNoEmail = errors.New("no email")
 	// ErrorUserAlreadyExists .
 	ErrorUserAlreadyExists = errors.New("user already exists")
 	// ErrorFailSetPassword .
@@ -107,6 +109,10 @@ type JSONUser struct {
 
 // SetPassword .
 func (u *User) SetPassword() error {
+	if u.Password == "" {
+		return ErrorFailSetPassword
+	}
+
 	hashedBytes, err := bcrypt.GenerateFromPassword(
 		[]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -143,17 +149,17 @@ func (u User) MarshalJSON() ([]byte, error) {
 	return json.Marshal(user)
 }
 
+// GenerateOTPSecretKey .
+func (u *User) GenerateOTPSecretKey(secretKeyLen int) {
+	u.OTPSecretKey = gotp.RandomSecret(secretKeyLen)
+}
+
 // TOTP .
 func (u *User) TOTP() (*gotp.TOTP, error) {
 	if u.OTPSecretKey == "" {
 		return nil, errEmptyOTPSecretKey
 	}
 	return gotp.NewDefaultTOTP(u.OTPSecretKey), nil
-}
-
-// GenerateOTPSecretKey .
-func (u *User) GenerateOTPSecretKey(secretKeyLen int) {
-	u.OTPSecretKey = gotp.RandomSecret(secretKeyLen)
 }
 
 // VerifyOTP .
@@ -195,18 +201,23 @@ func (u *User) ConfirmedOTP() bool {
 // Create .
 func (u *User) Create(con *gorm.DB) error {
 	if u.Email == "" {
+		return fmt.Errorf(
+			failCreateUserMessage, u.Email, ErrorNoEmail)
 	}
+
 	if !con.Where("email = ?", u.Email).First(u).RecordNotFound() {
-		return fmt.Errorf(failCreateUserMessage, u.Email, ErrorUserAlreadyExists)
+		return fmt.Errorf(
+			failCreateUserMessage, u.Email, ErrorUserAlreadyExists)
 	}
 
 	if err := u.SetPassword(); err != nil {
 		return fmt.Errorf(failCreateUserMessage, u.Email, err)
 	}
 
-	if err := DoInTransaction(con, func(tx *gorm.DB) error {
+	do := func(tx *gorm.DB) error {
 		return tx.Create(u).Error
-	}); err != nil {
+	}
+	if err := DoInTransaction(con, do); err != nil {
 		return fmt.Errorf(failCreateUserMessage, u.Email, err)
 	}
 	return nil
@@ -214,9 +225,10 @@ func (u *User) Create(con *gorm.DB) error {
 
 // Save .
 func (u *User) Save(con *gorm.DB) error {
-	if err := DoInTransaction(con, func(tx *gorm.DB) error {
+	do := func(tx *gorm.DB) error {
 		return tx.Save(u).Error
-	}); err != nil {
+	}
+	if err := DoInTransaction(con, do); err != nil {
 		return err
 	}
 	return nil
@@ -224,9 +236,10 @@ func (u *User) Save(con *gorm.DB) error {
 
 // Delete .
 func (u *User) Delete(con *gorm.DB) error {
-	if err := DoInTransaction(con, func(tx *gorm.DB) error {
+	do := func(tx *gorm.DB) error {
 		return tx.Delete(u).Error
-	}); err != nil {
+	}
+	if err := DoInTransaction(con, do); err != nil {
 		return err
 	}
 	return nil

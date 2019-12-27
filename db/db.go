@@ -58,11 +58,11 @@ func ResetDB(option string, dbname string) {
 	}
 }
 
-// InTransaction .
-type InTransaction func(tx *gorm.DB) error
+// Do .
+type Do func(tx *gorm.DB) error
 
 // DoInTransaction .
-func DoInTransaction(db *gorm.DB, fn InTransaction) error {
+func DoInTransaction(db *gorm.DB, fn Do) error {
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
