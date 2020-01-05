@@ -164,35 +164,39 @@ func (c *AppConfigs) GracefulShutdownTimeout() time.Duration {
 	return c.gracefulShutdownTimeout
 }
 
-var appConfigs = AppConfigs{
-	gracefulShutdownTimeout: 5,
-	secretKeyLen:            16,
+func newDefaultAppConfigs() AppConfigs {
+	return AppConfigs{
+		gracefulShutdownTimeout: 5,
+		secretKeyLen:            16,
 
-	ListenPort:         defaultListenPort,
-	SignupTokenExpire:  defaultSignupTokenExpire,
-	SessionTokenExpire: defaultSessionTokenExpire,
-	JWTSigninKey:       defaultJWTSigninKey,
-	Org:                defaultOrg,
-	SupportEmail:       defaultSupportEmail,
-	PageSize:           defaultPageSize,
-	siginupURL:         defaultSignupURL,
-}
-
-var appConf = map[string]interface{}{
-	envPrefix + "LISTEN_PORT":          &appConfigs.ListenPort,
-	envPrefix + "SIGNUP_TOKEN_EXPIRE":  &appConfigs.SignupTokenExpire,
-	envPrefix + "SESSION_TOKEN_EXPIRE": &appConfigs.SessionTokenExpire,
-	envPrefix + "JWT_SIGNIN_KEY":       &appConfigs.JWTSigninKey,
-	envPrefix + "ORG":                  &appConfigs.Org,
-	envPrefix + "SUPPORT_EMAIL":        &appConfigs.SupportEmail,
-	envPrefix + "PAGE_SIZE":            &appConfigs.PageSize,
-	envPrefix + "PAGE_SIZE_LIMIT":      &appConfigs.PageSizeLimit,
-	envPrefix + "SIGNUP_URL":           &appConfigs.siginupURL,
+		ListenPort:         defaultListenPort,
+		SignupTokenExpire:  defaultSignupTokenExpire,
+		SessionTokenExpire: defaultSessionTokenExpire,
+		JWTSigninKey:       defaultJWTSigninKey,
+		Org:                defaultOrg,
+		SupportEmail:       defaultSupportEmail,
+		PageSize:           defaultPageSize,
+		siginupURL:         defaultSignupURL,
+	}
 }
 
 // App .
 func App() *AppConfigs {
-	for k, p := range appConf {
+	appConfigs := newDefaultAppConfigs()
+
+	appConfByEnv := map[string]interface{}{
+		envPrefix + "LISTEN_PORT":          &appConfigs.ListenPort,
+		envPrefix + "SIGNUP_TOKEN_EXPIRE":  &appConfigs.SignupTokenExpire,
+		envPrefix + "SESSION_TOKEN_EXPIRE": &appConfigs.SessionTokenExpire,
+		envPrefix + "JWT_SIGNIN_KEY":       &appConfigs.JWTSigninKey,
+		envPrefix + "ORG":                  &appConfigs.Org,
+		envPrefix + "SUPPORT_EMAIL":        &appConfigs.SupportEmail,
+		envPrefix + "PAGE_SIZE":            &appConfigs.PageSize,
+		envPrefix + "PAGE_SIZE_LIMIT":      &appConfigs.PageSizeLimit,
+		envPrefix + "SIGNUP_URL":           &appConfigs.siginupURL,
+	}
+
+	for k, p := range appConfByEnv {
 		if v, ok := os.LookupEnv(k); ok {
 			switch pt := p.(type) {
 			case *string:
