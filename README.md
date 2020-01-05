@@ -16,11 +16,9 @@
 - [ ] 이메일로 발송된 인증 코드 확인
 - [x] 관리자 기능 추가
 
-# Frameworks(plan)
+# Frameworks
 * http - gin
 * orm - gorm
-* log - logrus
-* cli - cobra
 * uuid - google/uuid
 * jwt - jwt-go
 * otp - xlzd/gotp
