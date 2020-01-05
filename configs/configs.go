@@ -70,19 +70,19 @@ func (c *DatabaseConfigs) TCPConnectionString() string {
 
 // DB ...
 func DB() *DatabaseConfigs {
-	dbConfigs := DatabaseConfigs{
+	conf := DatabaseConfigs{
 		host: defaultDBHost,
 		port: defaultDBPort,
 	}
 
-	requiredDBConfByEnv := map[string]*string{
-		envPrefix + "DB_ID":   &dbConfigs.id,
-		envPrefix + "DB_PW":   &dbConfigs.pw,
-		envPrefix + "DB_NAME": &dbConfigs.name,
+	required := map[string]*string{
+		envPrefix + "DB_ID":   &conf.id,
+		envPrefix + "DB_PW":   &conf.pw,
+		envPrefix + "DB_NAME": &conf.name,
 	}
 
-	notSet := make([]string, 0, len(requiredDBConfByEnv))
-	for k, p := range requiredDBConfByEnv {
+	notSet := make([]string, 0, len(required))
+	for k, p := range required {
 		notSet = append(notSet, k)
 		if v, ok := os.LookupEnv(k); ok {
 			trimmedV := strings.TrimSpace(v)
@@ -97,10 +97,10 @@ func DB() *DatabaseConfigs {
 	}
 
 	for k, p := range map[string]interface{}{
-		envPrefix + "DB_HOST":      &dbConfigs.host,
-		envPrefix + "DB_PORT":      &dbConfigs.port,
-		envPrefix + "DB_ECHO":      &dbConfigs.Echo,
-		envPrefix + "DB_AUTO_SYNC": &dbConfigs.AutoSync,
+		envPrefix + "DB_HOST":      &conf.host,
+		envPrefix + "DB_PORT":      &conf.port,
+		envPrefix + "DB_ECHO":      &conf.Echo,
+		envPrefix + "DB_AUTO_SYNC": &conf.AutoSync,
 	} {
 		if v, ok := os.LookupEnv(k); ok {
 			switch pt := p.(type) {
@@ -114,7 +114,7 @@ func DB() *DatabaseConfigs {
 		}
 	}
 
-	return &dbConfigs
+	return &conf
 }
 
 // AppConfigs .
@@ -162,8 +162,9 @@ func (c *AppConfigs) GracefulShutdownTimeout() time.Duration {
 	return c.gracefulShutdownTimeout
 }
 
-func newDefaultAppConfigs() AppConfigs {
-	return AppConfigs{
+// App .
+func App() *AppConfigs {
+	conf := AppConfigs{
 		gracefulShutdownTimeout: 5,
 		secretKeyLen:            16,
 
@@ -176,25 +177,18 @@ func newDefaultAppConfigs() AppConfigs {
 		PageSize:           defaultPageSize,
 		siginupURL:         defaultSignupURL,
 	}
-}
 
-// App .
-func App() *AppConfigs {
-	appConfigs := newDefaultAppConfigs()
-
-	appConfByEnv := map[string]interface{}{
-		envPrefix + "LISTEN_PORT":          &appConfigs.ListenPort,
-		envPrefix + "SIGNUP_TOKEN_EXPIRE":  &appConfigs.SignupTokenExpire,
-		envPrefix + "SESSION_TOKEN_EXPIRE": &appConfigs.SessionTokenExpire,
-		envPrefix + "JWT_SIGNIN_KEY":       &appConfigs.JWTSigninKey,
-		envPrefix + "ORG":                  &appConfigs.Org,
-		envPrefix + "SUPPORT_EMAIL":        &appConfigs.SupportEmail,
-		envPrefix + "PAGE_SIZE":            &appConfigs.PageSize,
-		envPrefix + "PAGE_SIZE_LIMIT":      &appConfigs.PageSizeLimit,
-		envPrefix + "SIGNUP_URL":           &appConfigs.siginupURL,
-	}
-
-	for k, p := range appConfByEnv {
+	for k, p := range map[string]interface{}{
+		envPrefix + "LISTEN_PORT":          &conf.ListenPort,
+		envPrefix + "SIGNUP_TOKEN_EXPIRE":  &conf.SignupTokenExpire,
+		envPrefix + "SESSION_TOKEN_EXPIRE": &conf.SessionTokenExpire,
+		envPrefix + "JWT_SIGNIN_KEY":       &conf.JWTSigninKey,
+		envPrefix + "ORG":                  &conf.Org,
+		envPrefix + "SUPPORT_EMAIL":        &conf.SupportEmail,
+		envPrefix + "PAGE_SIZE":            &conf.PageSize,
+		envPrefix + "PAGE_SIZE_LIMIT":      &conf.PageSizeLimit,
+		envPrefix + "SIGNUP_URL":           &conf.siginupURL,
+	} {
 		if v, ok := os.LookupEnv(k); ok {
 			switch pt := p.(type) {
 			case *string:
@@ -209,5 +203,5 @@ func App() *AppConfigs {
 		}
 	}
 
-	return &appConfigs
+	return &conf
 }

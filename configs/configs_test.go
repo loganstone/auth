@@ -77,9 +77,9 @@ func TestAppDefault(t *testing.T) {
 func TestApp(t *testing.T) {
 	data := map[string]string{
 		envPrefix + "LISTEN_PORT":          "8080",
-		envPrefix + "JWT_SIGNIN_KEY":       "testkey",
 		envPrefix + "SIGNUP_TOKEN_EXPIRE":  "3600",
 		envPrefix + "SESSION_TOKEN_EXPIRE": "3600",
+		envPrefix + "JWT_SIGNIN_KEY":       "testkey",
 		envPrefix + "ORG":                  "test org",
 		envPrefix + "SUPPORT_EMAIL":        "test.support@email.com",
 		envPrefix + "PAGE_SIZE":            "50",
