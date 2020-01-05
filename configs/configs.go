@@ -68,28 +68,21 @@ func (c *DatabaseConfigs) TCPConnectionString() string {
 	return fmt.Sprintf(dbTCPConStr, c.id, c.pw, c.host, c.port)
 }
 
-var dbConfigs = DatabaseConfigs{
-	host: defaultDBHost,
-	port: defaultDBPort,
-}
-
-var requiredDBConf = map[string]*string{
-	envPrefix + "DB_ID":   &dbConfigs.id,
-	envPrefix + "DB_PW":   &dbConfigs.pw,
-	envPrefix + "DB_NAME": &dbConfigs.name,
-}
-
-var dbConf = map[string]interface{}{
-	envPrefix + "DB_HOST":      &dbConfigs.host,
-	envPrefix + "DB_PORT":      &dbConfigs.port,
-	envPrefix + "DB_ECHO":      &dbConfigs.Echo,
-	envPrefix + "DB_AUTO_SYNC": &dbConfigs.AutoSync,
-}
-
 // DB ...
 func DB() *DatabaseConfigs {
-	notSet := make([]string, 0, len(requiredDBConf))
-	for k, p := range requiredDBConf {
+	dbConfigs := DatabaseConfigs{
+		host: defaultDBHost,
+		port: defaultDBPort,
+	}
+
+	requiredDBConfByEnv := map[string]*string{
+		envPrefix + "DB_ID":   &dbConfigs.id,
+		envPrefix + "DB_PW":   &dbConfigs.pw,
+		envPrefix + "DB_NAME": &dbConfigs.name,
+	}
+
+	notSet := make([]string, 0, len(requiredDBConfByEnv))
+	for k, p := range requiredDBConfByEnv {
 		notSet = append(notSet, k)
 		if v, ok := os.LookupEnv(k); ok {
 			trimmedV := strings.TrimSpace(v)
@@ -103,7 +96,12 @@ func DB() *DatabaseConfigs {
 		log.Fatalf(failedToLookup, strings.Join(notSet, ", "))
 	}
 
-	for k, p := range dbConf {
+	for k, p := range map[string]interface{}{
+		envPrefix + "DB_HOST":      &dbConfigs.host,
+		envPrefix + "DB_PORT":      &dbConfigs.port,
+		envPrefix + "DB_ECHO":      &dbConfigs.Echo,
+		envPrefix + "DB_AUTO_SYNC": &dbConfigs.AutoSync,
+	} {
 		if v, ok := os.LookupEnv(k); ok {
 			switch pt := p.(type) {
 			case *string:
