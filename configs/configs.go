@@ -139,19 +139,19 @@ type AppConfigs struct {
 
 // SignupURL .
 func (c *AppConfigs) SignupURL(token string) string {
-	if appConfigs.siginupURL == "" {
+	if c.siginupURL == "" {
 		return ""
 	}
 
-	if appConfigs.siginupURL == defaultSignupURL {
-		return fmt.Sprintf(appConfigs.siginupURL, appConfigs.ListenPort, token)
+	if c.siginupURL == defaultSignupURL {
+		return fmt.Sprintf(c.siginupURL, c.ListenPort, token)
 	}
 
-	last := appConfigs.siginupURL[len(appConfigs.siginupURL)-1]
+	last := c.siginupURL[len(c.siginupURL)-1]
 	if string(last) != "/" {
 		token = "/" + token
 	}
-	return fmt.Sprintf("%s%s", appConfigs.siginupURL, token)
+	return fmt.Sprintf("%s%s", c.siginupURL, token)
 }
 
 // SecretKeyLen .
