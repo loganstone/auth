@@ -47,8 +47,8 @@ func main() {
 	conf := configs.App()
 	if isListen(localHost, conf.ListenPort) {
 		log.Fatalf(`'%d' port already in use
-- using env: export AUTH_LISTEN_PORT=<port not in use>
-`, conf.ListenPort)
+- using env: export %sLISTEN_PORT=<port not in use>
+`, conf.ListenPort, configs.EnvPrefix)
 	}
 
 	srv := &http.Server{

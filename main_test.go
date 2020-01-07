@@ -46,7 +46,8 @@ func TestFuncMain(t *testing.T) {
 }
 
 func TestFuncMainWithDBSync(t *testing.T) {
-	os.Setenv("AUTH_DB_AUTO_SYNC", "1")
+	enKey := configs.EnvPrefix + "DB_AUTO_SYNC"
+	os.Setenv(enKey, "1")
 	go func() {
 		main()
 	}()
@@ -56,6 +57,6 @@ func TestFuncMainWithDBSync(t *testing.T) {
 		continue
 	}
 	Quit <- syscall.SIGINT
-	os.Unsetenv("AUTH_DB_AUTO_SYNC")
+	os.Unsetenv(enKey)
 	assert.True(t, testDBCon.HasTable("users"))
 }

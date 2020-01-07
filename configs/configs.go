@@ -14,11 +14,12 @@ import (
 )
 
 const (
+	// EnvPrefix .
+	EnvPrefix      = "AUTH_"
 	failedToLookup = "must set '%s' environment variable\n"
 	dbConOpt       = "charset=utf8mb4&parseTime=True&loc=Local"
 	dbConStr       = "%s:%s@/%s?%s"
 	dbTCPConStr    = "%s:%s@tcp(%s:%s)/"
-	envPrefix      = "AUTH_"
 )
 
 const (
@@ -76,9 +77,9 @@ func DB() *DatabaseConfigs {
 	}
 
 	required := map[string]*string{
-		envPrefix + "DB_ID":   &conf.id,
-		envPrefix + "DB_PW":   &conf.pw,
-		envPrefix + "DB_NAME": &conf.name,
+		EnvPrefix + "DB_ID":   &conf.id,
+		EnvPrefix + "DB_PW":   &conf.pw,
+		EnvPrefix + "DB_NAME": &conf.name,
 	}
 
 	notSet := make([]string, 0, len(required))
@@ -97,10 +98,10 @@ func DB() *DatabaseConfigs {
 	}
 
 	for k, p := range map[string]interface{}{
-		envPrefix + "DB_HOST":      &conf.host,
-		envPrefix + "DB_PORT":      &conf.port,
-		envPrefix + "DB_ECHO":      &conf.Echo,
-		envPrefix + "DB_AUTO_SYNC": &conf.AutoSync,
+		EnvPrefix + "DB_HOST":      &conf.host,
+		EnvPrefix + "DB_PORT":      &conf.port,
+		EnvPrefix + "DB_ECHO":      &conf.Echo,
+		EnvPrefix + "DB_AUTO_SYNC": &conf.AutoSync,
 	} {
 		if v, ok := os.LookupEnv(k); ok {
 			switch pt := p.(type) {
@@ -179,15 +180,15 @@ func App() *AppConfigs {
 	}
 
 	for k, p := range map[string]interface{}{
-		envPrefix + "LISTEN_PORT":          &conf.ListenPort,
-		envPrefix + "SIGNUP_TOKEN_EXPIRE":  &conf.SignupTokenExpire,
-		envPrefix + "SESSION_TOKEN_EXPIRE": &conf.SessionTokenExpire,
-		envPrefix + "JWT_SIGNIN_KEY":       &conf.JWTSigninKey,
-		envPrefix + "ORG":                  &conf.Org,
-		envPrefix + "SUPPORT_EMAIL":        &conf.SupportEmail,
-		envPrefix + "PAGE_SIZE":            &conf.PageSize,
-		envPrefix + "PAGE_SIZE_LIMIT":      &conf.PageSizeLimit,
-		envPrefix + "SIGNUP_URL":           &conf.siginupURL,
+		EnvPrefix + "LISTEN_PORT":          &conf.ListenPort,
+		EnvPrefix + "SIGNUP_TOKEN_EXPIRE":  &conf.SignupTokenExpire,
+		EnvPrefix + "SESSION_TOKEN_EXPIRE": &conf.SessionTokenExpire,
+		EnvPrefix + "JWT_SIGNIN_KEY":       &conf.JWTSigninKey,
+		EnvPrefix + "ORG":                  &conf.Org,
+		EnvPrefix + "SUPPORT_EMAIL":        &conf.SupportEmail,
+		EnvPrefix + "PAGE_SIZE":            &conf.PageSize,
+		EnvPrefix + "PAGE_SIZE_LIMIT":      &conf.PageSizeLimit,
+		EnvPrefix + "SIGNUP_URL":           &conf.siginupURL,
 	} {
 		if v, ok := os.LookupEnv(k); ok {
 			switch pt := p.(type) {
