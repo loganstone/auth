@@ -10,6 +10,7 @@ const (
 	ErrorCodeParseJWTToken
 	ErrorCodeSendEmail
 	ErrorCodeTmplExecute
+	ErrorCodeTmplParse
 )
 
 // Parameter error codes.

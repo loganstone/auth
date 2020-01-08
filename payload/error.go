@@ -46,6 +46,11 @@ func ErrorTmplExecute(message string) ErrorCodeResponse {
 	return ErrorResponse(ErrorCodeTmplExecute, message)
 }
 
+// ErrorTmplParse .
+func ErrorTmplParse(message string) ErrorCodeResponse {
+	return ErrorResponse(ErrorCodeTmplParse, message)
+}
+
 // ErrorBindURI .
 func ErrorBindURI(message string) ErrorCodeResponse {
 	return ErrorResponse(ErrorCodeBindURI, message)

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"text/template"
 
 	"github.com/stretchr/testify/assert"
 
@@ -15,10 +16,39 @@ import (
 	"github.com/loganstone/auth/utils"
 )
 
+const (
+	emailSubject = "[auth] Sign up for email address."
+	emailBody    = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Please verify your email address.</title>
+</head>
+
+<body>
+    <p>Hi. Do you want to create a new account?</p>
+
+    <p>Help us secure your account by verifying your email address ({{ .UserEmail }})</p>
+
+    <p><a href="{{ .SignupURL }}">Sign Up</a></p>
+
+    <p>If you don’t use this link within {{ .ExpireMin }} minutes, it will expire.</p>
+
+    <p>Thanks,</p>
+    <p>Your friends at {{ .Organization }}.</p>
+
+    <p>You’re receiving this email because you recently created a new account. If this wasn’t you, please ignore this email.</p>
+</body>
+
+</html>`
+)
+
 func TestSendVerificationEmail(t *testing.T) {
 	conf := configs.App()
-	reqBody := map[string]string{
-		"email": testEmail(),
+	reqBody := VerificationEmailParam{
+		Email:   testEmail(),
+		Subject: emailSubject,
+		Body:    emailBody,
 	}
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
@@ -32,16 +62,21 @@ func TestSendVerificationEmail(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var resBody map[string]string
+	var resBody VerificationEmailResponseForTest
 	json.NewDecoder(w.Body).Decode(&resBody)
 
-	assert.NotEqual(t, resBody["token"], "")
-	token := resBody["token"]
-
-	claims, err := utils.ParseSignupJWT(token, conf.JWTSigninKey)
+	claims, err := utils.ParseSignupJWT(resBody.SignupToken, conf.JWTSigninKey)
 	assert.Nil(t, err)
+	assert.Equal(t, reqBody.Email, claims.Email)
 
-	assert.Equal(t, reqBody["email"], claims.Email)
+	assert.Equal(t, emailSubject, resBody.Subject)
+
+	var expectedEmailBody bytes.Buffer
+	emailTmpl, err := template.New("verification email").Parse(emailBody)
+	assert.Nil(t, err)
+	err = emailTmpl.Execute(&expectedEmailBody, resBody.VerificationEmailData)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedEmailBody.String(), resBody.Body)
 }
 
 func TestVerifySignupToken(t *testing.T) {

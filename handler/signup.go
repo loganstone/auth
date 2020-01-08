@@ -16,40 +16,19 @@ import (
 	"github.com/loganstone/auth/utils"
 )
 
-const (
-	// TODO(hs.lee): 파일로 읽도록 수정
-	verificationEmailTitle = "[auth] Sign up for email address."
-	// TODO(hs.lee): 파일로 읽도록 수정
-	verificationEmailTmplText = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Please verify your email address.</title>
-</head>
-
-<body>
-    <p>Hi. Do you want to create a new account?</p>
-
-    <p>Help us secure your account by verifying your email address ({{ .UserEmail }})</p>
-
-    <p><a href="{{ .SignupURL }}">Sign Up</a></p>
-
-    <p>If you don’t use this link within {{ .ExpireMin }} minutes, it will expire.</p>
-
-    <p>Thanks,</p>
-    <p>Your friends at {{ .Organization }}.</p>
-
-    <p>You’re receiving this email because you recently created a new account. If this wasn’t you, please ignore this email.</p>
-</body>
-
-</html>`
-)
-
-var verificationEmailTmpl = template.Must(template.New("verification email").Parse(verificationEmailTmplText))
-
 // VerificationEmailParam .
 type VerificationEmailParam struct {
-	Email string `json:"email" binding:"required,email"`
+	Email   string `json:"email" binding:"required,email"`
+	Subject string `json:"subject" binding:"required"`
+	Body    string `json:"body" binding:"required"`
+}
+
+// VerificationEmailResponseForTest .
+type VerificationEmailResponseForTest struct {
+	VerificationEmailData
+	SignupToken string `json:"signup_token"`
+	Subject     string `json:"subject"`
+	Body        string `json:"body"`
 }
 
 // SignupParam .
@@ -60,10 +39,10 @@ type SignupParam struct {
 
 // VerificationEmailData .
 type VerificationEmailData struct {
-	UserEmail    string
-	SignupURL    string
-	ExpireMin    int
-	Organization string
+	UserEmail    string `json:"user_email"`
+	SignupURL    string `json:"signup_url"`
+	ExpireMin    int    `json:"expire_min"`
+	Organization string `json:"organization"`
 }
 
 // SendVerificationEmail .
@@ -98,8 +77,11 @@ func SendVerificationEmail(c *gin.Context) {
 		log.Println("signup token:", signupToken)
 	}
 
-	if gin.Mode() == gin.TestMode {
-		c.JSON(http.StatusOK, gin.H{"token": signupToken})
+	emailTmpl, err := template.New("verification email").Parse(param.Body)
+	if err != nil {
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			payload.ErrorTmplParse(err.Error()))
 		return
 	}
 
@@ -111,7 +93,7 @@ func SendVerificationEmail(c *gin.Context) {
 		Organization: conf.Org,
 	}
 
-	if err := verificationEmailTmpl.Execute(&body, data); err != nil {
+	if err := emailTmpl.Execute(&body, data); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			payload.ErrorTmplExecute(err.Error()))
@@ -122,12 +104,22 @@ func SendVerificationEmail(c *gin.Context) {
 		utils.NameFromEmail(param.Email),
 		conf.SupportEmail,
 		param.Email,
-		verificationEmailTitle,
+		param.Subject,
 		body.String(),
 	).Send(); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			payload.ErrorSendEmail(err.Error()))
+		return
+	}
+
+	if gin.Mode() == gin.TestMode {
+		c.JSON(http.StatusOK, VerificationEmailResponseForTest{
+			VerificationEmailData: data,
+			SignupToken:           signupToken,
+			Subject:               param.Subject,
+			Body:                  body.String(),
+		})
 		return
 	}
 
