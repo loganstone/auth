@@ -22,20 +22,20 @@ const (
 )
 
 var (
-	errEmptySessionUser = errors.New("'SessionUser' empty")
-	errWrongSessionUser = errors.New("'SessionUser' not 'db.User' type")
+	errEmptyAuthorizedUser = errors.New("'AuthorizedUser' empty")
+	errWrongAuthorizedUser = errors.New("'AuthorizedUser' not 'db.User' type")
 )
 
-// LoginUser .
-func LoginUser(c *gin.Context) (loginUser db.User, err error) {
-	sessionUser, ok := c.Get("SessionUser")
+// AuthorizedUser .
+func AuthorizedUser(c *gin.Context) (user db.User, err error) {
+	authorizedUser, ok := c.Get("AuthorizedUser")
 	if !ok {
-		err = errEmptySessionUser
+		err = errEmptyAuthorizedUser
 		return
 	}
-	loginUser, ok = sessionUser.(db.User)
+	user, ok = authorizedUser.(db.User)
 	if !ok {
-		err = errWrongSessionUser
+		err = errWrongAuthorizedUser
 		return
 	}
 	return
@@ -54,15 +54,15 @@ func findUserOrAbort(c *gin.Context, con *gorm.DB, httpStatusCode int) *db.User 
 		return nil
 	}
 
-	if c.GetBool("IsSelf") {
-		loginUser, err := LoginUser(c)
+	if c.GetBool("RequesterIsAuthorizedUser") {
+		authorizedUser, err := AuthorizedUser(c)
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,
-				payload.ErrorSession(err))
+				payload.ErrorAuthorizedUser(err))
 			return nil
 		}
-		return &loginUser
+		return &authorizedUser
 	}
 
 	user := db.User{Email: email}

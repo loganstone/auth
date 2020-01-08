@@ -38,7 +38,7 @@ const (
 	ErrorCodeRequireVerifyOTP
 )
 
-// Session error codes.
+// Authorized User error codes.
 const (
-	ErrorCodeWrongSession = iota + 4000
+	ErrorCodeAuthorizedUser = iota + 4000
 )

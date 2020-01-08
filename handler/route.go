@@ -8,7 +8,7 @@ import (
 func bind(r *gin.Engine) {
 	admin := r.Group("/admin")
 	admin.Use(Authorize())
-	admin.Use(Admin())
+	admin.Use(AuthorizedUserIsAdmin())
 	{
 		users := admin.Group("users")
 		users.GET("", Users)
@@ -19,7 +19,7 @@ func bind(r *gin.Engine) {
 
 	users := r.Group("/users")
 	users.Use(Authorize())
-	users.Use(Self())
+	users.Use(RequesterIsAuthorizedUser())
 	{
 		users.GET("/:email", User)
 		users.DELETE("/:email", DeleteUser)

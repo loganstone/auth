@@ -171,7 +171,7 @@ func ResetOTP(c *gin.Context) {
 		return
 	}
 
-	if !c.GetBool("IsAdmin") {
+	if !c.GetBool("AuthorizedUserIsAdmin") {
 		var param ResetOTPParam
 		if err := c.ShouldBindJSON(&param); err != nil {
 			c.AbortWithStatusJSON(

@@ -50,34 +50,34 @@ func Authorize() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("SessionUser", user)
+		c.Set("AuthorizedUser", user)
 		c.Next()
 	}
 }
 
-// Admin .
-func Admin() gin.HandlerFunc {
+// AuthorizedUserIsAdmin .
+func AuthorizedUserIsAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		loginUser, err := LoginUser(c)
-
+		authorizedUser, err := AuthorizedUser(c)
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,
-				payload.ErrorSession(err))
+				payload.ErrorAuthorizedUser(err))
 			return
 		}
 
-		if !loginUser.IsAdmin {
+		if !authorizedUser.IsAdmin {
 			c.AbortWithStatus(http.StatusForbidden)
 			return
 		}
-		c.Set("IsAdmin", true)
+
+		c.Set("AuthorizedUserIsAdmin", true)
 		c.Next()
 	}
 }
 
-// Self .
-func Self() gin.HandlerFunc {
+// RequesterIsAuthorizedUser .
+func RequesterIsAuthorizedUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		email := c.Param("email")
 		if email == "" {
@@ -85,19 +85,20 @@ func Self() gin.HandlerFunc {
 			return
 		}
 
-		loginUser, err := LoginUser(c)
+		authorizedUser, err := AuthorizedUser(c)
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,
-				payload.ErrorSession(err))
+				payload.ErrorAuthorizedUser(err))
 			return
 		}
 
-		if loginUser.Email != email {
+		if authorizedUser.Email != email {
 			c.AbortWithStatus(http.StatusForbidden)
 			return
 		}
-		c.Set("IsSelf", true)
+
+		c.Set("RequesterIsAuthorizedUser", true)
 		c.Next()
 	}
 }

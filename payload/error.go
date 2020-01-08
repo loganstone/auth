@@ -92,9 +92,9 @@ func ErrorSetPassword(message string) ErrorCodeResponse {
 	return ErrorResponse(ErrorCodeSetPassword, message)
 }
 
-// ErrorSession .
-func ErrorSession(err error) ErrorCodeResponse {
-	return ErrorResponse(ErrorCodeWrongSession, err.Error())
+// ErrorAuthorizedUser .
+func ErrorAuthorizedUser(err error) ErrorCodeResponse {
+	return ErrorResponse(ErrorCodeAuthorizedUser, err.Error())
 }
 
 // ErrorIncorrectOTP .
