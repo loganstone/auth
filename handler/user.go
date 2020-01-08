@@ -25,6 +25,14 @@ type UsersResponse struct {
 	Users    []db.User `json:"users"`
 }
 
+// Adjust .
+func (r *UsersResponse) Adjust(pageSize int) {
+	if len(r.Users) > pageSize {
+		r.HasNext = true
+		r.Users = r.Users[:len(r.Users)-1]
+	}
+}
+
 // Users .
 func Users(c *gin.Context) {
 	con := DBConnection()
@@ -46,8 +54,8 @@ func Users(c *gin.Context) {
 		return
 	}
 
-	emails := c.QueryArray("email")
 	var users []db.User
+	emails := c.QueryArray("email")
 	baseQuery := con.Unscoped()
 	if len(emails) > 1 {
 		baseQuery = baseQuery.Where("email IN (?)", emails)
@@ -64,11 +72,7 @@ func Users(c *gin.Context) {
 		HasNext:  false,
 		Users:    users,
 	}
-
-	if len(users) > pageSize {
-		r.HasNext = true
-		r.Users = users[:len(users)-1]
-	}
+	r.Adjust(pageSize)
 
 	c.JSON(http.StatusOK, r)
 }

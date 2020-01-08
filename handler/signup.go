@@ -23,14 +23,6 @@ type VerificationEmailParam struct {
 	Body    string `json:"body" binding:"required"`
 }
 
-// VerificationEmailResponseForTest .
-type VerificationEmailResponseForTest struct {
-	VerificationEmailData
-	SignupToken string `json:"signup_token"`
-	Subject     string `json:"subject"`
-	Body        string `json:"body"`
-}
-
 // SignupParam .
 type SignupParam struct {
 	Token    string `json:"token" binding:"required"`
@@ -45,6 +37,14 @@ type VerificationEmailData struct {
 	Organization string `json:"organization"`
 }
 
+// VerificationEmailResponseForTest .
+type VerificationEmailResponseForTest struct {
+	VerificationEmailData
+	SignupToken string `json:"signup_token"`
+	Subject     string `json:"subject"`
+	Body        string `json:"body"`
+}
+
 // SendVerificationEmail .
 func SendVerificationEmail(c *gin.Context) {
 	conf := configs.App()
@@ -52,7 +52,6 @@ func SendVerificationEmail(c *gin.Context) {
 	defer con.Close()
 
 	var param VerificationEmailParam
-
 	if err := c.ShouldBindJSON(&param); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,

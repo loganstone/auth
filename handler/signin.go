@@ -12,17 +12,17 @@ import (
 	"github.com/loganstone/auth/utils"
 )
 
-// SiginResponse .
-type SiginResponse struct {
-	User  db.User `json:"user"`
-	Token string  `json:"token"`
-}
-
 // SigninParam .
 type SigninParam struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 	OTP      string `json:"otp"`
+}
+
+// SiginResponse .
+type SiginResponse struct {
+	User  db.User `json:"user"`
+	Token string  `json:"token"`
 }
 
 // Signin .
@@ -32,7 +32,6 @@ func Signin(c *gin.Context) {
 	defer con.Close()
 
 	var params SigninParam
-
 	if err := c.ShouldBindJSON(&params); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
