@@ -1,6 +1,7 @@
 package configs
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -13,13 +14,13 @@ import (
 )
 
 func TestDB(t *testing.T) {
-	// Setup
 	os.Setenv(EnvPrefix+"DB_ID", "test_db_id")
 	os.Setenv(EnvPrefix+"DB_PW", "test_db_pw")
 	os.Setenv(EnvPrefix+"DB_NAME", "test_db_name")
+	os.Setenv(EnvPrefix+"DB_HOST", "127.0.0.1")
+	os.Setenv(EnvPrefix+"DB_PORT", "3306")
 	os.Setenv(EnvPrefix+"DB_ECHO", "false")
 
-	// Assertions
 	conf, err := DB()
 	assert.Nil(t, err)
 	expected := "test_db_id:test_db_pw@/test_db_name?" + dbConOpt
@@ -35,6 +36,32 @@ func TestDB(t *testing.T) {
 	expected = "test_db_name_test"
 	dbName := conf.DBNameForTest()
 	assert.Equal(t, expected, dbName)
+}
+
+func TestDBWithMissingRequirement(t *testing.T) {
+	missed := []string{
+		EnvPrefix + "DB_ID",
+		EnvPrefix + "DB_PW",
+		EnvPrefix + "DB_NAME",
+	}
+
+	for _, v := range missed {
+		os.Setenv(v, "")
+	}
+
+	conf, err := DB()
+	assert.Nil(t, conf)
+
+	expected := missingRequirementError("DB", missed)
+	assert.Equal(t, expected, err)
+}
+
+func TestEnvError(t *testing.T) {
+	const fnTest = "Test"
+	const errMessage = "test error"
+	expected := "configs." + fnTest + ": " + errMessage
+	err := &EnvError{fnTest, errors.New(errMessage)}
+	assert.Equal(t, expected, err.Error())
 }
 
 func TestAppDefault(t *testing.T) {
