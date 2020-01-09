@@ -43,7 +43,10 @@ func AuthorizedUser(c *gin.Context) (user db.User, err error) {
 
 // DBConnection .
 func DBConnection() *gorm.DB {
-	dbConf := configs.DB()
+	dbConf, err := configs.DB()
+	if err != nil {
+		log.Fatalln(err)
+	}
 	return db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 }
 

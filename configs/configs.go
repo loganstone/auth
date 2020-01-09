@@ -1,8 +1,8 @@
 package configs
 
 import (
+	"errors"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -16,7 +16,7 @@ import (
 const (
 	// EnvPrefix .
 	EnvPrefix      = "AUTH_"
-	failedToLookup = "must set '%s' environment variable\n"
+	failedToLookup = "must set '%s' environment variable"
 	dbConOpt       = "charset=utf8mb4&parseTime=True&loc=Local"
 	dbConStr       = "%s:%s@/%s?%s"
 	dbTCPConStr    = "%s:%s@tcp(%s:%s)/"
@@ -50,6 +50,21 @@ type DatabaseConfigs struct {
 	AutoSync bool
 }
 
+// EnvError .
+type EnvError struct {
+	Func string
+	Err  error
+}
+
+func (e *EnvError) Error() string {
+	return "configs." + e.Func + ": " + e.Err.Error()
+}
+
+func missingRequirementError(fn string, missed []string) *EnvError {
+	err := fmt.Sprintf(failedToLookup, strings.Join(missed, ", "))
+	return &EnvError{fn, errors.New(err)}
+}
+
 // DBNameForTest .
 func (c *DatabaseConfigs) DBNameForTest() string {
 	return fmt.Sprintf("%s_test", c.name)
@@ -69,8 +84,9 @@ func (c *DatabaseConfigs) TCPConnectionString() string {
 	return fmt.Sprintf(dbTCPConStr, c.id, c.pw, c.host, c.port)
 }
 
-// DB ...
-func DB() *DatabaseConfigs {
+// DB .
+func DB() (*DatabaseConfigs, error) {
+	const fnDB = "DB"
 	conf := DatabaseConfigs{
 		host: defaultDBHost,
 		port: defaultDBPort,
@@ -82,19 +98,19 @@ func DB() *DatabaseConfigs {
 		EnvPrefix + "DB_NAME": &conf.name,
 	}
 
-	notSet := make([]string, 0, len(required))
+	missed := make([]string, 0, len(required))
 	for k, p := range required {
-		notSet = append(notSet, k)
+		missed = append(missed, k)
 		if v, ok := os.LookupEnv(k); ok {
-			trimmedV := strings.TrimSpace(v)
-			if trimmedV != "" {
-				*p = trimmedV
-				notSet = notSet[:len(notSet)-1]
+			v = strings.TrimSpace(v)
+			if v != "" {
+				*p = v
+				missed = missed[:len(missed)-1]
 			}
 		}
 	}
-	if len(notSet) > 0 {
-		log.Fatalf(failedToLookup, strings.Join(notSet, ", "))
+	if len(missed) > 0 {
+		return nil, missingRequirementError(fnDB, missed)
 	}
 
 	for k, p := range map[string]interface{}{
@@ -109,13 +125,11 @@ func DB() *DatabaseConfigs {
 				*pt = v
 			case *bool:
 				*pt = (v == "1" || strings.ToLower(v) == "true")
-			default:
-				log.Fatalf("unknow type %T\n", pt)
 			}
 		}
 	}
 
-	return &conf
+	return &conf, nil
 }
 
 // AppConfigs .
@@ -198,8 +212,6 @@ func App() *AppConfigs {
 				if i, err := strconv.Atoi(v); err == nil {
 					*pt = i
 				}
-			default:
-				log.Fatalf("unknow type %T\n", pt)
 			}
 		}
 	}

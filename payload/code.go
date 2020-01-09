@@ -3,6 +3,7 @@ package payload
 // Internal server error codes.
 const (
 	ErrorCodeUnknown = iota + 1000
+	ErrorCodeDBEnv
 	ErrorCodeDBTransaction
 	ErrorCodeMarshalJSON
 	ErrorCodeUnMarshalJSON

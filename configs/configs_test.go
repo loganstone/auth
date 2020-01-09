@@ -20,7 +20,8 @@ func TestDB(t *testing.T) {
 	os.Setenv(EnvPrefix+"DB_ECHO", "false")
 
 	// Assertions
-	conf := DB()
+	conf, err := DB()
+	assert.Nil(t, err)
 	expected := "test_db_id:test_db_pw@/test_db_name?" + dbConOpt
 	assert.Equal(t, expected, conf.ConnectionString())
 

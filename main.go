@@ -37,7 +37,10 @@ func isListen(host string, port int) bool {
 }
 
 func main() {
-	dbConf := configs.DB()
+	dbConf, err := configs.DB()
+	if err != nil {
+		log.Fatalln(err)
+	}
 	if dbConf.AutoSync {
 		log.Println("Sync DB ...")
 		db.Sync(dbConf.ConnectionString(), dbConf.Echo)

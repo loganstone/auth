@@ -19,7 +19,13 @@ import (
 func Authorize() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		conf := configs.App()
-		dbConf := configs.DB()
+		dbConf, err := configs.DB()
+		if err != nil {
+			c.AbortWithStatusJSON(
+				http.StatusInternalServerError,
+				payload.ErrorDBEnv(err.Error()))
+		}
+
 		con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 		defer con.Close()
 

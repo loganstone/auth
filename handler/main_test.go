@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"os"
 	"testing"
 
@@ -22,7 +23,10 @@ func TestMain(m *testing.M) {
 
 func setup() {
 	gin.SetMode(gin.TestMode)
-	dbConf := configs.DB()
+	dbConf, err := configs.DB()
+	if err != nil {
+		log.Fatalln(err)
+	}
 	db.ResetDB(dbConf.TCPConnectionString(), dbConf.DBNameForTest())
 	db.Sync(dbConf.ConnectionString(), dbConf.Echo)
 	testDBCon = DBConnection()
