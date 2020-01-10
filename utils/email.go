@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"net"
 	"net/mail"
 	"net/smtp"
@@ -23,8 +24,10 @@ type Email struct {
 	subject string
 	body    string
 
-	header  map[string]string
-	message string
+	header      map[string]string
+	message     string
+	smtpaddress string
+	wc          io.WriteCloser
 }
 
 // NewEmail .
@@ -36,8 +39,17 @@ func NewEmail(name, from, to, subject, body string) *Email {
 		subject: subject,
 		body:    body,
 
-		header: map[string]string{},
+		header:      map[string]string{},
+		smtpaddress: net.JoinHostPort(localHost, defaultSMTPPort),
 	}
+}
+
+func (m *Email) setSMTPAddr(address string) {
+	m.smtpaddress = address
+}
+
+func (m *Email) setDataCloser(wc io.WriteCloser) {
+	m.wc = wc
 }
 
 func (m *Email) makeHeader(contentType string) {
@@ -65,12 +77,11 @@ func (m *Email) makeMessage() {
 
 // Send 는 local postfix 로 email 을 보낸다.
 func (m *Email) Send() error {
-	return m.sendToLocalPostfix(
-		net.JoinHostPort(localHost, defaultSMTPPort))
+	return m.sendToLocalPostfix()
 }
 
-func (m *Email) sendToLocalPostfix(address string) error {
-	c, err := smtp.Dial(address)
+func (m *Email) sendToLocalPostfix() error {
+	c, err := smtp.Dial(m.smtpaddress)
 	if err != nil {
 		return err
 	}
@@ -79,17 +90,18 @@ func (m *Email) sendToLocalPostfix(address string) error {
 	c.Mail(m.from)
 	c.Rcpt(m.to)
 
-	wc, err := c.Data()
-	if err != nil {
-		return err
+	if m.wc == nil {
+		if m.wc, err = c.Data(); err != nil {
+			return err
+		}
+		defer m.wc.Close()
 	}
-	defer wc.Close()
 
 	m.makeTextHTMLHeader()
 	m.makeMessage()
 
 	buf := bytes.NewBufferString(m.message)
-	if _, err = buf.WriteTo(wc); err != nil {
+	if _, err = buf.WriteTo(m.wc); err != nil {
 		return err
 	}
 
