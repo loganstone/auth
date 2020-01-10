@@ -92,19 +92,22 @@ func DB() (*DatabaseConfigs, error) {
 		port: defaultDBPort,
 	}
 
-	required := map[string]*string{
-		EnvPrefix + "DB_ID":   &conf.id,
-		EnvPrefix + "DB_PW":   &conf.pw,
-		EnvPrefix + "DB_NAME": &conf.name,
+	required := []struct {
+		EnvName string
+		ConfRef *string
+	}{
+		{EnvPrefix + "DB_ID", &conf.id},
+		{EnvPrefix + "DB_PW", &conf.pw},
+		{EnvPrefix + "DB_NAME", &conf.name},
 	}
 
 	missed := make([]string, 0, len(required))
-	for k, p := range required {
-		missed = append(missed, k)
-		if v, ok := os.LookupEnv(k); ok {
+	for _, item := range required {
+		missed = append(missed, item.EnvName)
+		if v, ok := os.LookupEnv(item.EnvName); ok {
 			v = strings.TrimSpace(v)
 			if v != "" {
-				*p = v
+				*item.ConfRef = v
 				missed = missed[:len(missed)-1]
 			}
 		}
