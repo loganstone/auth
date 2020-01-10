@@ -70,36 +70,57 @@ func TestEnvError(t *testing.T) {
 
 func TestAppDefault(t *testing.T) {
 	conf := App()
-	if _, ok := os.LookupEnv(EnvPrefix + "LISTEN_PORT"); !ok {
-		assert.Equal(t, defaultListenPort, conf.ListenPort)
+	table := []struct {
+		EnvName  string
+		Expected interface{}
+		Real     interface{}
+	}{
+		{
+			EnvPrefix + "LISTEN_PORT",
+			defaultListenPort,
+			conf.ListenPort,
+		},
+		{
+			EnvPrefix + "SIGNUP_TOKEN_EXPIRE",
+			defaultSignupTokenExpire,
+			conf.SignupTokenExpire,
+		},
+		{
+			EnvPrefix + "SESSION_TOKEN_EXPIRE",
+			defaultSessionTokenExpire,
+			conf.SessionTokenExpire,
+		},
+		{
+			EnvPrefix + "JWT_SIGNIN_KEY",
+			defaultJWTSigninKey,
+			conf.JWTSigninKey,
+		},
+		{
+			EnvPrefix + "ORG",
+			defaultOrg,
+			conf.Org,
+		},
+		{
+			EnvPrefix + "SUPPORT_EMAIL",
+			defaultSupportEmail,
+			conf.SupportEmail,
+		},
+		{
+			EnvPrefix + "PAGE_SIZE",
+			defaultPageSize,
+			conf.PageSize,
+		},
+		{
+			EnvPrefix + "PAGE_SIZE_LIMIT",
+			0,
+			conf.PageSizeLimit,
+		},
 	}
 
-	if _, ok := os.LookupEnv(EnvPrefix + "SIGNUP_TOKEN_EXPIRE"); !ok {
-		assert.Equal(t, defaultSignupTokenExpire, conf.SignupTokenExpire)
-	}
-
-	if _, ok := os.LookupEnv(EnvPrefix + "SESSION_TOKEN_EXPIRE"); !ok {
-		assert.Equal(t, defaultSessionTokenExpire, conf.SessionTokenExpire)
-	}
-
-	if _, ok := os.LookupEnv(EnvPrefix + "JWT_SIGNIN_KEY"); !ok {
-		assert.Equal(t, defaultJWTSigninKey, conf.JWTSigninKey)
-	}
-
-	if _, ok := os.LookupEnv(EnvPrefix + "ORG"); !ok {
-		assert.Equal(t, defaultOrg, conf.Org)
-	}
-
-	if _, ok := os.LookupEnv(EnvPrefix + "SUPPORT_EMAIL"); !ok {
-		assert.Equal(t, defaultSupportEmail, conf.SupportEmail)
-	}
-
-	if _, ok := os.LookupEnv(EnvPrefix + "PAGE_SIZE"); !ok {
-		assert.Equal(t, defaultPageSize, conf.PageSize)
-	}
-
-	if _, ok := os.LookupEnv(EnvPrefix + "PAGE_SIZE_LIMIT"); !ok {
-		assert.Equal(t, 0, conf.PageSizeLimit)
+	for _, v := range table {
+		if _, ok := os.LookupEnv(v.EnvName); !ok {
+			assert.Equal(t, v.Expected, v.Real)
+		}
 	}
 
 	assert.Equal(t, 16, conf.SecretKeyLen())
