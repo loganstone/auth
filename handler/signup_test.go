@@ -101,6 +101,28 @@ func TestVerifySignupToken(t *testing.T) {
 	assert.Equal(t, email, resBody["email"])
 }
 
+func TestVerifySignupTokenWithExpiredToken(t *testing.T) {
+	conf := configs.App()
+	email := testEmail()
+	token := utils.NewJWT(-1)
+	signupToken, err := token.Signup(email, conf.JWTSigninKey)
+	assert.Nil(t, err)
+
+	router := New()
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/signup/email/verification/%s", signupToken)
+	req, err := http.NewRequest("GET", uri, nil)
+	assert.Nil(t, err)
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	var resBody payload.ErrorCodeResponse
+	json.NewDecoder(w.Body).Decode(&resBody)
+
+	assert.Equal(t, payload.ErrorCodeExpiredToken, resBody.ErrorCode)
+}
+
 func TestSignup(t *testing.T) {
 	conf := configs.App()
 	email := testEmail()
