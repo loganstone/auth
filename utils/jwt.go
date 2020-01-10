@@ -38,6 +38,17 @@ type SessionClaims struct {
 	jwt.StandardClaims
 }
 
+// JWTParseError .
+type JWTParseError struct {
+	Func         string
+	SignedString string
+	Err          error
+}
+
+func (e *JWTParseError) Error() string {
+	return fmt.Sprintf("utils,%s: %s - '%s'", e.Func, e.Err.Error(), e.SignedString)
+}
+
 // NewJWT .
 func NewJWT(expireAfterSec int) *Token {
 	return &Token{
@@ -82,12 +93,14 @@ func (t *Token) Session(userID uint, userEmail, secretkey string) (string, error
 }
 
 func parseWithClaims(signedString, secretkey string, claims jwt.Claims) (*jwt.Token, error) {
+	const fnName = "parseWithClaims"
 	return jwt.ParseWithClaims(
 		signedString,
 		claims,
 		func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: '%v'", token.Header["alg"])
+				err := fmt.Errorf("unexpected signing method '%v'", token.Header["alg"])
+				return nil, &JWTParseError{fnName, signedString, err}
 			}
 			return []byte(secretkey), nil
 		})
@@ -95,30 +108,24 @@ func parseWithClaims(signedString, secretkey string, claims jwt.Claims) (*jwt.To
 
 // ParseSignupJWT .
 func ParseSignupJWT(signedString, secretkey string) (*SignupClaims, error) {
+	const fnName = "ParseSessionJWT"
 	token, err := parseWithClaims(signedString, secretkey, &SignupClaims{})
 	if err != nil {
 		return nil, err
 	}
 
-	claims, ok := token.Claims.(*SignupClaims)
-	if !ok || !token.Valid {
-		return nil, fmt.Errorf("invalid token: '%s'", signedString)
-	}
-
+	claims, _ := token.Claims.(*SignupClaims)
 	return claims, nil
 }
 
 // ParseSessionJWT .
 func ParseSessionJWT(signedString, secretkey string) (*SessionClaims, error) {
+	const fnName = "ParseSessionJWT"
 	token, err := parseWithClaims(signedString, secretkey, &SessionClaims{})
 	if err != nil {
 		return nil, err
 	}
 
-	claims, ok := token.Claims.(*SessionClaims)
-	if !ok || !token.Valid {
-		return nil, fmt.Errorf("invalid token: '%s'", signedString)
-	}
-
+	claims, _ := token.Claims.(*SessionClaims)
 	return claims, nil
 }

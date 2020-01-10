@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -23,6 +24,15 @@ func testEmail() string {
 func TestNewJWT(t *testing.T) {
 	token := NewJWT(1)
 	assert.Equal(t, jwt.MapClaims{}, token.Claims)
+}
+
+func TestJWTPaeseError(t *testing.T) {
+	const fnTest = "Test"
+	const signedString = "testSignedString"
+	const errMessage = "test error"
+	expected := fmt.Sprintf("utils,%s: %s - '%s'", fnTest, errMessage, signedString)
+	err := &JWTParseError{fnTest, signedString, errors.New(errMessage)}
+	assert.Equal(t, expected, err.Error())
 }
 
 func TestParseJWT(t *testing.T) {
@@ -60,4 +70,23 @@ func TestParseJWTWithExpired(t *testing.T) {
 	ve, ok := err.(*jwt.ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, jwt.ValidationErrorExpired, ve.Errors)
+
+	var userID uint = 1
+	userEmail := testEmail()
+
+	sessionToken, err := token.Session(userID, userEmail, testSecretkey)
+	assert.Nil(t, err)
+
+	_, err = ParseSessionJWT(sessionToken, testSecretkey)
+	ve, ok = err.(*jwt.ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, jwt.ValidationErrorExpired, ve.Errors)
+}
+
+func TestParseJWTWithBadMethod(t *testing.T) {
+	// reference - https://github.com/dgrijalva/jwt-go/blob/master/ecdsa_test.go#L23
+	ecdsa256Token := "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJmb28iOiJiYXIifQ.feG39E-bn8HXAKhzDZq7yEAPWYDhZlwTn3sePJnU9VrGMmwdXAIEyoOnrjreYlVM_Z4N13eK9-TmMTWyfKJtHQ"
+
+	_, err := ParseSignupJWT(ecdsa256Token, testSecretkey)
+	assert.NotNil(t, err)
 }
