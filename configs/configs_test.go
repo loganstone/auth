@@ -20,6 +20,7 @@ func TestDB(t *testing.T) {
 	os.Setenv(EnvPrefix+"DB_HOST", "127.0.0.1")
 	os.Setenv(EnvPrefix+"DB_PORT", "3306")
 	os.Setenv(EnvPrefix+"DB_ECHO", "false")
+	os.Setenv(EnvPrefix+"AUTO_SYNC", "false")
 
 	conf, err := DB()
 	assert.Nil(t, err)
@@ -36,6 +37,9 @@ func TestDB(t *testing.T) {
 	expected = "test_db_name_test"
 	dbName := conf.DBNameForTest()
 	assert.Equal(t, expected, dbName)
+
+	assert.False(t, conf.Echo)
+	assert.False(t, conf.AutoSync)
 }
 
 func TestDBWithMissingRequirement(t *testing.T) {
