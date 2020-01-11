@@ -197,7 +197,7 @@ func TestChangePasswordWithIncorrectCurrentPassword(t *testing.T) {
 	assert.Equal(t, payload.ErrorCodeIncorrectPassword, errRes.ErrorCode)
 }
 
-func TestChangePasswordWithOutPassword(t *testing.T) {
+func TestChangePasswordWithoutPassword(t *testing.T) {
 	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 

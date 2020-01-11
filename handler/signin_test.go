@@ -64,7 +64,7 @@ func TestSigninWithWrongPassword(t *testing.T) {
 	assert.Equal(t, payload.ErrorCodeIncorrectPassword, errRes.ErrorCode)
 }
 
-func TestSigninWithOutEmail(t *testing.T) {
+func TestSigninWithoutEmail(t *testing.T) {
 	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
@@ -89,7 +89,7 @@ func TestSigninWithOutEmail(t *testing.T) {
 	assert.Equal(t, payload.ErrorCodeBindJSON, errRes.ErrorCode)
 }
 
-func TestSigninWithOutPassword(t *testing.T) {
+func TestSigninWithoutPassword(t *testing.T) {
 	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
@@ -266,7 +266,7 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 	assert.Equal(t, payload.ErrorCodeRequireVerifyOTP, errRes.ErrorCode)
 }
 
-func TestSigninWithOutOTP(t *testing.T) {
+func TestSigninWithoutOTP(t *testing.T) {
 	user, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
