@@ -14,13 +14,17 @@ import (
 )
 
 func TestDB(t *testing.T) {
-	os.Setenv(EnvPrefix+"DB_ID", "test_db_id")
-	os.Setenv(EnvPrefix+"DB_PW", "test_db_pw")
-	os.Setenv(EnvPrefix+"DB_NAME", "test_db_name")
-	os.Setenv(EnvPrefix+"DB_HOST", "127.0.0.1")
-	os.Setenv(EnvPrefix+"DB_PORT", "3306")
-	os.Setenv(EnvPrefix+"DB_ECHO", "false")
-	os.Setenv(EnvPrefix+"AUTO_SYNC", "false")
+	for k, v := range map[string]string{
+		EnvPrefix + "DB_ID":        "test_db_id",
+		EnvPrefix + "DB_PW":        "test_db_pw",
+		EnvPrefix + "DB_NAME":      "test_db_name",
+		EnvPrefix + "DB_HOST":      "127.0.0.1",
+		EnvPrefix + "DB_PORT":      "3306",
+		EnvPrefix + "DB_ECHO":      "false",
+		EnvPrefix + "DB_AUTO_SYNC": "false",
+	} {
+		os.Setenv(k, v)
+	}
 
 	conf, err := DB()
 	assert.Nil(t, err)
