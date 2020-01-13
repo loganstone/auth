@@ -58,14 +58,14 @@ func findUserOrAbort(c *gin.Context, con *gorm.DB, httpStatusCode int) *db.User 
 	}
 
 	if c.GetBool("RequesterIsAuthorizedUser") {
-		authorizedUser, err := AuthorizedUser(c)
+		user, err := AuthorizedUser(c)
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,
 				payload.ErrorAuthorizedUser(err))
 			return nil
 		}
-		return &authorizedUser
+		return &user
 	}
 
 	user := db.User{Email: email}

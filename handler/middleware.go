@@ -36,22 +36,19 @@ func Authorize() gin.HandlerFunc {
 			return
 		}
 
-		sessionToken := bearerToken[1]
-		sessionClaims, err := utils.ParseSessionJWT(
-			sessionToken, conf.JWTSigninKey)
+		claims, err := utils.ParseSessionJWT(bearerToken[1], conf.JWTSigninKey)
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
 		user := db.User{}
-
-		if con.First(&user, sessionClaims.UserID).RecordNotFound() {
+		if con.First(&user, claims.UserID).RecordNotFound() {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
-		if user.Email != sessionClaims.UserEmail {
+		if user.Email != claims.UserEmail {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
@@ -64,7 +61,7 @@ func Authorize() gin.HandlerFunc {
 // AuthorizedUserIsAdmin .
 func AuthorizedUserIsAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authorizedUser, err := AuthorizedUser(c)
+		user, err := AuthorizedUser(c)
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,
@@ -72,7 +69,7 @@ func AuthorizedUserIsAdmin() gin.HandlerFunc {
 			return
 		}
 
-		if !authorizedUser.IsAdmin {
+		if !user.IsAdmin {
 			c.AbortWithStatus(http.StatusForbidden)
 			return
 		}
@@ -91,7 +88,7 @@ func RequesterIsAuthorizedUser() gin.HandlerFunc {
 			return
 		}
 
-		authorizedUser, err := AuthorizedUser(c)
+		user, err := AuthorizedUser(c)
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,
@@ -99,7 +96,7 @@ func RequesterIsAuthorizedUser() gin.HandlerFunc {
 			return
 		}
 
-		if authorizedUser.Email != email {
+		if user.Email != email {
 			c.AbortWithStatus(http.StatusForbidden)
 			return
 		}
