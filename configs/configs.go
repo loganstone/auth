@@ -15,11 +15,10 @@ import (
 
 const (
 	// EnvPrefix .
-	EnvPrefix      = "AUTH_"
-	failedToLookup = "must set '%s' environment variable"
-	dbConOpt       = "charset=utf8mb4&parseTime=True&loc=Local"
-	dbConStr       = "%s:%s@/%s?%s"
-	dbTCPConStr    = "%s:%s@tcp(%s:%s)/"
+	EnvPrefix   = "AUTH_"
+	dbConOpt    = "charset=utf8mb4&parseTime=True&loc=Local"
+	dbConStr    = "%s:%s@/%s?%s"
+	dbTCPConStr = "%s:%s@tcp(%s:%s)/"
 )
 
 const (
@@ -61,7 +60,8 @@ func (e *EnvError) Error() string {
 }
 
 func missingRequirementError(fn string, missed []string) *EnvError {
-	err := fmt.Sprintf(failedToLookup, strings.Join(missed, ", "))
+	const errMessage = "must set '%s' environment variable"
+	err := fmt.Sprintf(errMessage, strings.Join(missed, ", "))
 	return &EnvError{fn, errors.New(err)}
 }
 
