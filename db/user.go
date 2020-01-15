@@ -15,6 +15,7 @@ import (
 const (
 	failCreateUserMessage = "fail create user '%s': %w"
 	secretKeyLen          = 16
+	passwordMinimumLen    = 10
 )
 
 var (
@@ -118,12 +119,12 @@ type JSONUser struct {
 
 // SetPassword .
 func (u *User) SetPassword(password string) error {
+	// TODO(logan): 에러를 세분화
 	if password == "" {
 		return ErrorInvalidPassword
 	}
 
-	// TODO(logan): 환경 변수로 변경
-	if len(password) < 10 {
+	if len(password) < passwordMinimumLen {
 		return ErrorInvalidPassword
 	}
 
