@@ -21,6 +21,7 @@ const (
 	ErrorCodeBadPage
 	ErrorCodeBadPageSize
 	ErrorCodeExpiredToken
+	ErrorCodeInvalidPassword
 )
 
 // User error codes.

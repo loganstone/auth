@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,7 @@ import (
 // ChangePasswordParam .
 type ChangePasswordParam struct {
 	CurrentPassword string `json:"current_password" binding:"required"`
-	Password        string `json:"password" binding:"required,gte=10,alphanum"`
+	Password        string `json:"password" binding:"required"`
 }
 
 // UsersResponse .
@@ -128,20 +129,23 @@ func ChangePassword(c *gin.Context) {
 		return
 	}
 
-	user.Password = param.CurrentPassword
-	if !user.VerifyPassword() {
+	if !user.VerifyPassword(param.CurrentPassword) {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
 			payload.ErrorIncorrectPassword())
 		return
 	}
 
-	user.Password = param.Password
-	err := user.SetPassword()
+	err := user.SetPassword(param.Password)
 	if err != nil {
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			payload.ErrorSetPassword(err.Error()))
+		httpStatusCode := http.StatusInternalServerError
+		errRes := payload.ErrorSetPassword(err.Error())
+		if errors.Is(err, db.ErrorInvalidPassword) {
+			httpStatusCode = http.StatusBadRequest
+			errRes = payload.ErrorInvalidPassword(err.Error())
+		}
+		c.AbortWithStatusJSON(httpStatusCode, errRes)
+		return
 	}
 
 	err = user.Save(con)
@@ -149,6 +153,7 @@ func ChangePassword(c *gin.Context) {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			payload.ErrorDBTransaction(err.Error()))
+		return
 	}
 
 	c.Status(http.StatusOK)

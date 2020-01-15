@@ -26,7 +26,7 @@ type VerificationEmailParam struct {
 // SignupParam .
 type SignupParam struct {
 	Token    string `json:"token" binding:"required"`
-	Password string `json:"password" binding:"required,gte=10,alphanum"`
+	Password string `json:"password" binding:"required"`
 }
 
 // VerificationEmailData .
@@ -189,15 +189,16 @@ func Signup(c *gin.Context) {
 
 	var user db.User
 	user.Email = claims.Email
-	user.Password = param.Password
-
-	err = user.Create(con)
+	err = user.Create(con, param.Password)
 	if err != nil {
 		httpStatusCode := http.StatusInternalServerError
 		errRes := payload.ErrorDBTransaction(err.Error())
 		if errors.Is(err, db.ErrorUserAlreadyExists) {
 			httpStatusCode = http.StatusBadRequest
 			errRes = payload.UserAlreadyExists()
+		} else if errors.Is(err, db.ErrorInvalidPassword) {
+			httpStatusCode = http.StatusBadRequest
+			errRes = payload.ErrorInvalidPassword(err.Error())
 		} else if errors.Is(err, db.ErrorFailSetPassword) {
 			errRes = payload.ErrorSetPassword(err.Error())
 		}

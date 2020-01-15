@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	changedPassword = "changedPassw0rd"
+	changedPassword = "changedPassw0rd%"
 )
 
 func TestUser(t *testing.T) {
@@ -92,10 +92,9 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 	assert.Nil(t, err)
 
 	otherUser := db.User{
-		Email:    testEmail(),
-		Password: testPassword,
+		Email: testEmail(),
 	}
-	err = otherUser.Create(testDBCon)
+	err = otherUser.Create(testDBCon, testPassword)
 	assert.Nil(t, err)
 
 	setAuthJWTForTest(req, &otherUser)
@@ -128,7 +127,7 @@ func TestChangePassword(t *testing.T) {
 	assert.Nil(t, err)
 
 	reqBody := ChangePasswordParam{
-		CurrentPassword: user.Password,
+		CurrentPassword: testPassword,
 		Password:        changedPassword,
 	}
 
@@ -202,7 +201,7 @@ func TestChangePasswordWithoutPassword(t *testing.T) {
 	assert.Nil(t, err)
 
 	reqBody := ChangePasswordParam{
-		CurrentPassword: user.Password,
+		CurrentPassword: testPassword,
 	}
 
 	body, err := json.Marshal(reqBody)

@@ -17,7 +17,7 @@ func TestSignin(t *testing.T) {
 
 	reqBody := SigninParam{
 		Email:    user.Email,
-		Password: user.Password,
+		Password: testPassword,
 	}
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)
@@ -65,11 +65,11 @@ func TestSigninWithWrongPassword(t *testing.T) {
 }
 
 func TestSigninWithoutEmail(t *testing.T) {
-	user, err := testUser(testDBCon)
+	_, err := testUser(testDBCon)
 	assert.Nil(t, err)
 
 	reqBody := SigninParam{
-		Password: user.Password,
+		Password: testPassword,
 	}
 	body, err := json.Marshal(reqBody)
 	assert.Nil(t, err)

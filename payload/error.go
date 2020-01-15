@@ -92,6 +92,11 @@ func UserAlreadyExists() ErrorCodeResponse {
 		ErrorCodeUserAlreadyExists, "user already exists")
 }
 
+// ErrorInvalidPassword .
+func ErrorInvalidPassword(message string) ErrorCodeResponse {
+	return ErrorResponse(ErrorCodeInvalidPassword, message)
+}
+
 // ErrorSetPassword .
 func ErrorSetPassword(message string) ErrorCodeResponse {
 	return ErrorResponse(ErrorCodeSetPassword, message)

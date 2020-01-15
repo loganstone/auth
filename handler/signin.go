@@ -46,8 +46,7 @@ func Signin(c *gin.Context) {
 		return
 	}
 
-	user.Password = params.Password
-	if !user.VerifyPassword() {
+	if !user.VerifyPassword(params.Password) {
 		c.AbortWithStatusJSON(
 			http.StatusUnauthorized,
 			payload.ErrorIncorrectPassword())

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -23,7 +24,16 @@ var (
 	ErrorUserAlreadyExists = errors.New("user already exists")
 	// ErrorFailSetPassword .
 	ErrorFailSetPassword = errors.New("fail set password")
+	// ErrorInvalidPassword .
+	ErrorInvalidPassword = errors.New("invalid password")
 	errEmptyOTPSecretKey = errors.New("empty 'OTPSecretKey'")
+)
+
+var (
+	digitRegExp  = regexp.MustCompile(`[[:digit:]]+`)
+	upperRegExp  = regexp.MustCompile(`[[:upper:]]+`)
+	lowerRegExp  = regexp.MustCompile(`[[:lower:]]+`)
+	noWordRegExp = regexp.MustCompile(`[\W]+`)
 )
 
 // Codes .
@@ -86,7 +96,6 @@ func (c *Codes) Del(code string) (bool, error) {
 type User struct {
 	IDField
 	Email          string `gorm:"index;not null" binding:"required,email"`
-	Password       string `gorm:"-" binding:"required,gte=10,alphanum"`
 	HashedPassword string `gorm:"not null"`
 	IsAdmin        bool   `gorm:"default:false"`
 
@@ -108,13 +117,38 @@ type JSONUser struct {
 }
 
 // SetPassword .
-func (u *User) SetPassword() error {
-	if u.Password == "" {
-		return ErrorFailSetPassword
+func (u *User) SetPassword(password string) error {
+	if password == "" {
+		return ErrorInvalidPassword
+	}
+
+	// TODO(logan): 환경 변수로 변경
+	if len(password) < 10 {
+		return ErrorInvalidPassword
+	}
+
+	ok := digitRegExp.MatchString(password)
+	if !ok {
+		return ErrorInvalidPassword
+	}
+
+	ok = upperRegExp.MatchString(password)
+	if !ok {
+		return ErrorInvalidPassword
+	}
+
+	ok = lowerRegExp.MatchString(password)
+	if !ok {
+		return ErrorInvalidPassword
+	}
+
+	ok = noWordRegExp.MatchString(password)
+	if !ok {
+		return ErrorInvalidPassword
 	}
 
 	hashedBytes, err := bcrypt.GenerateFromPassword(
-		[]byte(u.Password), bcrypt.DefaultCost)
+		[]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return ErrorFailSetPassword
 	}
@@ -124,9 +158,9 @@ func (u *User) SetPassword() error {
 }
 
 // VerifyPassword .
-func (u *User) VerifyPassword() bool {
+func (u *User) VerifyPassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword(
-		[]byte(u.HashedPassword), []byte(u.Password))
+		[]byte(u.HashedPassword), []byte(password))
 	return err == nil
 }
 
@@ -199,7 +233,7 @@ func (u *User) ConfirmedOTP() bool {
 }
 
 // Create .
-func (u *User) Create(con *gorm.DB) error {
+func (u *User) Create(con *gorm.DB, password string) error {
 	if u.Email == "" {
 		return fmt.Errorf(
 			failCreateUserMessage, u.Email, ErrorNoEmail)
@@ -210,7 +244,7 @@ func (u *User) Create(con *gorm.DB) error {
 			failCreateUserMessage, u.Email, ErrorUserAlreadyExists)
 	}
 
-	if err := u.SetPassword(); err != nil {
+	if err := u.SetPassword(password); err != nil {
 		return fmt.Errorf(failCreateUserMessage, u.Email, err)
 	}
 

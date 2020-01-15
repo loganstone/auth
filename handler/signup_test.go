@@ -176,5 +176,5 @@ func TestSignupWithShortPassword(t *testing.T) {
 	var errRes payload.ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)
 
-	assert.Equal(t, payload.ErrorCodeBindJSON, errRes.ErrorCode)
+	assert.Equal(t, payload.ErrorCodeInvalidPassword, errRes.ErrorCode)
 }

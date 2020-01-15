@@ -18,7 +18,7 @@ import (
 
 const (
 	testEmailFmt = "test-%s@email.com"
-	testPassword = "ok12345678"
+	testPassword = "Ok1234567!"
 )
 
 var (
@@ -107,11 +107,10 @@ func setAuthJWTForTest(req *http.Request, u *db.User) {
 func newUserForTest(con *gorm.DB, isAdmin bool) (*db.User, error) {
 	email := testEmail()
 	user := db.User{
-		Email:    email,
-		Password: testPassword,
-		IsAdmin:  isAdmin,
+		Email:   email,
+		IsAdmin: isAdmin,
 	}
-	if err := user.Create(con); err != nil {
+	if err := user.Create(con, testPassword); err != nil {
 		return nil, err
 	}
 	return &user, nil
