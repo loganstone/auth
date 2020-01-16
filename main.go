@@ -43,7 +43,10 @@ func main() {
 	}
 	if dbConf.AutoSync {
 		log.Println("Sync Models ...")
-		db.Sync(dbConf.ConnectionString(), dbConf.Echo)
+		err = db.Sync(dbConf.ConnectionString(), dbConf.Echo)
+		if err != nil {
+			log.Fatalln(err)
+		}
 		log.Println("Sync Models Completed")
 	}
 

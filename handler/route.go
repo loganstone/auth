@@ -51,6 +51,7 @@ func New() *gin.Engine {
 		router.Use(gin.Recovery())
 	}
 
+	router.Use(DBConnection())
 	bind(router)
 
 	if gin.Mode() == gin.DebugMode {

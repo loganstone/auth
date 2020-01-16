@@ -36,8 +36,10 @@ func (r *UsersResponse) Adjust(pageSize int) {
 
 // Users .
 func Users(c *gin.Context) {
-	con := DBConnection()
-	defer con.Close()
+	con := DBConnOrAbort(c)
+	if con == nil {
+		return
+	}
 
 	page, err := Page(c)
 	if err != nil {
@@ -80,8 +82,10 @@ func Users(c *gin.Context) {
 
 // User .
 func User(c *gin.Context) {
-	con := DBConnection()
-	defer con.Close()
+	con := DBConnOrAbort(c)
+	if con == nil {
+		return
+	}
 
 	user := findUserOrAbort(c, con, http.StatusNotFound)
 	if user == nil {
@@ -93,8 +97,10 @@ func User(c *gin.Context) {
 
 // DeleteUser .
 func DeleteUser(c *gin.Context) {
-	con := DBConnection()
-	defer con.Close()
+	con := DBConnOrAbort(c)
+	if con == nil {
+		return
+	}
 
 	user := findUserOrAbort(c, con, http.StatusNoContent)
 	if user == nil {
@@ -113,8 +119,10 @@ func DeleteUser(c *gin.Context) {
 
 // ChangePassword .
 func ChangePassword(c *gin.Context) {
-	con := DBConnection()
-	defer con.Close()
+	con := DBConnOrAbort(c)
+	if con == nil {
+		return
+	}
 
 	var param ChangePasswordParam
 	if err := c.ShouldBindJSON(&param); err != nil {
@@ -162,8 +170,10 @@ func ChangePassword(c *gin.Context) {
 // RenewSession .
 func RenewSession(c *gin.Context) {
 	conf := configs.App()
-	con := DBConnection()
-	defer con.Close()
+	con := DBConnOrAbort(c)
+	if con == nil {
+		return
+	}
 
 	user := findUserOrAbort(c, con, http.StatusNoContent)
 	if user == nil {

@@ -28,8 +28,14 @@ func setup() {
 		log.Fatalln(err)
 	}
 	db.Reset(dbConf.TCPConnectionString(), dbConf.DBNameForTest())
-	db.Sync(dbConf.ConnectionString(), dbConf.Echo)
-	testDBCon = DBConnection()
+	err = db.Sync(dbConf.ConnectionString(), dbConf.Echo)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	testDBCon, err = db.Connection(dbConf.ConnectionString(), dbConf.Echo)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func teardown() {

@@ -41,13 +41,23 @@ func AuthorizedUser(c *gin.Context) (user db.User, err error) {
 	return
 }
 
-// DBConnection .
-func DBConnection() *gorm.DB {
-	dbConf, err := configs.DB()
-	if err != nil {
-		log.Fatalln(err)
+// DBConnOrAbort .
+func DBConnOrAbort(c *gin.Context) *gorm.DB {
+	con, ok := c.Get("DBConnection")
+	if !ok {
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			payload.ErrorDBConnection("empty db connection"))
+		return nil
 	}
-	return db.Connection(dbConf.ConnectionString(), dbConf.Echo)
+	dbCon, ok := con.(*gorm.DB)
+	if !ok {
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			payload.ErrorDBConnection("wrong db connection"))
+		return nil
+	}
+	return dbCon
 }
 
 func findUserOrAbort(c *gin.Context, con *gorm.DB, httpStatusCode int) *db.User {

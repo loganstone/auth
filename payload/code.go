@@ -4,6 +4,7 @@ package payload
 const (
 	ErrorCodeUnknown = iota + 1000
 	ErrorCodeDBEnv
+	ErrorCodeDBConnection
 	ErrorCodeDBTransaction
 	ErrorCodeMarshalJSON
 	ErrorCodeUnMarshalJSON

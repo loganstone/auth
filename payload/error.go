@@ -16,6 +16,11 @@ func ErrorDBEnv(message string) ErrorCodeResponse {
 	return ErrorResponse(ErrorCodeDBEnv, message)
 }
 
+// ErrorDBConnection .
+func ErrorDBConnection(message string) ErrorCodeResponse {
+	return ErrorResponse(ErrorCodeDBConnection, message)
+}
+
 // ErrorDBTransaction .
 func ErrorDBTransaction(message string) ErrorCodeResponse {
 	return ErrorResponse(ErrorCodeDBTransaction, message)

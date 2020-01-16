@@ -48,8 +48,10 @@ type VerificationEmailResponseForTest struct {
 // SendVerificationEmail .
 func SendVerificationEmail(c *gin.Context) {
 	conf := configs.App()
-	con := DBConnection()
-	defer con.Close()
+	con := DBConnOrAbort(c)
+	if con == nil {
+		return
+	}
 
 	var param VerificationEmailParam
 	if err := c.ShouldBindJSON(&param); err != nil {
@@ -128,8 +130,10 @@ func SendVerificationEmail(c *gin.Context) {
 // VerifySignupToken .
 func VerifySignupToken(c *gin.Context) {
 	conf := configs.App()
-	con := DBConnection()
-	defer con.Close()
+	con := DBConnOrAbort(c)
+	if con == nil {
+		return
+	}
 
 	token := c.Param("token")
 	claims, err := utils.ParseSignupJWT(token, conf.JWTSigninKey)
@@ -157,8 +161,10 @@ func VerifySignupToken(c *gin.Context) {
 // Signup .
 func Signup(c *gin.Context) {
 	conf := configs.App()
-	con := DBConnection()
-	defer con.Close()
+	con := DBConnOrAbort(c)
+	if con == nil {
+		return
+	}
 
 	var param SignupParam
 	if err := c.ShouldBindJSON(&param); err != nil {

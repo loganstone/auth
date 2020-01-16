@@ -28,8 +28,10 @@ type SiginResponse struct {
 // Signin .
 func Signin(c *gin.Context) {
 	conf := configs.App()
-	con := DBConnection()
-	defer con.Close()
+	con := DBConnOrAbort(c)
+	if con == nil {
+		return
+	}
 
 	var params SigninParam
 	if err := c.ShouldBindJSON(&params); err != nil {

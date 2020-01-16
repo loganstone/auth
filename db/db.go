@@ -23,20 +23,23 @@ type DateTimeFields struct {
 }
 
 // Sync .
-func Sync(option string, echo bool) {
-	con := Connection(option, echo)
+func Sync(option string, echo bool) error {
+	con, err := Connection(option, echo)
 	defer con.Close()
+	if err != nil {
+		return err
+	}
 	con.AutoMigrate(&User{})
+	return nil
 }
 
 // Connection .
-func Connection(option string, echo bool) *gorm.DB {
+func Connection(option string, echo bool) (*gorm.DB, error) {
 	db, err := gorm.Open("mysql", option)
-	if err != nil {
-		log.Panicln("DB Connection Error")
+	if err == nil {
+		db.LogMode(echo)
 	}
-	db.LogMode(echo)
-	return db
+	return db, err
 }
 
 // Reset .

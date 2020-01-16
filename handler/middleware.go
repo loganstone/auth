@@ -19,15 +19,10 @@ import (
 func Authorize() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		conf := configs.App()
-		dbConf, err := configs.DB()
-		if err != nil {
-			c.AbortWithStatusJSON(
-				http.StatusInternalServerError,
-				payload.ErrorDBEnv(err.Error()))
+		con := DBConnOrAbort(c)
+		if con == nil {
+			return
 		}
-
-		con := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
-		defer con.Close()
 
 		reqToken := c.Request.Header.Get("Authorization")
 		bearerToken := strings.Split(reqToken, " ")
@@ -102,6 +97,27 @@ func RequesterIsAuthorizedUser() gin.HandlerFunc {
 		}
 
 		c.Set("RequesterIsAuthorizedUser", true)
+		c.Next()
+	}
+}
+
+// DBConnection .
+func DBConnection() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		dbConf, err := configs.DB()
+		if err != nil {
+			c.AbortWithStatusJSON(
+				http.StatusInternalServerError,
+				payload.ErrorDBEnv(err.Error()))
+		}
+		con, err := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
+		if err != nil {
+			c.AbortWithStatusJSON(
+				http.StatusInternalServerError,
+				payload.ErrorDBConnection(err.Error()))
+		}
+		defer con.Close()
+		c.Set("DBConnection", con)
 		c.Next()
 	}
 }
