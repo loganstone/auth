@@ -32,15 +32,15 @@ func Sync(option string, echo bool) {
 // Connection .
 func Connection(option string, echo bool) *gorm.DB {
 	db, err := gorm.Open("mysql", option)
-	db.LogMode(echo)
 	if err != nil {
 		log.Panicln("DB Connection Error")
 	}
+	db.LogMode(echo)
 	return db
 }
 
-// ResetDB .
-func ResetDB(option string, dbname string) {
+// Reset .
+func Reset(option string, dbname string) {
 	db, err := sql.Open("mysql", option)
 	if err != nil {
 		log.Fatal("db connection failed")

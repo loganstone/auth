@@ -42,9 +42,9 @@ func main() {
 		log.Fatalln(err)
 	}
 	if dbConf.AutoSync {
-		log.Println("Sync DB ...")
+		log.Println("Sync Models ...")
 		db.Sync(dbConf.ConnectionString(), dbConf.Echo)
-		log.Println("Sync DB Completed")
+		log.Println("Sync Models Completed")
 	}
 
 	conf := configs.App()
