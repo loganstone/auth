@@ -15,13 +15,13 @@ import (
 
 func TestDB(t *testing.T) {
 	for k, v := range map[string]string{
-		EnvPrefix + "DB_ID":        "test_db_id",
-		EnvPrefix + "DB_PW":        "test_db_pw",
-		EnvPrefix + "DB_NAME":      "test_db_name",
-		EnvPrefix + "DB_HOST":      "127.0.0.1",
-		EnvPrefix + "DB_PORT":      "3306",
-		EnvPrefix + "DB_ECHO":      "false",
-		EnvPrefix + "DB_AUTO_SYNC": "false",
+		EnvPrefix + "DB_ID":          "test_db_id",
+		EnvPrefix + "DB_PW":          "test_db_pw",
+		EnvPrefix + "DB_NAME":        "test_db_name",
+		EnvPrefix + "DB_HOST":        "127.0.0.1",
+		EnvPrefix + "DB_PORT":        "3306",
+		EnvPrefix + "DB_ECHO":        "false",
+		EnvPrefix + "DB_SYNC_MODELS": "false",
 	} {
 		os.Setenv(k, v)
 	}
@@ -43,7 +43,7 @@ func TestDB(t *testing.T) {
 	assert.Equal(t, expected, dbName)
 
 	assert.False(t, conf.Echo)
-	assert.False(t, conf.AutoSync)
+	assert.False(t, conf.SyncModels)
 }
 
 func TestDBWithMissingRequirement(t *testing.T) {

@@ -53,7 +53,7 @@ func TestFuncMain(t *testing.T) {
 }
 
 func TestFuncMainWithDBSync(t *testing.T) {
-	enKey := configs.EnvPrefix + "DB_AUTO_SYNC"
+	enKey := configs.EnvPrefix + "DB_SYNC_MODELS"
 	os.Setenv(enKey, "1")
 	go func() {
 		main()

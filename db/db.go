@@ -22,15 +22,14 @@ type DateTimeFields struct {
 	DeletedAt *time.Time
 }
 
-// Sync .
-func Sync(option string, echo bool) error {
+// SyncModels .
+func SyncModels(option string, echo bool) (*gorm.DB, error) {
 	con, err := Connection(option, echo)
-	defer con.Close()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	con.AutoMigrate(&User{})
-	return nil
+	return con, nil
 }
 
 // Connection .

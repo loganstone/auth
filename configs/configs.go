@@ -40,13 +40,13 @@ const (
 
 // DatabaseConfigs ...
 type DatabaseConfigs struct {
-	id       string
-	pw       string
-	name     string
-	host     string
-	port     string
-	Echo     bool
-	AutoSync bool
+	id         string
+	pw         string
+	name       string
+	host       string
+	port       string
+	Echo       bool
+	SyncModels bool
 }
 
 // EnvError .
@@ -117,10 +117,10 @@ func DB() (*DatabaseConfigs, error) {
 	}
 
 	for k, p := range map[string]interface{}{
-		EnvPrefix + "DB_HOST":      &conf.host,
-		EnvPrefix + "DB_PORT":      &conf.port,
-		EnvPrefix + "DB_ECHO":      &conf.Echo,
-		EnvPrefix + "DB_AUTO_SYNC": &conf.AutoSync,
+		EnvPrefix + "DB_HOST":        &conf.host,
+		EnvPrefix + "DB_PORT":        &conf.port,
+		EnvPrefix + "DB_ECHO":        &conf.Echo,
+		EnvPrefix + "DB_SYNC_MODELS": &conf.SyncModels,
 	} {
 		if v, ok := os.LookupEnv(k); ok {
 			switch pt := p.(type) {
