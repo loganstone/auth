@@ -2,7 +2,7 @@ package db
 
 import (
 	"database/sql"
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -42,22 +42,23 @@ func Connection(option string, echo bool) (*gorm.DB, error) {
 }
 
 // Reset .
-func Reset(option string, dbname string) {
+func Reset(option string, dbname string) error {
 	db, err := sql.Open("mysql", option)
 	if err != nil {
-		log.Fatal("db connection failed")
+		return fmt.Errorf("db connection failed")
 	}
 	defer db.Close()
 
 	_, err = db.Exec("DROP DATABASE IF EXISTS " + dbname)
 	if err != nil {
-		log.Fatalf("drop '%s' database failed\n", dbname)
+		return fmt.Errorf("drop '%s' database failed", dbname)
 	}
 	_, err = db.Exec(
 		"CREATE DATABASE " + dbname + " CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
 	if err != nil {
-		log.Fatalf("create '%s' database failed\n", dbname)
+		return fmt.Errorf("create '%s' database failed", dbname)
 	}
+	return nil
 }
 
 // Do .
