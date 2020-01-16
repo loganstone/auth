@@ -16,14 +16,6 @@
 - [ ] 이메일로 발송된 인증 코드 확인
 - [x] 관리자 기능 추가
 
-# Frameworks
-* http - gin
-* orm - gorm
-* uuid - google/uuid
-* jwt - jwt-go
-* otp - xlzd/gotp
-* test - stretchr/testify
-
 # Running Tests
 
 ```shell
