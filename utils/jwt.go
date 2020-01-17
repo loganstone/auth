@@ -75,19 +75,19 @@ func newStandardClaims(
 }
 
 // Signup .
-func (t *Token) Signup(email, secretkey string) (string, error) {
+func (t *Token) Signup(email, secretkey, issuer string) (string, error) {
 	t.Claims = SignupClaims{
 		email,
-		*newStandardClaims(Signup, email, "auth", t.expireAfterSec, 0),
+		*newStandardClaims(Signup, email, issuer, t.expireAfterSec, 0),
 	}
 	return t.SignedString([]byte(secretkey))
 }
 
 // Session .
-func (t *Token) Session(userID uint, userEmail, secretkey string) (string, error) {
+func (t *Token) Session(userID uint, userEmail, secretkey, issuer string) (string, error) {
 	t.Claims = SessionClaims{
 		SessionUser{UserID: userID, UserEmail: userEmail},
-		*newStandardClaims(Session, userEmail, "auth", t.expireAfterSec, 0),
+		*newStandardClaims(Session, userEmail, issuer, t.expireAfterSec, 0),
 	}
 	return t.SignedString([]byte(secretkey))
 }

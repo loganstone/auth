@@ -181,7 +181,7 @@ func RenewSession(c *gin.Context) {
 	}
 
 	token := utils.NewJWT(conf.SessionTokenExpire)
-	sessionToken, err := token.Session(user.ID, user.Email, conf.JWTSigninKey)
+	sessionToken, err := token.Session(user.ID, user.Email, conf.JWTSigninKey, conf.Org)
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,

@@ -66,7 +66,7 @@ func SendVerificationEmail(c *gin.Context) {
 	}
 
 	token := utils.NewJWT(conf.SignupTokenExpire)
-	signupToken, err := token.Signup(param.Email, conf.JWTSigninKey)
+	signupToken, err := token.Signup(param.Email, conf.JWTSigninKey, conf.Org)
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,

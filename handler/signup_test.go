@@ -83,7 +83,7 @@ func TestVerifySignupToken(t *testing.T) {
 	conf := configs.App()
 	email := testEmail()
 	token := utils.NewJWT(conf.SignupTokenExpire)
-	signupToken, err := token.Signup(email, conf.JWTSigninKey)
+	signupToken, err := token.Signup(email, conf.JWTSigninKey, conf.Org)
 	assert.Nil(t, err)
 
 	router := New()
@@ -105,7 +105,7 @@ func TestVerifySignupTokenWithExpiredToken(t *testing.T) {
 	conf := configs.App()
 	email := testEmail()
 	token := utils.NewJWT(-1)
-	signupToken, err := token.Signup(email, conf.JWTSigninKey)
+	signupToken, err := token.Signup(email, conf.JWTSigninKey, conf.Org)
 	assert.Nil(t, err)
 
 	router := New()
@@ -127,7 +127,7 @@ func TestSignup(t *testing.T) {
 	conf := configs.App()
 	email := testEmail()
 	token := utils.NewJWT(conf.SignupTokenExpire)
-	signupToken, err := token.Signup(email, conf.JWTSigninKey)
+	signupToken, err := token.Signup(email, conf.JWTSigninKey, conf.Org)
 	assert.Nil(t, err)
 
 	reqBody := map[string]string{
@@ -155,7 +155,7 @@ func TestSignupWithShortPassword(t *testing.T) {
 	conf := configs.App()
 	email := testEmail()
 	token := utils.NewJWT(conf.SignupTokenExpire)
-	signupToken, err := token.Signup(email, conf.JWTSigninKey)
+	signupToken, err := token.Signup(email, conf.JWTSigninKey, conf.Org)
 	assert.Nil(t, err)
 
 	reqBody := map[string]string{

@@ -15,6 +15,7 @@ const (
 	testEmailFmt  = "test-%s@email.com"
 	testPassword  = "ok1234"
 	testSecretkey = "thisissecertkey"
+	testIssuer    = "testIssuer"
 )
 
 func testEmail() string {
@@ -38,7 +39,7 @@ func TestJWTPaeseError(t *testing.T) {
 func TestParseJWT(t *testing.T) {
 	email := testEmail()
 	token := NewJWT(5)
-	signupToken, err := token.Signup(email, testSecretkey)
+	signupToken, err := token.Signup(email, testSecretkey, testIssuer)
 	assert.Nil(t, err)
 
 	signupClaims, err := ParseSignupJWT(signupToken, testSecretkey)
@@ -49,7 +50,7 @@ func TestParseJWT(t *testing.T) {
 	var userID uint = 1
 	userEmail := testEmail()
 
-	sessionToken, err := token.Session(userID, userEmail, testSecretkey)
+	sessionToken, err := token.Session(userID, userEmail, testSecretkey, testIssuer)
 	assert.Nil(t, err)
 
 	sessionClaims, err := ParseSessionJWT(sessionToken, testSecretkey)
@@ -63,7 +64,7 @@ func TestParseJWT(t *testing.T) {
 func TestParseJWTWithExpired(t *testing.T) {
 	email := testEmail()
 	token := NewJWT(-1)
-	signupToken, err := token.Signup(email, testSecretkey)
+	signupToken, err := token.Signup(email, testSecretkey, testIssuer)
 	assert.Nil(t, err)
 
 	_, err = ParseSignupJWT(signupToken, testSecretkey)
@@ -74,7 +75,7 @@ func TestParseJWTWithExpired(t *testing.T) {
 	var userID uint = 1
 	userEmail := testEmail()
 
-	sessionToken, err := token.Session(userID, userEmail, testSecretkey)
+	sessionToken, err := token.Session(userID, userEmail, testSecretkey, testIssuer)
 	assert.Nil(t, err)
 
 	_, err = ParseSessionJWT(sessionToken, testSecretkey)

@@ -106,7 +106,7 @@ func testEmail() string {
 func setAuthJWTForTest(req *http.Request, u *db.User) {
 	conf := configs.App()
 	token := utils.NewJWT(10)
-	sessionToken, err := token.Session(u.ID, u.Email, conf.JWTSigninKey)
+	sessionToken, err := token.Session(u.ID, u.Email, conf.JWTSigninKey, conf.Org)
 	if err != nil {
 		log.Fatalf("fail generate session token: %s\n", err.Error())
 	}
