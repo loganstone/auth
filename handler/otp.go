@@ -8,7 +8,6 @@ import (
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
 
@@ -27,50 +26,46 @@ type ResetOTPParam struct {
 	BackupCode string `json:"backup_code" binding:"required,numeric"`
 }
 
-func generateOTP(con *gorm.DB, user *db.User) (string, *payload.ErrorCodeResponse) {
+func generateOTP(con *gorm.DB, user *db.User) (string, *ErrorCodeResponse) {
 	conf := configs.App()
 	user.GenerateOTPSecretKey(conf.SecretKeyLen())
 	uri, err := user.OTPProvisioningURI(conf.Org)
 	if err != nil {
-		errRes := payload.ErrorResponse(
-			payload.ErrorCodeOTPProvisioningURI,
-			err.Error())
+		errRes := NewErrResWithErr(ErrorCodeOTPProvisioningURI, err)
 		return "", &errRes
 	}
 
 	err = user.Save(con)
 	if err != nil {
-		errRes := payload.ErrorDBTransaction(err.Error())
+		errRes := NewErrResWithErr(ErrorCodeDBTransaction, err)
 		return "", &errRes
 	}
 
 	return uri, nil
 }
 
-func confirmOTP(con *gorm.DB, user *db.User) *payload.ErrorCodeResponse {
+func confirmOTP(con *gorm.DB, user *db.User) *ErrorCodeResponse {
 	user.ConfirmOTP()
 
 	codes := utils.DigitCodes(backupCodesLen, backupCodeLen)
 	err := user.OTPBackupCodes.Set(codes)
 	if err != nil {
-		errRes := payload.ErrorResponse(
-			payload.ErrorCodeSetOTPBackupCodes,
-			err.Error())
+		errRes := NewErrResWithErr(ErrorCodeSetOTPBackupCodes, err)
 		return &errRes
 	}
 
 	err = user.Save(con)
 	if err != nil {
-		errRes := payload.ErrorDBTransaction(err.Error())
+		errRes := NewErrResWithErr(ErrorCodeDBTransaction, err)
 		return &errRes
 	}
 	return nil
 }
 
-func resetOTP(con *gorm.DB, user *db.User) *payload.ErrorCodeResponse {
+func resetOTP(con *gorm.DB, user *db.User) *ErrorCodeResponse {
 	user.ResetOTP()
 	if err := user.Save(con); err != nil {
-		errRes := payload.ErrorDBTransaction(err.Error())
+		errRes := NewErrResWithErr(ErrorCodeDBTransaction, err)
 		return &errRes
 	}
 	return nil
@@ -91,7 +86,7 @@ func GenerateOTP(c *gin.Context) {
 	if user.ConfirmedOTP() {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorOTPAlreadyRegistered())
+			NewErrRes(ErrorCodeOTPAlreadyRegistered))
 		return
 	}
 	uri, errRes := generateOTP(con, user)
@@ -123,14 +118,14 @@ func ConfirmOTP(c *gin.Context) {
 	if err := c.ShouldBindJSON(&param); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorBindJSON(err.Error()))
+			NewErrResWithErr(ErrorCodeBindJSON, err))
 		return
 	}
 
 	if user.ConfirmedOTP() {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorOTPAlreadyRegistered())
+			NewErrRes(ErrorCodeOTPAlreadyRegistered))
 		return
 	}
 
@@ -139,14 +134,14 @@ func ConfirmOTP(c *gin.Context) {
 	if user.OTPSecretKey == "" {
 		c.AbortWithStatusJSON(
 			http.StatusForbidden,
-			payload.ErrorEmptyOTPSecretKey())
+			NewErrRes(ErrorCodeEmptyOTPSecretKey))
 		return
 	}
 
 	if !user.VerifyOTP(param.OTP) {
 		c.AbortWithStatusJSON(
 			http.StatusForbidden,
-			payload.ErrorIncorrectOTP())
+			NewErrRes(ErrorCodeIncorrectOTP))
 		return
 	}
 
@@ -182,22 +177,21 @@ func ResetOTP(c *gin.Context) {
 		if err := c.ShouldBindJSON(&param); err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,
-				payload.ErrorBindJSON(err.Error()))
+				NewErrResWithErr(ErrorCodeBindJSON, err))
 			return
 		}
 
 		if user.OTPBackupCodes == nil {
 			c.AbortWithStatusJSON(
 				http.StatusForbidden,
-				payload.ErrorEmptyOTPBackupCodes(
-					"empty otp backup codes. contact administrator"))
+				NewErrRes(ErrorCodeEmptyOTPBackupCodes))
 			return
 		}
 
 		if _, ok := user.OTPBackupCodes.In(param.BackupCode); !ok {
 			c.AbortWithStatusJSON(
 				http.StatusForbidden,
-				payload.ErrorIncorrectOTP())
+				NewErrRes(ErrorCodeIncorrectOTP))
 			return
 		}
 	}

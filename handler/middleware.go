@@ -11,7 +11,6 @@ import (
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
 
@@ -60,7 +59,7 @@ func AuthorizedUserIsAdmin() gin.HandlerFunc {
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,
-				payload.ErrorAuthorizedUser(err))
+				NewErrResWithErr(ErrorCodeAuthorizedUser, err))
 			return
 		}
 
@@ -87,7 +86,7 @@ func RequesterIsAuthorizedUser() gin.HandlerFunc {
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,
-				payload.ErrorAuthorizedUser(err))
+				NewErrResWithErr(ErrorCodeAuthorizedUser, err))
 			return
 		}
 
@@ -108,13 +107,13 @@ func DBConnection() gin.HandlerFunc {
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusInternalServerError,
-				payload.ErrorDBEnv(err.Error()))
+				NewErrResWithErr(ErrorCodeDBEnv, err))
 		}
 		con, err := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusInternalServerError,
-				payload.ErrorDBConnection(err.Error()))
+				NewErrResWithErr(ErrorCodeDBConnection, err))
 		}
 		defer con.Close()
 		c.Set("DBConnection", con)

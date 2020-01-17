@@ -1,4 +1,4 @@
-package payload
+package handler
 
 // Internal server error codes.
 const (
@@ -8,8 +8,8 @@ const (
 	ErrorCodeDBTransaction
 	ErrorCodeMarshalJSON
 	ErrorCodeUnMarshalJSON
-	ErrorCodeSignJWTToken
-	ErrorCodeParseJWTToken
+	ErrorCodeSignJWT
+	ErrorCodeParseJWT
 	ErrorCodeSendEmail
 	ErrorCodeTmplExecute
 	ErrorCodeTmplParse

@@ -14,7 +14,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/payload"
 )
 
 const (
@@ -60,9 +59,9 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	var errRes payload.ErrorCodeResponse
+	var errRes ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)
-	assert.Equal(t, payload.ErrorCodeNotFoundUser, errRes.ErrorCode)
+	assert.Equal(t, ErrorCodeNotFoundUser, errRes.ErrorCode)
 }
 
 func TestDeleteUser(t *testing.T) {
@@ -191,9 +190,9 @@ func TestChangePasswordWithIncorrectCurrentPassword(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	var errRes payload.ErrorCodeResponse
+	var errRes ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)
-	assert.Equal(t, payload.ErrorCodeIncorrectPassword, errRes.ErrorCode)
+	assert.Equal(t, ErrorCodeIncorrectPassword, errRes.ErrorCode)
 }
 
 func TestChangePasswordWithoutPassword(t *testing.T) {
@@ -218,9 +217,9 @@ func TestChangePasswordWithoutPassword(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	var errRes payload.ErrorCodeResponse
+	var errRes ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)
-	assert.Equal(t, payload.ErrorCodeBindJSON, errRes.ErrorCode)
+	assert.Equal(t, ErrorCodeBindJSON, errRes.ErrorCode)
 }
 
 func TestUsersAsAdmin(t *testing.T) {

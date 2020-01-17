@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/loganstone/auth/payload"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -58,10 +57,10 @@ func TestSigninWithWrongPassword(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	var errRes payload.ErrorCodeResponse
+	var errRes ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)
 
-	assert.Equal(t, payload.ErrorCodeIncorrectPassword, errRes.ErrorCode)
+	assert.Equal(t, ErrorCodeIncorrectPassword, errRes.ErrorCode)
 }
 
 func TestSigninWithoutEmail(t *testing.T) {
@@ -83,10 +82,10 @@ func TestSigninWithoutEmail(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	var errRes payload.ErrorCodeResponse
+	var errRes ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)
 
-	assert.Equal(t, payload.ErrorCodeBindJSON, errRes.ErrorCode)
+	assert.Equal(t, ErrorCodeBindJSON, errRes.ErrorCode)
 }
 
 func TestSigninWithoutPassword(t *testing.T) {
@@ -108,10 +107,10 @@ func TestSigninWithoutPassword(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	var errRes payload.ErrorCodeResponse
+	var errRes ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)
 
-	assert.Equal(t, payload.ErrorCodeBindJSON, errRes.ErrorCode)
+	assert.Equal(t, ErrorCodeBindJSON, errRes.ErrorCode)
 }
 
 func TestSigninWithOTP(t *testing.T) {
@@ -204,10 +203,10 @@ func TestSigninWithIncorrectOTP(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	var errRes payload.ErrorCodeResponse
+	var errRes ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)
 
-	assert.Equal(t, payload.ErrorCodeIncorrectOTP, errRes.ErrorCode)
+	assert.Equal(t, ErrorCodeIncorrectOTP, errRes.ErrorCode)
 }
 
 func TestSigninWithAllBackupCodes(t *testing.T) {
@@ -260,10 +259,10 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	var errRes payload.ErrorCodeResponse
+	var errRes ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)
 
-	assert.Equal(t, payload.ErrorCodeRequireVerifyOTP, errRes.ErrorCode)
+	assert.Equal(t, ErrorCodeRequireVerifyOTP, errRes.ErrorCode)
 }
 
 func TestSigninWithoutOTP(t *testing.T) {
@@ -292,8 +291,8 @@ func TestSigninWithoutOTP(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	var errRes payload.ErrorCodeResponse
+	var errRes ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)
 
-	assert.Equal(t, payload.ErrorCodeRequireVerifyOTP, errRes.ErrorCode)
+	assert.Equal(t, ErrorCodeRequireVerifyOTP, errRes.ErrorCode)
 }

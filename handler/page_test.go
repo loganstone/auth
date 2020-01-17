@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/loganstone/auth/payload"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,7 +22,7 @@ func pageTestHandler(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorBadPage(err.Error()))
+			NewErrResWithErr(ErrorCodeBadPage, err))
 		return
 	}
 
@@ -31,7 +30,7 @@ func pageTestHandler(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorBadPage(err.Error()))
+			NewErrResWithErr(ErrorCodeBadPageSize, err))
 		return
 	}
 

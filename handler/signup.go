@@ -12,7 +12,6 @@ import (
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
 
@@ -57,7 +56,7 @@ func SendVerificationEmail(c *gin.Context) {
 	if err := c.ShouldBindJSON(&param); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorBindJSON(err.Error()))
+			NewErrResWithErr(ErrorCodeBindJSON, err))
 		return
 	}
 
@@ -70,7 +69,7 @@ func SendVerificationEmail(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			payload.ErrorSignJWTToken(err.Error()))
+			NewErrResWithErr(ErrorCodeSignJWT, err))
 		return
 	}
 
@@ -82,7 +81,7 @@ func SendVerificationEmail(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			payload.ErrorTmplParse(err.Error()))
+			NewErrResWithErr(ErrorCodeTmplParse, err))
 		return
 	}
 
@@ -97,7 +96,7 @@ func SendVerificationEmail(c *gin.Context) {
 	if err := emailTmpl.Execute(&body, data); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			payload.ErrorTmplExecute(err.Error()))
+			NewErrResWithErr(ErrorCodeTmplExecute, err))
 		return
 	}
 
@@ -110,7 +109,7 @@ func SendVerificationEmail(c *gin.Context) {
 	).Send(); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			payload.ErrorSendEmail(err.Error()))
+			NewErrResWithErr(ErrorCodeSendEmail, err))
 		return
 	}
 
@@ -142,12 +141,12 @@ func VerifySignupToken(c *gin.Context) {
 		if !ok || ve.Errors != jwt.ValidationErrorExpired {
 			c.AbortWithStatusJSON(
 				http.StatusInternalServerError,
-				payload.ErrorParseJWTToken(err.Error()))
+				NewErrResWithErr(ErrorCodeParseJWT, err))
 			return
 		}
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorExpiredToken())
+			NewErrRes(ErrorCodeExpiredToken))
 		return
 	}
 
@@ -170,7 +169,7 @@ func Signup(c *gin.Context) {
 	if err := c.ShouldBindJSON(&param); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorBindJSON(err.Error()))
+			NewErrResWithErr(ErrorCodeBindJSON, err))
 		return
 	}
 
@@ -180,12 +179,12 @@ func Signup(c *gin.Context) {
 		if !ok || ve.Errors != jwt.ValidationErrorExpired {
 			c.AbortWithStatusJSON(
 				http.StatusInternalServerError,
-				payload.ErrorParseJWTToken(err.Error()))
+				NewErrResWithErr(ErrorCodeParseJWT, err))
 			return
 		}
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorExpiredToken())
+			NewErrRes(ErrorCodeExpiredToken))
 		return
 	}
 
@@ -198,15 +197,16 @@ func Signup(c *gin.Context) {
 	err = user.Create(con, param.Password)
 	if err != nil {
 		httpStatusCode := http.StatusInternalServerError
-		errRes := payload.ErrorDBTransaction(err.Error())
+		errRes := NewErrResWithErr(ErrorCodeDBTransaction, err)
+
 		if errors.Is(err, db.ErrorUserAlreadyExists) {
 			httpStatusCode = http.StatusBadRequest
-			errRes = payload.UserAlreadyExists()
+			errRes = NewErrRes(ErrorCodeUserAlreadyExists)
 		} else if errors.Is(err, db.ErrorInvalidPassword) {
 			httpStatusCode = http.StatusBadRequest
-			errRes = payload.ErrorInvalidPassword(err.Error())
+			errRes = NewErrResWithErr(ErrorCodeInvalidPassword, err)
 		} else if errors.Is(err, db.ErrorFailSetPassword) {
-			errRes = payload.ErrorSetPassword(err.Error())
+			errRes = NewErrResWithErr(ErrorCodeSetPassword, err)
 		}
 		c.AbortWithStatusJSON(httpStatusCode, errRes)
 		return

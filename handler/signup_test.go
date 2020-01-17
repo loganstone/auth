@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/loganstone/auth/configs"
-	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
 
@@ -117,10 +116,10 @@ func TestVerifySignupTokenWithExpiredToken(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	var resBody payload.ErrorCodeResponse
+	var resBody ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&resBody)
 
-	assert.Equal(t, payload.ErrorCodeExpiredToken, resBody.ErrorCode)
+	assert.Equal(t, ErrorCodeExpiredToken, resBody.ErrorCode)
 }
 
 func TestSignup(t *testing.T) {
@@ -173,8 +172,8 @@ func TestSignupWithShortPassword(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	var errRes payload.ErrorCodeResponse
+	var errRes ErrorCodeResponse
 	json.NewDecoder(w.Body).Decode(&errRes)
 
-	assert.Equal(t, payload.ErrorCodeInvalidPassword, errRes.ErrorCode)
+	assert.Equal(t, ErrorCodeInvalidPassword, errRes.ErrorCode)
 }

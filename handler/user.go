@@ -8,7 +8,6 @@ import (
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
 
@@ -45,7 +44,7 @@ func Users(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorBadPage(err.Error()))
+			NewErrResWithErr(ErrorCodeBadPage, err))
 		return
 	}
 
@@ -53,7 +52,7 @@ func Users(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorBadPage(err.Error()))
+			NewErrResWithErr(ErrorCodeBadPageSize, err))
 		return
 	}
 
@@ -110,7 +109,7 @@ func DeleteUser(c *gin.Context) {
 	if err := user.Delete(con); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			payload.ErrorDBTransaction(err.Error()))
+			NewErrResWithErr(ErrorCodeDBTransaction, err))
 		return
 	}
 
@@ -128,7 +127,7 @@ func ChangePassword(c *gin.Context) {
 	if err := c.ShouldBindJSON(&param); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorBindJSON(err.Error()))
+			NewErrResWithErr(ErrorCodeBindJSON, err))
 		return
 	}
 
@@ -140,17 +139,17 @@ func ChangePassword(c *gin.Context) {
 	if !user.VerifyPassword(param.CurrentPassword) {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorIncorrectPassword())
+			NewErrRes(ErrorCodeIncorrectPassword))
 		return
 	}
 
 	err := user.SetPassword(param.Password)
 	if err != nil {
 		httpStatusCode := http.StatusInternalServerError
-		errRes := payload.ErrorSetPassword(err.Error())
+		errRes := NewErrResWithErr(ErrorCodeSetPassword, err)
 		if errors.Is(err, db.ErrorInvalidPassword) {
 			httpStatusCode = http.StatusBadRequest
-			errRes = payload.ErrorInvalidPassword(err.Error())
+			errRes = NewErrResWithErr(ErrorCodeInvalidPassword, err)
 		}
 		c.AbortWithStatusJSON(httpStatusCode, errRes)
 		return
@@ -160,7 +159,7 @@ func ChangePassword(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			payload.ErrorDBTransaction(err.Error()))
+			NewErrResWithErr(ErrorCodeDBTransaction, err))
 		return
 	}
 
@@ -185,7 +184,7 @@ func RenewSession(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			payload.ErrorSignJWTToken(err.Error()))
+			NewErrResWithErr(ErrorCodeSignJWT, err))
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"token": sessionToken})

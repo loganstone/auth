@@ -12,7 +12,6 @@ import (
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
 
@@ -24,7 +23,56 @@ const (
 var (
 	errEmptyAuthorizedUser = errors.New("'AuthorizedUser' empty")
 	errWrongAuthorizedUser = errors.New("'AuthorizedUser' not 'db.User' type")
+	errEmptyDBConn         = errors.New("empty db connection")
+	errWrongDBConn         = errors.New("wrong db connection")
 )
+
+var (
+	errNotSuchUser       = errors.New("not such user")
+	errUserAlreadyExists = errors.New("user already exists")
+	errIncorrectPassword = errors.New("incorrect Password")
+	errExpiredToken      = errors.New("expired token")
+
+	errOTPAlreadyRegistered = errors.New("OTP has already been registered")
+	errEmptyOTPSecretKey    = errors.New("empty OTP secert key")
+	errIncorrectOTP         = errors.New("OTP is Incorrect")
+	errEmptyOTPBackupCodes  = errors.New("empty otp backup codes. contact administrator")
+	errRequireVerifyOTP     = errors.New("required verify OTP")
+)
+
+var errMapByCode = map[int]error{
+	ErrorCodeNotFoundUser:      errNotSuchUser,
+	ErrorCodeUserAlreadyExists: errUserAlreadyExists,
+	ErrorCodeIncorrectPassword: errIncorrectPassword,
+	ErrorCodeExpiredToken:      errExpiredToken,
+
+	ErrorCodeOTPAlreadyRegistered: errOTPAlreadyRegistered,
+	ErrorCodeEmptyOTPSecretKey:    errEmptyOTPSecretKey,
+	ErrorCodeIncorrectOTP:         errIncorrectOTP,
+	ErrorCodeEmptyOTPBackupCodes:  errEmptyOTPBackupCodes,
+	ErrorCodeRequireVerifyOTP:     errRequireVerifyOTP,
+}
+
+// ErrorCodeResponse .
+type ErrorCodeResponse struct {
+	ErrorCode    int    `json:"error_code"`
+	ErrorMessage string `json:"error_message"`
+}
+
+// NewErrRes .
+func NewErrRes(code int) ErrorCodeResponse {
+	err, ok := errMapByCode[code]
+	if !ok {
+		message := fmt.Sprintf("undefiend error code(%d)", code)
+		return NewErrResWithErr(code, errors.New(message))
+	}
+	return NewErrResWithErr(code, err)
+}
+
+// NewErrResWithErr .
+func NewErrResWithErr(code int, err error) ErrorCodeResponse {
+	return ErrorCodeResponse{code, err.Error()}
+}
 
 // AuthorizedUser .
 func AuthorizedUser(c *gin.Context) (user db.User, err error) {
@@ -47,14 +95,14 @@ func DBConnOrAbort(c *gin.Context) *gorm.DB {
 	if !ok {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			payload.ErrorDBConnection("empty db connection"))
+			NewErrResWithErr(ErrorCodeDBConnection, errEmptyDBConn))
 		return nil
 	}
 	dbCon, ok := con.(*gorm.DB)
 	if !ok {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			payload.ErrorDBConnection("wrong db connection"))
+			NewErrResWithErr(ErrorCodeDBConnection, errWrongDBConn))
 		return nil
 	}
 	return dbCon
@@ -72,7 +120,7 @@ func findUserOrAbort(c *gin.Context, con *gorm.DB, httpStatusCode int) *db.User 
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,
-				payload.ErrorAuthorizedUser(err))
+				NewErrResWithErr(ErrorCodeAuthorizedUser, err))
 			return nil
 		}
 		return &user
@@ -81,7 +129,8 @@ func findUserOrAbort(c *gin.Context, con *gorm.DB, httpStatusCode int) *db.User 
 	user := db.User{Email: email}
 	if con.Where(&user).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
-			httpStatusCode, payload.NotFoundUser())
+			httpStatusCode,
+			NewErrRes(ErrorCodeNotFoundUser))
 		return nil
 	}
 	return &user
@@ -93,7 +142,7 @@ func isAbortedAsUserExist(c *gin.Context, con *gorm.DB, email string) bool {
 	if count > 1 {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.UserAlreadyExists())
+			NewErrRes(ErrorCodeUserAlreadyExists))
 		return true
 	}
 	return false

@@ -8,7 +8,6 @@ import (
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/payload"
 	"github.com/loganstone/auth/utils"
 )
 
@@ -37,21 +36,22 @@ func Signin(c *gin.Context) {
 	if err := c.ShouldBindJSON(&params); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
-			payload.ErrorBindJSON(err.Error()))
+			NewErrResWithErr(ErrorCodeBindJSON, err))
 		return
 	}
 
 	var user db.User
 	if con.Where("email = ?", params.Email).First(&user).RecordNotFound() {
 		c.AbortWithStatusJSON(
-			http.StatusNotFound, payload.NotFoundUser())
+			http.StatusNotFound,
+			NewErrRes(ErrorCodeNotFoundUser))
 		return
 	}
 
 	if !user.VerifyPassword(params.Password) {
 		c.AbortWithStatusJSON(
 			http.StatusUnauthorized,
-			payload.ErrorIncorrectPassword())
+			NewErrRes(ErrorCodeIncorrectPassword))
 		return
 	}
 
@@ -59,7 +59,7 @@ func Signin(c *gin.Context) {
 		if params.OTP == "" {
 			c.AbortWithStatusJSON(
 				http.StatusUnauthorized,
-				payload.ErrorRequireVerifyOTP())
+				NewErrRes(ErrorCodeRequireVerifyOTP))
 			return
 		}
 
@@ -67,7 +67,7 @@ func Signin(c *gin.Context) {
 			if _, ok := user.OTPBackupCodes.In(params.OTP); !ok {
 				c.AbortWithStatusJSON(
 					http.StatusUnauthorized,
-					payload.ErrorIncorrectOTP())
+					NewErrRes(ErrorCodeIncorrectOTP))
 				return
 			}
 
@@ -92,7 +92,7 @@ func Signin(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			payload.ErrorSignJWTToken(err.Error()))
+			NewErrResWithErr(ErrorCodeSignJWT, err))
 		return
 	}
 	c.JSON(http.StatusOK, SiginResponse{User: user, Token: sessionToken})
