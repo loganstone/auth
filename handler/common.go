@@ -28,7 +28,7 @@ var (
 )
 
 var (
-	errNotSuchUser       = errors.New("not such user")
+	errNotFoundUser      = errors.New("not found user")
 	errUserAlreadyExists = errors.New("user already exists")
 	errIncorrectPassword = errors.New("incorrect Password")
 	errExpiredToken      = errors.New("expired token")
@@ -41,7 +41,7 @@ var (
 )
 
 var errMapByCode = map[int]error{
-	ErrorCodeNotFoundUser:      errNotSuchUser,
+	ErrorCodeNotFoundUser:      errNotFoundUser,
 	ErrorCodeUserAlreadyExists: errUserAlreadyExists,
 	ErrorCodeIncorrectPassword: errIncorrectPassword,
 	ErrorCodeExpiredToken:      errExpiredToken,
@@ -51,6 +51,9 @@ var errMapByCode = map[int]error{
 	ErrorCodeIncorrectOTP:         errIncorrectOTP,
 	ErrorCodeEmptyOTPBackupCodes:  errEmptyOTPBackupCodes,
 	ErrorCodeRequireVerifyOTP:     errRequireVerifyOTP,
+
+	ErrorCodeEmptyDBConn: errEmptyDBConn,
+	ErrorCodeWrongDBConn: errWrongDBConn,
 }
 
 // ErrorCodeResponse .
@@ -95,14 +98,14 @@ func DBConnOrAbort(c *gin.Context) *gorm.DB {
 	if !ok {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			NewErrResWithErr(ErrorCodeDBConnection, errEmptyDBConn))
+			NewErrRes(ErrorCodeEmptyDBConn))
 		return nil
 	}
 	dbCon, ok := con.(*gorm.DB)
 	if !ok {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			NewErrResWithErr(ErrorCodeDBConnection, errWrongDBConn))
+			NewErrRes(ErrorCodeWrongDBConn))
 		return nil
 	}
 	return dbCon

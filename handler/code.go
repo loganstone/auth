@@ -4,10 +4,10 @@ package handler
 const (
 	ErrorCodeUnknown = iota + 1000
 	ErrorCodeDBEnv
-	ErrorCodeDBConnection
+	ErrorCodeDBConn
+	ErrorCodeEmptyDBConn
+	ErrorCodeWrongDBConn
 	ErrorCodeDBTransaction
-	ErrorCodeMarshalJSON
-	ErrorCodeUnMarshalJSON
 	ErrorCodeSignJWT
 	ErrorCodeParseJWT
 	ErrorCodeSendEmail
@@ -17,8 +17,7 @@ const (
 
 // Parameter error codes.
 const (
-	ErrorCodeBindURI = iota + 2000
-	ErrorCodeBindJSON
+	ErrorCodeBindJSON = iota + 2000
 	ErrorCodeBadPage
 	ErrorCodeBadPageSize
 	ErrorCodeExpiredToken
