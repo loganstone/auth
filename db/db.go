@@ -24,11 +24,21 @@ type DateTimeFields struct {
 
 // SyncModels .
 func SyncModels(option string, echo bool) (*gorm.DB, error) {
+	const maxWait = 1000
 	con, err := Connection(option, echo)
 	if err != nil {
 		return nil, err
 	}
 	con.AutoMigrate(&User{})
+
+	wait := 0
+	for wait < maxWait {
+		if con.HasTable("users") {
+			break
+		}
+		time.Sleep(time.Microsecond * 1)
+		wait++
+	}
 	return con, nil
 }
 
