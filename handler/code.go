@@ -3,14 +3,18 @@ package handler
 // Internal server error codes.
 const (
 	ErrorCodeUnknown = iota + 1000
+
 	ErrorCodeDBEnv
 	ErrorCodeDBConn
 	ErrorCodeEmptyDBConn
 	ErrorCodeWrongDBConn
 	ErrorCodeDBTransaction
+
 	ErrorCodeSignJWT
 	ErrorCodeParseJWT
+
 	ErrorCodeSendEmail
+
 	ErrorCodeTmplExecute
 	ErrorCodeTmplParse
 )
@@ -18,26 +22,31 @@ const (
 // Parameter error codes.
 const (
 	ErrorCodeBindJSON = iota + 2000
+
 	ErrorCodeBadPage
 	ErrorCodeBadPageSize
+
 	ErrorCodeExpiredToken
+
 	ErrorCodeInvalidPassword
 )
 
-// User error codes.
+// User data error codes.
 const (
 	ErrorCodeNotFoundUser = iota + 3000
 	ErrorCodeUserAlreadyExists
-	ErrorCodeSetPassword
 	ErrorCodeIncorrectPassword
-	ErrorCodeOTPProvisioningURI
-	ErrorCodeIncorrectOTP
-	ErrorCodeSetOTPBackupCodes
+	ErrorCodeSetPassword
+
 	ErrorCodeOTPAlreadyRegistered
-	ErrorCodeOTPNotRegistered
 	ErrorCodeEmptyOTPSecretKey
+	ErrorCodeIncorrectOTP
 	ErrorCodeEmptyOTPBackupCodes
 	ErrorCodeRequireVerifyOTP
+
+	ErrorCodeOTPProvisioningURI
+	ErrorCodeSetOTPBackupCodes
+	ErrorCodeOTPNotRegistered
 )
 
 // Authorized User error codes.
