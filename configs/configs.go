@@ -8,9 +8,22 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gin-gonic/gin"
-
 	_ "github.com/jinzhu/gorm/dialects/mysql" // driver
+)
+
+const (
+	// DebugMode indicates mode is debug.
+	DebugMode = "debug"
+	// ReleaseMode indicates mode is release.
+	ReleaseMode = "release"
+	// TestMode indicates mode is test.
+	TestMode = "test"
+)
+
+const (
+	debugCode = iota
+	releaseCode
+	testCode
 )
 
 const (
@@ -38,17 +51,6 @@ const (
 	defaultDBPort = "3306"
 )
 
-// DatabaseConfigs ...
-type DatabaseConfigs struct {
-	id         string
-	pw         string
-	name       string
-	host       string
-	port       string
-	Echo       bool
-	SyncModels bool
-}
-
 // EnvError .
 type EnvError struct {
 	Func string
@@ -65,18 +67,43 @@ func missingRequirementError(fn string, missed []string) *EnvError {
 	return &EnvError{fn, errors.New(err)}
 }
 
-// DBNameForTest .
-func (c *DatabaseConfigs) DBNameForTest() string {
-	return fmt.Sprintf("%s_test", c.name)
+// DatabaseConfigs ...
+type DatabaseConfigs struct {
+	id         string
+	pw         string
+	name       string
+	host       string
+	port       string
+	mode       int
+	Echo       bool
+	SyncModels bool
+}
+
+// SetMode .
+func (c *DatabaseConfigs) SetMode(value string) {
+	switch value {
+	case DebugMode, "":
+		c.mode = debugCode
+	case ReleaseMode:
+		c.mode = releaseCode
+	case TestMode:
+		c.mode = testCode
+	default:
+		panic("mode unknown: " + value)
+	}
+}
+
+// DBName .
+func (c *DatabaseConfigs) DBName() string {
+	if c.mode == testCode {
+		return fmt.Sprintf("%s_test", c.name)
+	}
+	return c.name
 }
 
 // ConnectionString .
 func (c *DatabaseConfigs) ConnectionString() string {
-	dbName := c.name
-	if gin.Mode() == gin.TestMode {
-		dbName = c.DBNameForTest()
-	}
-	return fmt.Sprintf(dbConStr, c.id, c.pw, dbName, dbConOpt)
+	return fmt.Sprintf(dbConStr, c.id, c.pw, c.DBName(), dbConOpt)
 }
 
 // TCPConnectionString .

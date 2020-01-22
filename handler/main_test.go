@@ -27,7 +27,8 @@ func setup() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = db.Reset(dbConf.TCPConnectionString(), dbConf.DBNameForTest())
+	dbConf.SetMode(configs.TestMode)
+	err = db.Reset(dbConf.TCPConnectionString(), dbConf.DBName())
 	if err != nil {
 		log.Fatalln(err)
 	}

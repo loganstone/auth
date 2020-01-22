@@ -45,7 +45,8 @@ func bind(r *gin.Engine) {
 // New .
 func New() *gin.Engine {
 	router := gin.New()
-	if gin.Mode() != gin.TestMode {
+	mode := gin.Mode()
+	if mode != gin.TestMode {
 		router.Use(LogFormat())
 		router.Use(RequestID())
 		router.Use(gin.Recovery())
@@ -54,7 +55,7 @@ func New() *gin.Engine {
 	router.Use(DBConnection())
 	bind(router)
 
-	if gin.Mode() == gin.DebugMode {
+	if mode == gin.DebugMode {
 		pprof.Register(router)
 	}
 

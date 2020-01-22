@@ -14,6 +14,8 @@ import (
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/handler"
@@ -41,6 +43,8 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	dbConf.SetMode(gin.Mode())
 	if dbConf.SyncModels {
 		log.Println("Sync Models ...")
 		con, err := db.SyncModels(dbConf.ConnectionString(), dbConf.Echo)

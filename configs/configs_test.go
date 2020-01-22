@@ -8,8 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -31,7 +29,7 @@ func TestDB(t *testing.T) {
 	expected := "test_db_id:test_db_pw@/test_db_name?" + dbConOpt
 	assert.Equal(t, expected, conf.ConnectionString())
 
-	gin.SetMode(gin.TestMode)
+	conf.SetMode(TestMode)
 	expected = "test_db_id:test_db_pw@/test_db_name_test?" + dbConOpt
 	assert.Equal(t, expected, conf.ConnectionString())
 
@@ -39,7 +37,7 @@ func TestDB(t *testing.T) {
 	assert.Equal(t, expected, conf.TCPConnectionString())
 
 	expected = "test_db_name_test"
-	dbName := conf.DBNameForTest()
+	dbName := conf.DBName()
 	assert.Equal(t, expected, dbName)
 
 	assert.False(t, conf.Echo)
