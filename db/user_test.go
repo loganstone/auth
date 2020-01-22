@@ -1,7 +1,10 @@
 package db
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -20,6 +23,7 @@ func TestSetPassword(t *testing.T) {
 		{testPassword + "more", nil},
 		{"", ErrorInvalidPassword},
 		{"Ok123456!", ErrorInvalidPassword},
+		{"Ok12345678", ErrorInvalidPassword},
 		{"ok12345678", ErrorInvalidPassword},
 		{"OK12345678", ErrorInvalidPassword},
 		{"okabcdefgh", ErrorInvalidPassword},
@@ -31,4 +35,29 @@ func TestSetPassword(t *testing.T) {
 		err := u.SetPassword(v.Password)
 		assert.Equal(t, v.Err, err)
 	}
+}
+
+func TestVerifyPassword(t *testing.T) {
+	u := User{}
+	err := u.SetPassword(testPassword)
+	assert.Nil(t, err)
+	ok := u.VerifyPassword(testPassword)
+	assert.True(t, ok)
+}
+
+func TestMarshalJSON(t *testing.T) {
+	const zeroUnix = -62135596800
+	now := time.Now()
+	email := fmt.Sprintf(testEmailFmt, "test")
+	expected := fmt.Sprintf(`{"email":"%s","is_admin":false,"created_at":%d,"updated_at":%d,"deleted_at":%d,"otp_confirmed_at":%d}`,
+		email, zeroUnix, zeroUnix, now.Unix(), now.Unix())
+	u := User{
+		Email:          email,
+		OTPConfirmedAt: &now,
+		DateTimeFields: DateTimeFields{DeletedAt: &now},
+	}
+
+	v, err := json.Marshal(u)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, string(v))
 }
