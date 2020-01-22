@@ -108,7 +108,6 @@ func parseWithClaims(signedString, secretkey string, claims jwt.Claims) (*jwt.To
 
 // ParseSignupJWT .
 func ParseSignupJWT(signedString, secretkey string) (*SignupClaims, error) {
-	const fnName = "ParseSessionJWT"
 	token, err := parseWithClaims(signedString, secretkey, &SignupClaims{})
 	if err != nil {
 		return nil, err
@@ -120,7 +119,6 @@ func ParseSignupJWT(signedString, secretkey string) (*SignupClaims, error) {
 
 // ParseSessionJWT .
 func ParseSessionJWT(signedString, secretkey string) (*SessionClaims, error) {
-	const fnName = "ParseSessionJWT"
 	token, err := parseWithClaims(signedString, secretkey, &SessionClaims{})
 	if err != nil {
 		return nil, err
