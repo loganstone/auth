@@ -44,6 +44,20 @@ func TestDB(t *testing.T) {
 	assert.False(t, conf.SyncModels)
 }
 
+func TestDBWithSetMode(t *testing.T) {
+	conf, err := DB()
+	assert.Nil(t, err)
+	for mode, expected := range map[string]int{
+		DebugMode:   debugCode,
+		ReleaseMode: releaseCode,
+		TestMode:    testCode,
+	} {
+		conf.SetMode(mode)
+		assert.Equal(t, expected, conf.mode)
+	}
+	assert.Panics(t, func() { conf.SetMode("panic") })
+}
+
 func TestDBWithMissingRequirement(t *testing.T) {
 	missed := []string{
 		EnvPrefix + "DB_ID",
