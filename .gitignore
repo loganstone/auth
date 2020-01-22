@@ -168,3 +168,6 @@ tags
 
 # File generated at 'go build'
 auth
+
+# File extension
+*.bak
