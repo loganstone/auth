@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 )
@@ -43,7 +45,7 @@ func bind(r *gin.Engine) {
 }
 
 // New .
-func New() *gin.Engine {
+func New() http.Handler {
 	router := gin.New()
 	mode := gin.Mode()
 	if mode != gin.TestMode {

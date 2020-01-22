@@ -46,7 +46,8 @@ func TestPage(t *testing.T) {
 	page := 1
 	pageSize := 10
 	router := New()
-	router.GET(pageTestURI, pageTestHandler)
+	r, _ := router.(*gin.Engine)
+	r.GET(pageTestURI, pageTestHandler)
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf(pageTestFullURL, page, pageSize)
 	req, err := http.NewRequest("GET", uri, nil)
@@ -70,7 +71,8 @@ func TestPageWithBadQueryParam(t *testing.T) {
 		"page=0&page_size=0",
 	}
 	router := New()
-	router.GET(pageTestURI, pageTestHandler)
+	r, _ := router.(*gin.Engine)
+	r.GET(pageTestURI, pageTestHandler)
 
 	for _, v := range badPages {
 		w := httptest.NewRecorder()
