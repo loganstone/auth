@@ -66,7 +66,7 @@ type DatabaseConfigs struct {
 
 // DBName .
 func (c *DatabaseConfigs) DBName() string {
-	if modeCode == testCode {
+	if Mode() == TestMode {
 		return fmt.Sprintf("%s_test", c.name)
 	}
 	return c.name
