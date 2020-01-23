@@ -252,7 +252,7 @@ func (u *User) Create(con *gorm.DB, password string) error {
 	do := func(tx *gorm.DB) error {
 		return tx.Create(u).Error
 	}
-	if err := DoInTransaction(con, do); err != nil {
+	if err := Transaction(con, do); err != nil {
 		return fmt.Errorf(failCreateUserMessage, u.Email, err)
 	}
 	return nil
@@ -263,7 +263,7 @@ func (u *User) Save(con *gorm.DB) error {
 	do := func(tx *gorm.DB) error {
 		return tx.Save(u).Error
 	}
-	if err := DoInTransaction(con, do); err != nil {
+	if err := Transaction(con, do); err != nil {
 		return err
 	}
 	return nil
@@ -274,7 +274,7 @@ func (u *User) Delete(con *gorm.DB) error {
 	do := func(tx *gorm.DB) error {
 		return tx.Delete(u).Error
 	}
-	if err := DoInTransaction(con, do); err != nil {
+	if err := Transaction(con, do); err != nil {
 		return err
 	}
 	return nil

@@ -76,8 +76,8 @@ func Reset(dsn string, dbname string) error {
 // Do .
 type Do func(tx *gorm.DB) error
 
-// DoInTransaction .
-func DoInTransaction(db *gorm.DB, fn Do) error {
+// Transaction .
+func Transaction(db *gorm.DB, do Do) error {
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -89,7 +89,7 @@ func DoInTransaction(db *gorm.DB, fn Do) error {
 		return err
 	}
 
-	if err := fn(tx); err != nil {
+	if err := do(tx); err != nil {
 		tx.Rollback()
 		return err
 	}
