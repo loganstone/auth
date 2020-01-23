@@ -28,7 +28,7 @@ func setup() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	db.Reset(dbConf.TCPConnectionString(), dbConf.DBName())
+	err = db.Reset(dbConf.TCPConnectionString(), dbConf.DBName())
 	if err != nil {
 		log.Fatalln(err)
 	}
