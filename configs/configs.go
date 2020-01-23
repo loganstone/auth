@@ -16,7 +16,7 @@ const EnvPrefix = "AUTH_"
 
 const (
 	dbConOpt    = "charset=utf8mb4&parseTime=True&loc=Local"
-	dbConStr    = "%s:%s@/%s?%s"
+	dbConStr    = "%s:%s@(%s:%s)/%s?%s"
 	dbTCPConStr = "%s:%s@tcp(%s:%s)/"
 )
 
@@ -74,7 +74,8 @@ func (c *DatabaseConfigs) DBName() string {
 
 // ConnectionString .
 func (c *DatabaseConfigs) ConnectionString() string {
-	return fmt.Sprintf(dbConStr, c.id, c.pw, c.DBName(), dbConOpt)
+	return fmt.Sprintf(
+		dbConStr, c.id, c.pw, c.host, c.port, c.DBName(), dbConOpt)
 }
 
 // TCPConnectionString .
