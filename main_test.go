@@ -6,7 +6,6 @@ import (
 	"syscall"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 
 	"github.com/loganstone/auth/configs"
@@ -24,12 +23,11 @@ func TestMain(m *testing.M) {
 }
 
 func setup() {
-	gin.SetMode(gin.TestMode)
+	configs.SetMode(configs.TestMode)
 	dbConf, err := configs.DB()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	dbConf.SetMode(configs.TestMode)
 	db.Reset(dbConf.TCPConnectionString(), dbConf.DBName())
 	if err != nil {
 		log.Fatalln(err)

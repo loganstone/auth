@@ -11,24 +11,10 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql" // driver
 )
 
-const (
-	// DebugMode indicates mode is debug.
-	DebugMode = "debug"
-	// ReleaseMode indicates mode is release.
-	ReleaseMode = "release"
-	// TestMode indicates mode is test.
-	TestMode = "test"
-)
+// EnvPrefix .
+const EnvPrefix = "AUTH_"
 
 const (
-	debugCode = iota
-	releaseCode
-	testCode
-)
-
-const (
-	// EnvPrefix .
-	EnvPrefix   = "AUTH_"
 	dbConOpt    = "charset=utf8mb4&parseTime=True&loc=Local"
 	dbConStr    = "%s:%s@/%s?%s"
 	dbTCPConStr = "%s:%s@tcp(%s:%s)/"
@@ -74,28 +60,13 @@ type DatabaseConfigs struct {
 	name       string
 	host       string
 	port       string
-	mode       int
 	Echo       bool
 	SyncModels bool
 }
 
-// SetMode .
-func (c *DatabaseConfigs) SetMode(value string) {
-	switch value {
-	case DebugMode, "":
-		c.mode = debugCode
-	case ReleaseMode:
-		c.mode = releaseCode
-	case TestMode:
-		c.mode = testCode
-	default:
-		panic("mode unknown: " + value)
-	}
-}
-
 // DBName .
 func (c *DatabaseConfigs) DBName() string {
-	if c.mode == testCode {
+	if modeCode == testCode {
 		return fmt.Sprintf("%s_test", c.name)
 	}
 	return c.name

@@ -5,6 +5,8 @@ import (
 
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
+
+	"github.com/loganstone/auth/configs"
 )
 
 func bind(r *gin.Engine) {
@@ -46,9 +48,11 @@ func bind(r *gin.Engine) {
 
 // New .
 func New() http.Handler {
+	mode := configs.Mode()
+	gin.SetMode(mode)
+
 	router := gin.New()
-	mode := gin.Mode()
-	if mode != gin.TestMode {
+	if mode != configs.TestMode {
 		router.Use(LogFormat())
 		router.Use(RequestID())
 		router.Use(gin.Recovery())
@@ -57,7 +61,7 @@ func New() http.Handler {
 	router.Use(DBConnection())
 	bind(router)
 
-	if mode == gin.DebugMode {
+	if mode == configs.DebugMode {
 		pprof.Register(router)
 	}
 

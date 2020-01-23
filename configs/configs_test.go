@@ -11,6 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func init() {
+	SetMode(TestMode)
+}
+
 func TestDB(t *testing.T) {
 	for k, v := range map[string]string{
 		EnvPrefix + "DB_ID":          "test_db_id",
@@ -26,36 +30,53 @@ func TestDB(t *testing.T) {
 
 	conf, err := DB()
 	assert.Nil(t, err)
-	expected := "test_db_id:test_db_pw@/test_db_name?" + dbConOpt
-	assert.Equal(t, expected, conf.ConnectionString())
 
-	conf.SetMode(TestMode)
+	expected := "test_db_name_test"
+	dbName := conf.DBName()
+	assert.Equal(t, expected, dbName)
+
 	expected = "test_db_id:test_db_pw@/test_db_name_test?" + dbConOpt
 	assert.Equal(t, expected, conf.ConnectionString())
 
 	expected = "test_db_id:test_db_pw@tcp(127.0.0.1:3306)/"
 	assert.Equal(t, expected, conf.TCPConnectionString())
 
-	expected = "test_db_name_test"
-	dbName := conf.DBName()
-	assert.Equal(t, expected, dbName)
-
 	assert.False(t, conf.Echo)
 	assert.False(t, conf.SyncModels)
 }
 
-func TestDBWithSetMode(t *testing.T) {
+func TestDBWithDebugMode(t *testing.T) {
+	SetMode(DebugMode)
+
+	for k, v := range map[string]string{
+		EnvPrefix + "DB_ID":          "test_db_id",
+		EnvPrefix + "DB_PW":          "test_db_pw",
+		EnvPrefix + "DB_NAME":        "test_db_name",
+		EnvPrefix + "DB_HOST":        "127.0.0.1",
+		EnvPrefix + "DB_PORT":        "3306",
+		EnvPrefix + "DB_ECHO":        "false",
+		EnvPrefix + "DB_SYNC_MODELS": "false",
+	} {
+		os.Setenv(k, v)
+	}
+
 	conf, err := DB()
 	assert.Nil(t, err)
-	for mode, expected := range map[string]int{
-		DebugMode:   debugCode,
-		ReleaseMode: releaseCode,
-		TestMode:    testCode,
-	} {
-		conf.SetMode(mode)
-		assert.Equal(t, expected, conf.mode)
-	}
-	assert.Panics(t, func() { conf.SetMode("panic") })
+
+	expected := "test_db_name"
+	dbName := conf.DBName()
+	assert.Equal(t, expected, dbName)
+
+	expected = "test_db_id:test_db_pw@/test_db_name?" + dbConOpt
+	assert.Equal(t, expected, conf.ConnectionString())
+
+	expected = "test_db_id:test_db_pw@tcp(127.0.0.1:3306)/"
+	assert.Equal(t, expected, conf.TCPConnectionString())
+
+	assert.False(t, conf.Echo)
+	assert.False(t, conf.SyncModels)
+
+	SetMode(TestMode)
 }
 
 func TestDBWithMissingRequirement(t *testing.T) {
