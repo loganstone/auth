@@ -44,7 +44,7 @@ func main() {
 
 	if dbConf.SyncModels {
 		log.Println("Sync Models ...")
-		con, err := db.SyncModels(dbConf.ConnectionString(), dbConf.Echo)
+		con, err := db.SyncModels(dbConf.DSN(), dbConf.Echo)
 		defer con.Close()
 		if err != nil {
 			log.Fatalln(err)

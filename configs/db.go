@@ -7,9 +7,8 @@ import (
 )
 
 const (
-	dbConOpt    = "charset=utf8mb4&parseTime=True&loc=Local"
-	dbConStr    = "%s:%s@(%s:%s)/%s?%s"
-	dbTCPConStr = "%s:%s@tcp(%s:%s)/"
+	dbConOpt = "charset=utf8mb4&parseTime=True&loc=Local&timeout=1s"
+	dbConStr = "%s:%s@(%s:%s)/%s?%s"
 )
 
 const (
@@ -36,15 +35,10 @@ func (c *DatabaseConfigs) DBName() string {
 	return c.name
 }
 
-// ConnectionString .
-func (c *DatabaseConfigs) ConnectionString() string {
+// DSN .
+func (c *DatabaseConfigs) DSN() string {
 	return fmt.Sprintf(
 		dbConStr, c.id, c.pw, c.host, c.port, c.DBName(), dbConOpt)
-}
-
-// TCPConnectionString .
-func (c *DatabaseConfigs) TCPConnectionString() string {
-	return fmt.Sprintf(dbTCPConStr, c.id, c.pw, c.host, c.port)
 }
 
 // DB .

@@ -43,8 +43,8 @@ func SyncModels(option string, echo bool) (*gorm.DB, error) {
 }
 
 // Connection .
-func Connection(option string, echo bool) (*gorm.DB, error) {
-	db, err := gorm.Open("mysql", option)
+func Connection(dsn string, echo bool) (*gorm.DB, error) {
+	db, err := gorm.Open("mysql", dsn)
 	if err == nil {
 		db.LogMode(echo)
 	}
@@ -52,22 +52,24 @@ func Connection(option string, echo bool) (*gorm.DB, error) {
 }
 
 // Reset .
-func Reset(option string, dbname string) error {
-	db, err := sql.Open("mysql", option)
+func Reset(dsn string, dbname string) error {
+	db, err := sql.Open("mysql", dsn)
+	defer db.Close()
 	if err != nil {
 		return fmt.Errorf("db connection failed")
 	}
-	defer db.Close()
 
 	_, err = db.Exec("DROP DATABASE IF EXISTS " + dbname)
 	if err != nil {
 		return fmt.Errorf("drop '%s' database failed", dbname)
 	}
+
 	_, err = db.Exec(
 		"CREATE DATABASE " + dbname + " CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
 	if err != nil {
 		return fmt.Errorf("create '%s' database failed", dbname)
 	}
+
 	return nil
 }
 

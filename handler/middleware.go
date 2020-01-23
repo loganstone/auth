@@ -109,7 +109,7 @@ func DBConnection() gin.HandlerFunc {
 				http.StatusInternalServerError,
 				NewErrResWithErr(ErrorCodeDBEnv, err))
 		}
-		con, err := db.Connection(dbConf.ConnectionString(), dbConf.Echo)
+		con, err := db.Connection(dbConf.DSN(), dbConf.Echo)
 		if err != nil {
 			c.AbortWithStatusJSON(
 				http.StatusInternalServerError,

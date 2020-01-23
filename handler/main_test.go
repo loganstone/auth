@@ -26,11 +26,11 @@ func setup() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = db.Reset(dbConf.TCPConnectionString(), dbConf.DBName())
+	err = db.Reset(dbConf.DSN(), dbConf.DBName())
 	if err != nil {
 		log.Fatalln(err)
 	}
-	testDBCon, err = db.SyncModels(dbConf.ConnectionString(), dbConf.Echo)
+	testDBCon, err = db.SyncModels(dbConf.DSN(), dbConf.Echo)
 	if err != nil {
 		log.Fatalln(err)
 	}

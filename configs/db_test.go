@@ -32,10 +32,7 @@ func TestDB(t *testing.T) {
 	assert.Equal(t, expected, dbName)
 
 	expected = "test_db_id:test_db_pw@(127.0.0.1:3306)/test_db_name_test?" + dbConOpt
-	assert.Equal(t, expected, conf.ConnectionString())
-
-	expected = "test_db_id:test_db_pw@tcp(127.0.0.1:3306)/"
-	assert.Equal(t, expected, conf.TCPConnectionString())
+	assert.Equal(t, expected, conf.DSN())
 
 	assert.False(t, conf.Echo)
 	assert.False(t, conf.SyncModels)
@@ -64,10 +61,7 @@ func TestDBWithDebugMode(t *testing.T) {
 	assert.Equal(t, expected, dbName)
 
 	expected = "test_db_id:test_db_pw@(127.0.0.1:3306)/test_db_name?" + dbConOpt
-	assert.Equal(t, expected, conf.ConnectionString())
-
-	expected = "test_db_id:test_db_pw@tcp(127.0.0.1:3306)/"
-	assert.Equal(t, expected, conf.TCPConnectionString())
+	assert.Equal(t, expected, conf.DSN())
 
 	assert.False(t, conf.Echo)
 	assert.False(t, conf.SyncModels)
