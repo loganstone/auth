@@ -24,6 +24,8 @@ const localHost = "localhost"
 // Quit .
 var Quit = make(chan os.Signal)
 
+var conf = configs.App()
+
 func isListen(host string, port int) bool {
 	conn, err := net.DialTimeout(
 		"tcp",
@@ -36,6 +38,31 @@ func isListen(host string, port int) bool {
 	return true
 }
 
+func syncModels(c *configs.DatabaseConfigs) {
+	log.Println("Sync Models ...")
+	con, err := db.SyncModels(c.DSN(), c.Echo)
+	defer con.Close()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println("Sync Models Completed")
+}
+
+func server() *http.Server {
+	return &http.Server{
+		Addr:    fmt.Sprintf(":%d", conf.ListenPort),
+		Handler: handler.New(),
+	}
+}
+
+func checkListenPort() {
+	if isListen(localHost, conf.ListenPort) {
+		log.Fatalf(`'%d' port already in use
+- using env: export %sLISTEN_PORT=<port not in use>
+`, conf.ListenPort, configs.EnvPrefix)
+	}
+}
+
 func main() {
 	dbConf, err := configs.DB()
 	if err != nil {
@@ -43,27 +70,12 @@ func main() {
 	}
 
 	if dbConf.SyncModels {
-		log.Println("Sync Models ...")
-		con, err := db.SyncModels(dbConf.DSN(), dbConf.Echo)
-		defer con.Close()
-		if err != nil {
-			log.Fatalln(err)
-		}
-		log.Println("Sync Models Completed")
+		syncModels(dbConf)
 	}
 
-	conf := configs.App()
-	if isListen(localHost, conf.ListenPort) {
-		log.Fatalf(`'%d' port already in use
-- using env: export %sLISTEN_PORT=<port not in use>
-`, conf.ListenPort, configs.EnvPrefix)
-	}
+	checkListenPort()
 
-	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", conf.ListenPort),
-		Handler: handler.New(),
-	}
-
+	srv := server()
 	go func() {
 		log.Printf("listen port: %d\n", conf.ListenPort)
 		// service connections
