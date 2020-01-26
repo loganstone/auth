@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -38,6 +39,10 @@ func SyncModels(option string, echo bool) (*gorm.DB, error) {
 		}
 		time.Sleep(time.Microsecond * 1)
 		wait++
+	}
+
+	if wait == maxWait {
+		return nil, errors.New("sync models failed with timeout")
 	}
 	return con, nil
 }
