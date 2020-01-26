@@ -39,7 +39,7 @@ func isListen(host string, port int) bool {
 }
 
 func syncModels(c *configs.DatabaseConfigs) {
-	log.Println("Sync Models ...")
+	log.Println("Sync Models Start ...")
 	con, err := db.SyncModels(c.DSN(), c.Echo)
 	defer con.Close()
 	if err != nil {
