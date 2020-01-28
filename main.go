@@ -38,14 +38,15 @@ func isListen(host string, port int) bool {
 	return true
 }
 
-func syncModels(c *configs.DatabaseConfigs) {
+func syncModels(c *configs.DatabaseConfigs) error {
 	log.Println("Sync Models Start ...")
 	con, err := db.SyncModels(c.DSN(), c.Echo)
 	defer con.Close()
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
 	log.Println("Sync Models Completed")
+	return nil
 }
 
 func server() *http.Server {
@@ -70,7 +71,9 @@ func main() {
 	}
 
 	if dbConf.SyncModels {
-		syncModels(dbConf)
+		if err := syncModels(dbConf); err != nil {
+			log.Fatalln(err)
+		}
 	}
 
 	checkListenPort()
