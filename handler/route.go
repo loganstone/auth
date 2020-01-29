@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-contrib/pprof"
@@ -50,6 +51,12 @@ func bind(r *gin.Engine) {
 func New() http.Handler {
 	mode := configs.Mode()
 	gin.SetMode(mode)
+
+	if mode == configs.DebugMode {
+		fmt.Printf(
+			`[INFO] running in "debug" mode. "%s" is overwrite "%s", ignore following GIN-debug message.
+`, configs.EnvMode, gin.EnvGinMode)
+	}
 
 	router := gin.New()
 	if mode != configs.TestMode {
