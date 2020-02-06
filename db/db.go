@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -58,6 +59,7 @@ func Connection(dsn string, echo bool) (*gorm.DB, error) {
 
 // Reset .
 func Reset(dsn string, dbname string) error {
+	dsn = strings.Split(dsn, dbname)[0]
 	db, err := sql.Open("mysql", dsn)
 	defer db.Close()
 	if err != nil {
