@@ -29,5 +29,5 @@ $ export AUTH_DB_PORT=<if you want, default 3306>
 $ export AUTH_DB_NAME=<your dbname, required>
 $ export AUTH_DB_ID=<your db id, required>
 $ export AUTH_DB_PW=<your db password, required>
-$ go test -v ./...
+$ go test -v -count=1 ./...  # no cached
 ```
