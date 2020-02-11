@@ -18,6 +18,16 @@
 
 # Running Tests
 
+* 로컬 메일서버(postfix)가 필요합니다.
+* MariaDB 서버가 필요합니다.
+* 환경 변수 설정이 필요합니다.
+
 ```shell
+$ export AUTH_LISTEN_PORT=<if you want, default 9999>
+$ export AUTH_DB_HOST=<if you want, default 127.0.0.1>
+$ export AUTH_DB_PORT=<if you want, default 3306>
+$ export AUTH_DB_NAME=<your dbname, required>
+$ export AUTH_DB_ID=<your db id, required>
+$ export AUTH_DB_PW=<your db password, required>
 $ go test -v ./...
 ```
