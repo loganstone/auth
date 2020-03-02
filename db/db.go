@@ -63,18 +63,18 @@ func Reset(dsn string, dbname string) error {
 	db, err := sql.Open("mysql", dsn)
 	defer db.Close()
 	if err != nil {
-		return fmt.Errorf("db connection failed")
+		return fmt.Errorf("db connection failed: %w", err)
 	}
 
 	_, err = db.Exec("DROP DATABASE IF EXISTS " + dbname)
 	if err != nil {
-		return fmt.Errorf("drop '%s' database failed", dbname)
+		return fmt.Errorf("drop '%s' database failed: %w", dbname, err)
 	}
 
 	_, err = db.Exec(
 		"CREATE DATABASE " + dbname + " CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
 	if err != nil {
-		return fmt.Errorf("create '%s' database failed", dbname)
+		return fmt.Errorf("create '%s' database failed: %w", dbname, err)
 	}
 
 	return nil
