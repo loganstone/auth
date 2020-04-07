@@ -15,13 +15,13 @@ import (
 func TestGenerateOTP(t *testing.T) {
 	conf := configs.App()
 	user, err := testUser(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s/otp", user.Email)
 	req, err := http.NewRequest("POST", uri, nil)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	setAuthJWTForTest(req, user)
 
@@ -29,9 +29,9 @@ func TestGenerateOTP(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	user, err = user.Fetch(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	otpLink, err := user.OTPProvisioningURI(conf.Org)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	var resBody map[string]string
 	json.NewDecoder(w.Body).Decode(&resBody)
@@ -41,23 +41,23 @@ func TestGenerateOTP(t *testing.T) {
 
 func TestConfirmOTP(t *testing.T) {
 	user, err := testUser(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
 	totp, err := user.TOTP()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	reqBody := map[string]string{
 		"otp": totp.Now(),
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s/otp", user.Email)
 	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	setAuthJWTForTest(req, user)
 
@@ -69,7 +69,7 @@ func TestConfirmOTP(t *testing.T) {
 	json.NewDecoder(w.Body).Decode(&resBody)
 
 	user, err = user.Fetch(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	assert.NotEqual(t, 0, user.OTPConfirmedAt)
 	assert.Equal(t, len(resBody["otp_backup_codes"]), 10)
@@ -84,7 +84,7 @@ func TestConfirmOTP(t *testing.T) {
 
 func TestResetOTP(t *testing.T) {
 	user, err := testUser(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
@@ -93,17 +93,17 @@ func TestResetOTP(t *testing.T) {
 	assert.Nil(t, errCodeRes)
 
 	// Reset
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	reqBody := map[string]string{
 		"backup_code": user.OTPBackupCodes.Value()[0],
 	}
 
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s/otp", user.Email)
 	req, err := http.NewRequest("DELETE", uri, bytes.NewReader(body))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	setAuthJWTForTest(req, user)
 
@@ -112,7 +112,7 @@ func TestResetOTP(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, w.Code)
 
 	user, err = user.Fetch(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.False(t, user.ConfirmedOTP())
 	assert.Nil(t, user.OTPConfirmedAt)
 	assert.Nil(t, user.OTPBackupCodes)
@@ -120,7 +120,7 @@ func TestResetOTP(t *testing.T) {
 
 func TestResetOTPAsAdmin(t *testing.T) {
 	user, err := testUser(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
@@ -132,10 +132,10 @@ func TestResetOTPAsAdmin(t *testing.T) {
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/admin/users/%s/otp", user.Email)
 	req, err := http.NewRequest("DELETE", uri, nil)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	admin, err := testAdmin(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	setAuthJWTForTest(req, admin)
 
@@ -144,7 +144,7 @@ func TestResetOTPAsAdmin(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, w.Code)
 
 	user, err = user.Fetch(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.False(t, user.ConfirmedOTP())
 	assert.Nil(t, user.OTPConfirmedAt)
 	assert.Nil(t, user.OTPBackupCodes)

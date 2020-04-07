@@ -108,7 +108,7 @@ func TestSendToLocalPostfix(t *testing.T) {
 		email := NewEmail(name, from, to, subject, body)
 		email.setSMTPAddr(ln.Addr().String())
 		err := email.Send()
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 	}()
 
 	<-clientDone

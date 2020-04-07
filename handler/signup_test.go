@@ -50,13 +50,13 @@ func TestSendVerificationEmail(t *testing.T) {
 		Body:    emailBody,
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signup/email/verification", bytes.NewReader(body))
 	defer req.Body.Close()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -65,16 +65,16 @@ func TestSendVerificationEmail(t *testing.T) {
 	json.NewDecoder(w.Body).Decode(&resBody)
 
 	claims, err := utils.ParseSignupJWT(resBody.SignupToken, conf.JWTSigninKey)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, reqBody.Email, claims.Email)
 
 	assert.Equal(t, emailSubject, resBody.Subject)
 
 	var expectedEmailBody bytes.Buffer
 	emailTmpl, err := template.New("verification email").Parse(emailBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	err = emailTmpl.Execute(&expectedEmailBody, resBody.VerificationEmailData)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, expectedEmailBody.String(), resBody.Body)
 }
 
@@ -83,13 +83,13 @@ func TestVerifySignupToken(t *testing.T) {
 	email := testEmail()
 	token := utils.NewJWT(conf.SignupTokenExpire)
 	signupToken, err := token.Signup(email, conf.JWTSigninKey, conf.Org)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/signup/email/verification/%s", signupToken)
 	req, err := http.NewRequest("GET", uri, nil)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -105,13 +105,13 @@ func TestVerifySignupTokenWithExpiredToken(t *testing.T) {
 	email := testEmail()
 	token := utils.NewJWT(-1)
 	signupToken, err := token.Signup(email, conf.JWTSigninKey, conf.Org)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/signup/email/verification/%s", signupToken)
 	req, err := http.NewRequest("GET", uri, nil)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -127,19 +127,19 @@ func TestSignup(t *testing.T) {
 	email := testEmail()
 	token := utils.NewJWT(conf.SignupTokenExpire)
 	signupToken, err := token.Signup(email, conf.JWTSigninKey, conf.Org)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	reqBody := map[string]string{
 		"token":    signupToken,
 		"password": testPassword,
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signup", bytes.NewReader(body))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
@@ -155,19 +155,19 @@ func TestSignupWithShortPassword(t *testing.T) {
 	email := testEmail()
 	token := utils.NewJWT(conf.SignupTokenExpire)
 	signupToken, err := token.Signup(email, conf.JWTSigninKey, conf.Org)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	reqBody := map[string]string{
 		"token":    signupToken,
 		"password": "ok1234",
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signup", bytes.NewReader(body))
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)

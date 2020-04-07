@@ -40,7 +40,7 @@ func TestSetPassword(t *testing.T) {
 func TestVerifyPassword(t *testing.T) {
 	u := User{}
 	err := u.SetPassword(testPassword)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	ok := u.VerifyPassword(testPassword)
 	assert.True(t, ok)
 }
@@ -58,6 +58,6 @@ func TestMarshalJSON(t *testing.T) {
 	}
 
 	v, err := json.Marshal(u)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, expected, string(v))
 }

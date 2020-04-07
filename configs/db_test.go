@@ -25,7 +25,7 @@ func TestDB(t *testing.T) {
 	}
 
 	conf, err := DB()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	expected := "test_db_name_test"
 	dbName := conf.DBName()
@@ -54,7 +54,7 @@ func TestDBWithDebugMode(t *testing.T) {
 	}
 
 	conf, err := DB()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	expected := "test_db_name"
 	dbName := conf.DBName()

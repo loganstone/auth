@@ -87,17 +87,17 @@ func TestApp(t *testing.T) {
 
 	conf := App()
 	val, err := strconv.Atoi(data[EnvPrefix+"LISTEN_PORT"])
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, val, conf.ListenPort)
 
 	assert.Equal(t, data[EnvPrefix+"JWT_SIGNIN_KEY"], conf.JWTSigninKey)
 
 	val, err = strconv.Atoi(data[EnvPrefix+"SIGNUP_TOKEN_EXPIRE"])
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, val, conf.SignupTokenExpire)
 
 	val, err = strconv.Atoi(data[EnvPrefix+"SESSION_TOKEN_EXPIRE"])
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, val, conf.SessionTokenExpire)
 
 	assert.Equal(t, data[EnvPrefix+"ORG"], conf.Org)
@@ -107,7 +107,7 @@ func TestApp(t *testing.T) {
 	assert.Equal(t, data[EnvPrefix+"PAGE_SIZE"], conf.PageSize)
 
 	val, err = strconv.Atoi(data[EnvPrefix+"PAGE_SIZE_LIMIT"])
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, val, conf.PageSizeLimit)
 }
 

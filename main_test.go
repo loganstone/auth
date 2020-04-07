@@ -53,7 +53,7 @@ func TestFuncMain(t *testing.T) {
 	Quit <- syscall.SIGINT
 
 	dbConf, err := configs.DB()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	if dbConf.SyncModels {
 		assert.True(t, testDBCon.HasTable("users"))
 	} else {

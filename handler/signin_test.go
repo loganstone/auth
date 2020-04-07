@@ -12,20 +12,20 @@ import (
 
 func TestSignin(t *testing.T) {
 	user, err := testUser(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	reqBody := SigninParam{
 		Email:    user.Email,
 		Password: testPassword,
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -39,20 +39,20 @@ func TestSignin(t *testing.T) {
 
 func TestSigninWithWrongPassword(t *testing.T) {
 	user, err := testUser(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	reqBody := SigninParam{
 		Email:    user.Email,
 		Password: "wrongpassword",
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
@@ -65,19 +65,19 @@ func TestSigninWithWrongPassword(t *testing.T) {
 
 func TestSigninWithoutEmail(t *testing.T) {
 	_, err := testUser(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	reqBody := SigninParam{
 		Password: testPassword,
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -90,19 +90,19 @@ func TestSigninWithoutEmail(t *testing.T) {
 
 func TestSigninWithoutPassword(t *testing.T) {
 	user, err := testUser(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	reqBody := SigninParam{
 		Email: user.Email,
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -115,7 +115,7 @@ func TestSigninWithoutPassword(t *testing.T) {
 
 func TestSigninWithOTP(t *testing.T) {
 	user, err := testUser(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
@@ -124,7 +124,7 @@ func TestSigninWithOTP(t *testing.T) {
 	assert.Nil(t, errCodeRes)
 
 	totp, err := user.TOTP()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	reqBody := SigninParam{
 		Email:    user.Email,
@@ -132,13 +132,13 @@ func TestSigninWithOTP(t *testing.T) {
 		OTP:      totp.Now(),
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -146,7 +146,7 @@ func TestSigninWithOTP(t *testing.T) {
 
 func TestSigninWithBackupCode(t *testing.T) {
 	user, err := testUser(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
@@ -160,25 +160,25 @@ func TestSigninWithBackupCode(t *testing.T) {
 		OTP:      user.OTPBackupCodes.Value()[0],
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	user, err = user.Fetch(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, 9, len(user.OTPBackupCodes.Value()))
 }
 
 func TestSigninWithIncorrectOTP(t *testing.T) {
 	user, err := testUser(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
@@ -192,13 +192,13 @@ func TestSigninWithIncorrectOTP(t *testing.T) {
 		OTP:      "111111", // incorrect otp
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
@@ -211,7 +211,7 @@ func TestSigninWithIncorrectOTP(t *testing.T) {
 
 func TestSigninWithAllBackupCodes(t *testing.T) {
 	user, err := testUser(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
@@ -227,20 +227,20 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 			OTP:      code,
 		}
 		body, err := json.Marshal(reqBody)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
 		router := New()
 		w := httptest.NewRecorder()
 		req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 		defer req.Body.Close()
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
 	}
 
 	user, err = user.Fetch(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, 0, len(user.OTPBackupCodes.Value()))
 
 	reqBody := SigninParam{
@@ -248,13 +248,13 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 		Password: testPassword,
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
@@ -267,7 +267,7 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 
 func TestSigninWithoutOTP(t *testing.T) {
 	user, err := testUser(testDBCon)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
@@ -280,13 +280,13 @@ func TestSigninWithoutOTP(t *testing.T) {
 		Password: testPassword,
 	}
 	body, err := json.Marshal(reqBody)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router := New()
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
