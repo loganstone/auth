@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/loganstone/auth/configs"
+	"github.com/loganstone/auth/db"
 	"github.com/loganstone/auth/utils"
 )
 
@@ -146,11 +147,11 @@ func TestSignup(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
 
-	var resBody map[string]string
+	var resBody db.User
 	err = json.NewDecoder(w.Body).Decode(&resBody)
 	assert.NoError(t, err)
 
-	assert.Equal(t, email, resBody["email"])
+	assert.Equal(t, email, resBody.Email)
 }
 
 func TestSignupWithShortPassword(t *testing.T) {
