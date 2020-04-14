@@ -34,7 +34,8 @@ func TestGenerateOTP(t *testing.T) {
 	assert.NoError(t, err)
 
 	var resBody map[string]string
-	json.NewDecoder(w.Body).Decode(&resBody)
+	err = json.NewDecoder(w.Body).Decode(&resBody)
+	assert.NoError(t, err)
 	assert.Equal(t, user.OTPSecretKey, resBody["secert_key"])
 	assert.Equal(t, otpLink, resBody["key_uri"])
 }
@@ -66,7 +67,8 @@ func TestConfirmOTP(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody map[string][]string
-	json.NewDecoder(w.Body).Decode(&resBody)
+	err = json.NewDecoder(w.Body).Decode(&resBody)
+	assert.NoError(t, err)
 
 	user, err = user.Fetch(testDBCon)
 	assert.NoError(t, err)

@@ -36,7 +36,8 @@ func TestUser(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody db.JSONUser
-	json.NewDecoder(w.Body).Decode(&resBody)
+	err = json.NewDecoder(w.Body).Decode(&resBody)
+	assert.NoError(t, err)
 
 	assert.Equal(t, user.Email, resBody.Email)
 	assert.Nil(t, resBody.OTPConfirmedAt)
@@ -60,7 +61,8 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
 	var errRes ErrorCodeResponse
-	json.NewDecoder(w.Body).Decode(&errRes)
+	err = json.NewDecoder(w.Body).Decode(&errRes)
+	assert.NoError(t, err)
 	assert.Equal(t, ErrorCodeNotFoundUser, errRes.ErrorCode)
 }
 
@@ -162,7 +164,8 @@ func TestChangePassword(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody SiginResponse
-	json.NewDecoder(w.Body).Decode(&resBody)
+	err = json.NewDecoder(w.Body).Decode(&resBody)
+	assert.NoError(t, err)
 	assert.Equal(t, signinReqBody.Email, resBody.User.Email)
 	assert.NotEqual(t, "", resBody.Token)
 }
@@ -191,7 +194,8 @@ func TestChangePasswordWithIncorrectCurrentPassword(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	var errRes ErrorCodeResponse
-	json.NewDecoder(w.Body).Decode(&errRes)
+	err = json.NewDecoder(w.Body).Decode(&errRes)
+	assert.NoError(t, err)
 	assert.Equal(t, ErrorCodeIncorrectPassword, errRes.ErrorCode)
 }
 
@@ -218,7 +222,8 @@ func TestChangePasswordWithoutPassword(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	var errRes ErrorCodeResponse
-	json.NewDecoder(w.Body).Decode(&errRes)
+	err = json.NewDecoder(w.Body).Decode(&errRes)
+	assert.NoError(t, err)
 	assert.Equal(t, ErrorCodeBindJSON, errRes.ErrorCode)
 }
 
@@ -268,7 +273,8 @@ func TestUsersAsAdmin(t *testing.T) {
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
 		var resBody UsersResponse
-		json.NewDecoder(w.Body).Decode(&resBody)
+		err := json.NewDecoder(w.Body).Decode(&resBody)
+		assert.NoError(t, err)
 
 		assert.Equal(t, v.Page, resBody.Page)
 		assert.Equal(t, v.PageSize, resBody.PageSize)
@@ -312,7 +318,8 @@ func TestSearchUserAsAdmin(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 	var resBody UsersResponse
-	json.NewDecoder(w.Body).Decode(&resBody)
+	err = json.NewDecoder(w.Body).Decode(&resBody)
+	assert.NoError(t, err)
 
 	assert.Equal(t, expected.Page, resBody.Page)
 	assert.Equal(t, expected.PageSize, resBody.PageSize)
@@ -337,7 +344,8 @@ func TestRenewSession(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resToken map[string]string
-	json.NewDecoder(w.Body).Decode(&resToken)
+	err = json.NewDecoder(w.Body).Decode(&resToken)
+	assert.NoError(t, err)
 	assert.True(t, resToken["token"] != "")
 
 	uri = fmt.Sprintf("/users/%s", user.Email)
@@ -351,7 +359,8 @@ func TestRenewSession(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody db.JSONUser
-	json.NewDecoder(w.Body).Decode(&resBody)
+	err = json.NewDecoder(w.Body).Decode(&resBody)
+	assert.NoError(t, err)
 
 	assert.Equal(t, user.Email, resBody.Email)
 	assert.Nil(t, resBody.OTPConfirmedAt)

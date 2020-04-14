@@ -62,12 +62,12 @@ func TestSendVerificationEmail(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody VerificationEmailResponseForTest
-	json.NewDecoder(w.Body).Decode(&resBody)
+	err = json.NewDecoder(w.Body).Decode(&resBody)
+	assert.NoError(t, err)
 
 	claims, err := utils.ParseSignupJWT(resBody.SignupToken, conf.JWTSigninKey)
 	assert.NoError(t, err)
 	assert.Equal(t, reqBody.Email, claims.Email)
-
 	assert.Equal(t, emailSubject, resBody.Subject)
 
 	var expectedEmailBody bytes.Buffer
@@ -95,7 +95,8 @@ func TestVerifySignupToken(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody map[string]string
-	json.NewDecoder(w.Body).Decode(&resBody)
+	err = json.NewDecoder(w.Body).Decode(&resBody)
+	assert.NoError(t, err)
 
 	assert.Equal(t, email, resBody["email"])
 }
@@ -117,7 +118,8 @@ func TestVerifySignupTokenWithExpiredToken(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	var resBody ErrorCodeResponse
-	json.NewDecoder(w.Body).Decode(&resBody)
+	err = json.NewDecoder(w.Body).Decode(&resBody)
+	assert.NoError(t, err)
 
 	assert.Equal(t, ErrorCodeExpiredToken, resBody.ErrorCode)
 }
@@ -145,7 +147,8 @@ func TestSignup(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, w.Code)
 
 	var resBody map[string]string
-	json.NewDecoder(w.Body).Decode(&resBody)
+	err = json.NewDecoder(w.Body).Decode(&resBody)
+	assert.NoError(t, err)
 
 	assert.Equal(t, email, resBody["email"])
 }
@@ -173,7 +176,8 @@ func TestSignupWithShortPassword(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	var errRes ErrorCodeResponse
-	json.NewDecoder(w.Body).Decode(&errRes)
+	err = json.NewDecoder(w.Body).Decode(&errRes)
+	assert.NoError(t, err)
 
 	assert.Equal(t, ErrorCodeInvalidPassword, errRes.ErrorCode)
 }

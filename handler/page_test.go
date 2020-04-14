@@ -57,7 +57,8 @@ func TestPage(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody map[string]int
-	json.NewDecoder(w.Body).Decode(&resBody)
+	err = json.NewDecoder(w.Body).Decode(&resBody)
+	assert.NoError(t, err)
 
 	assert.Equal(t, page, resBody["page"])
 	assert.Equal(t, pageSize, resBody["page_size"])
