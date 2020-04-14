@@ -34,6 +34,11 @@ func setup() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	smtpConf := configs.SMTP()
+	err = smtpConf.DialAndQuit()
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func teardown() {

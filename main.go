@@ -76,6 +76,12 @@ func main() {
 		}
 	}
 
+	smtpConf := configs.SMTP()
+	err = smtpConf.DialAndQuit()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	checkListenPort()
 
 	srv := server()
