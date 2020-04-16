@@ -38,7 +38,7 @@ func isListen(host string, port int) bool {
 	return true
 }
 
-func syncModels(c *configs.DatabaseConfigs) error {
+func syncModels(c *configs.DatabaseConfig) error {
 	log.Println("Sync Models Start ...")
 	con, err := db.SyncModels(c.DSN(), c.Echo)
 	defer con.Close()

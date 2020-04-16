@@ -11,19 +11,19 @@ const (
 	defaultSMTPPort = "25"
 )
 
-// SMTPConfigs .
-type SMTPConfigs struct {
+// SMTPConfig .
+type SMTPConfig struct {
 	host string
 	port string
 }
 
 // Addr .
-func (c *SMTPConfigs) Addr() string {
+func (c *SMTPConfig) Addr() string {
 	return net.JoinHostPort(c.host, c.port)
 }
 
 // DialAndQuit .
-func (c *SMTPConfigs) DialAndQuit() error {
+func (c *SMTPConfig) DialAndQuit() error {
 	con, err := smtp.Dial(c.Addr())
 	if err != nil {
 		return fmt.Errorf("smtp server dial: %w", err)
@@ -33,8 +33,8 @@ func (c *SMTPConfigs) DialAndQuit() error {
 }
 
 // SMTP .
-func SMTP() *SMTPConfigs {
-	return &SMTPConfigs{
+func SMTP() *SMTPConfig {
+	return &SMTPConfig{
 		defaultSMTPHost,
 		defaultSMTPPort,
 	}

@@ -19,8 +19,8 @@ const (
 	defaultSignupURL = "http://localhost:%d/signup/email/verification/%s"
 )
 
-// AppConfigs .
-type AppConfigs struct {
+// AppConfig .
+type AppConfig struct {
 	gracefulShutdownTimeout time.Duration
 
 	ListenPort         int
@@ -38,7 +38,7 @@ type AppConfigs struct {
 }
 
 // SignupURL .
-func (c *AppConfigs) SignupURL(token string) string {
+func (c *AppConfig) SignupURL(token string) string {
 	if c.siginupURL == "" {
 		return ""
 	}
@@ -55,18 +55,18 @@ func (c *AppConfigs) SignupURL(token string) string {
 }
 
 // SecretKeyLen .
-func (c *AppConfigs) SecretKeyLen() int {
+func (c *AppConfig) SecretKeyLen() int {
 	return c.secretKeyLen
 }
 
 // GracefulShutdownTimeout .
-func (c *AppConfigs) GracefulShutdownTimeout() time.Duration {
+func (c *AppConfig) GracefulShutdownTimeout() time.Duration {
 	return c.gracefulShutdownTimeout
 }
 
 // App .
-func App() *AppConfigs {
-	conf := AppConfigs{
+func App() *AppConfig {
+	conf := AppConfig{
 		gracefulShutdownTimeout: 5,
 		secretKeyLen:            16,
 

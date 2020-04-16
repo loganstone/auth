@@ -16,8 +16,8 @@ const (
 	defaultDBPort = "3306"
 )
 
-// DatabaseConfigs ...
-type DatabaseConfigs struct {
+// DatabaseConfig ...
+type DatabaseConfig struct {
 	id         string
 	pw         string
 	name       string
@@ -28,7 +28,7 @@ type DatabaseConfigs struct {
 }
 
 // DBName .
-func (c *DatabaseConfigs) DBName() string {
+func (c *DatabaseConfig) DBName() string {
 	if Mode() == TestMode {
 		return fmt.Sprintf("%s_test", c.name)
 	}
@@ -36,15 +36,15 @@ func (c *DatabaseConfigs) DBName() string {
 }
 
 // DSN .
-func (c *DatabaseConfigs) DSN() string {
+func (c *DatabaseConfig) DSN() string {
 	return fmt.Sprintf(
 		dbConStr, c.id, c.pw, c.host, c.port, c.DBName(), dbConOpt)
 }
 
 // DB .
-func DB() (*DatabaseConfigs, error) {
+func DB() (*DatabaseConfig, error) {
 	const fnDB = "DB"
-	conf := DatabaseConfigs{
+	conf := DatabaseConfig{
 		host: defaultDBHost,
 		port: defaultDBPort,
 	}
