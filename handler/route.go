@@ -54,7 +54,7 @@ func New() http.Handler {
 
 	if mode == configs.DebugMode {
 		fmt.Printf(
-			`[INFO] running in "debug" mode. "%s" is overwrite "%s", ignore following GIN-debug message.
+			`[INFO] running in "debug" mode. "%s" is overwrite "%s", ignore GIN-debug message below.
 `, configs.EnvMode, gin.EnvGinMode)
 	}
 

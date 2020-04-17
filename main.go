@@ -31,6 +31,7 @@ func isListen(host string, port int) bool {
 		"tcp",
 		net.JoinHostPort(host, strconv.Itoa(port)),
 		time.Second)
+
 	if err != nil {
 		return false
 	}
@@ -39,13 +40,13 @@ func isListen(host string, port int) bool {
 }
 
 func syncModels(c *configs.DatabaseConfig) error {
-	log.Println("Sync Models Start ...")
+	log.Println("sync models start ...")
 	con, err := db.SyncModels(c.DSN(), c.Echo)
 	defer con.Close()
 	if err != nil {
 		return err
 	}
-	log.Println("Sync Models Completed")
+	log.Println("sync models completed")
 	return nil
 }
 
@@ -99,7 +100,7 @@ func main() {
 	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
 	signal.Notify(Quit, syscall.SIGINT, syscall.SIGTERM)
 	<-Quit
-	log.Println("Shutdown Server ...")
+	log.Println("shutdown server ...")
 
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -107,8 +108,8 @@ func main() {
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shutdown:", err)
+		log.Fatal("server shutdown:", err)
 	}
 
-	log.Println("Server exiting")
+	log.Println("server exiting")
 }
