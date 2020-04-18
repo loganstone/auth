@@ -4,22 +4,23 @@ import (
 	"fmt"
 	"net"
 	"net/smtp"
+	"strconv"
 )
 
 const (
 	defaultSMTPHost = "127.0.0.1"
-	defaultSMTPPort = "25"
+	defaultSMTPPort = 25
 )
 
 // SMTPConfig .
 type SMTPConfig struct {
 	host string
-	port string
+	port int
 }
 
 // Addr .
 func (c *SMTPConfig) Addr() string {
-	return net.JoinHostPort(c.host, c.port)
+	return net.JoinHostPort(c.host, strconv.Itoa(c.port))
 }
 
 // DialAndQuit .

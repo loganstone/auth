@@ -8,7 +8,7 @@ import (
 )
 
 func TestSMTP(t *testing.T) {
-	expected := fmt.Sprintf("%s:%s", defaultSMTPHost, defaultSMTPPort)
+	expected := fmt.Sprintf("%s:%d", defaultSMTPHost, defaultSMTPPort)
 	smtpConf := SMTP()
 	assert.Equal(t, expected, smtpConf.Addr())
 
