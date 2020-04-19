@@ -106,7 +106,7 @@ func TestSendToLocalPostfix(t *testing.T) {
 	go func() {
 		defer close(clientDone)
 		email := NewEmail(name, from, to, subject, body)
-		email.setSMTPAddr(ln.Addr().String())
+		email.smtpaddress = ln.Addr().String()
 		err := email.Send()
 		assert.NoError(t, err)
 	}()
@@ -117,7 +117,7 @@ func TestSendToLocalPostfix(t *testing.T) {
 
 func TestSendWithBadSMTP(t *testing.T) {
 	email := NewEmail(name, from, to, subject, body)
-	email.setSMTPAddr("bad smtp address")
+	email.smtpaddress = "bad smtp address"
 	err := email.Send()
 	assert.NotNil(t, err)
 }
@@ -145,7 +145,7 @@ func TestSendWithBadServerHandleForData(t *testing.T) {
 	go func() {
 		defer close(clientDone)
 		email := NewEmail(name, from, to, subject, body)
-		email.setSMTPAddr(ln.Addr().String())
+		email.smtpaddress = ln.Addr().String()
 		err := email.Send()
 		assert.NotNil(t, err)
 	}()
@@ -156,7 +156,7 @@ func TestSendWithBadServerHandleForData(t *testing.T) {
 
 func TestSendWithBadCloser(t *testing.T) {
 	email := NewEmail(name, from, to, subject, body)
-	email.setDataCloser(&badCloser{})
+	email.wc = &badCloser{}
 	err := email.Send()
 	assert.NotNil(t, err)
 }

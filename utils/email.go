@@ -44,14 +44,6 @@ func NewEmail(name, from, to, subject, body string) *Email {
 	}
 }
 
-func (m *Email) setSMTPAddr(address string) {
-	m.smtpaddress = address
-}
-
-func (m *Email) setDataCloser(wc io.WriteCloser) {
-	m.wc = wc
-}
-
 func (m *Email) makeHeader(contentType string) {
 	from := mail.Address{
 		Name:    m.name,
