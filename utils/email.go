@@ -4,16 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"net"
 	"net/mail"
 	"net/smtp"
 	"strings"
-)
-
-const (
-	localHost       = "127.0.0.1"
-	defaultSMTPPort = "25"
-	testSMTPPort    = "7777"
 )
 
 // Email .
@@ -24,10 +17,9 @@ type Email struct {
 	subject string
 	body    string
 
-	header      map[string]string
-	message     string
-	smtpaddress string
-	wc          io.WriteCloser
+	header  map[string]string
+	message string
+	wc      io.WriteCloser
 }
 
 // NewEmail .
@@ -39,8 +31,7 @@ func NewEmail(name, from, to, subject, body string) *Email {
 		subject: subject,
 		body:    body,
 
-		header:      map[string]string{},
-		smtpaddress: net.JoinHostPort(localHost, defaultSMTPPort),
+		header: map[string]string{},
 	}
 }
 
@@ -68,12 +59,12 @@ func (m *Email) makeMessage() {
 }
 
 // Send 는 local postfix 로 email 을 보낸다.
-func (m *Email) Send() error {
-	return m.sendToLocalPostfix()
+func (m *Email) Send(addr string) error {
+	return m.sendToSMTPServer(addr)
 }
 
-func (m *Email) sendToLocalPostfix() error {
-	c, err := smtp.Dial(m.smtpaddress)
+func (m *Email) sendToSMTPServer(addr string) error {
+	c, err := smtp.Dial(addr)
 	if err != nil {
 		return err
 	}

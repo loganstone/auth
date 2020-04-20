@@ -106,7 +106,7 @@ func SendVerificationEmail(c *gin.Context) {
 		param.Email,
 		param.Subject,
 		body.String(),
-	).Send(); err != nil {
+	).Send(configs.SMTP().Addr()); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			NewErrResWithErr(ErrorCodeSendEmail, err))

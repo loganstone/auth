@@ -19,6 +19,9 @@ const (
 	to      = "janedoe@mail.com"
 	subject = "For sale"
 	body    = "Baby shoes. Never worn. "
+
+	localHost    = "localhost"
+	testSMTPPort = "7777"
 )
 
 // reference - https://golang.org/src/net/smtp/smtp.go
@@ -83,7 +86,7 @@ func TestMakeMessage(t *testing.T) {
 }
 
 // reference - https://golang.org/src/net/smtp/smtp_test.go
-func TestSendToLocalPostfix(t *testing.T) {
+func TestSendToSMTP(t *testing.T) {
 	ln := newLocalListener(t)
 	defer ln.Close()
 
@@ -106,8 +109,7 @@ func TestSendToLocalPostfix(t *testing.T) {
 	go func() {
 		defer close(clientDone)
 		email := NewEmail(name, from, to, subject, body)
-		email.smtpaddress = ln.Addr().String()
-		err := email.Send()
+		err := email.Send(ln.Addr().String())
 		assert.NoError(t, err)
 	}()
 
@@ -115,10 +117,9 @@ func TestSendToLocalPostfix(t *testing.T) {
 	<-serverDone
 }
 
-func TestSendWithBadSMTP(t *testing.T) {
+func TestSendWithBadSMTPServer(t *testing.T) {
 	email := NewEmail(name, from, to, subject, body)
-	email.smtpaddress = "bad smtp address"
-	err := email.Send()
+	err := email.Send("bad smtp address")
 	assert.NotNil(t, err)
 }
 
@@ -145,8 +146,7 @@ func TestSendWithBadServerHandleForData(t *testing.T) {
 	go func() {
 		defer close(clientDone)
 		email := NewEmail(name, from, to, subject, body)
-		email.smtpaddress = ln.Addr().String()
-		err := email.Send()
+		err := email.Send(ln.Addr().String())
 		assert.NotNil(t, err)
 	}()
 
@@ -157,7 +157,7 @@ func TestSendWithBadServerHandleForData(t *testing.T) {
 func TestSendWithBadCloser(t *testing.T) {
 	email := NewEmail(name, from, to, subject, body)
 	email.wc = &badCloser{}
-	err := email.Send()
+	err := email.Send(net.JoinHostPort(localHost, testSMTPPort))
 	assert.NotNil(t, err)
 }
 
