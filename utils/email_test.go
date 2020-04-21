@@ -118,15 +118,17 @@ func TestSendToSMTP(t *testing.T) {
 }
 
 func TestSendWithBadSMTPServer(t *testing.T) {
+	expectedError := errors.New("dial tcp: address bad smtp address: missing port in address")
 	email := NewEmail(name, from, to, subject, body)
 	err := email.Send("bad smtp address")
-	assert.NotNil(t, err)
+	assert.EqualError(t, expectedError, fmt.Sprint(err))
 }
 
 func TestSendWithBadServerHandleForData(t *testing.T) {
 	ln := newLocalListener(t)
 	defer ln.Close()
 
+	expectedError := errors.New("EOF")
 	clientDone := make(chan bool)
 	serverDone := make(chan bool)
 
@@ -147,7 +149,7 @@ func TestSendWithBadServerHandleForData(t *testing.T) {
 		defer close(clientDone)
 		email := NewEmail(name, from, to, subject, body)
 		err := email.Send(ln.Addr().String())
-		assert.NotNil(t, err)
+		assert.EqualError(t, expectedError, fmt.Sprint(err))
 	}()
 
 	<-clientDone
@@ -155,10 +157,36 @@ func TestSendWithBadServerHandleForData(t *testing.T) {
 }
 
 func TestSendWithBadCloser(t *testing.T) {
-	email := NewEmail(name, from, to, subject, body)
-	email.wc = &badCloser{}
-	err := email.Send(net.JoinHostPort(localHost, testSMTPPort))
-	assert.NotNil(t, err)
+	ln := newLocalListener(t)
+	defer ln.Close()
+
+	expectedError := errors.New("")
+	clientDone := make(chan bool)
+	serverDone := make(chan bool)
+
+	go func() {
+		defer close(serverDone)
+		c, err := ln.Accept()
+		if err != nil {
+			t.Errorf("server accept: %v", err)
+			return
+		}
+		defer c.Close()
+		if err := serverHandle(c, t); err != nil {
+			t.Errorf("server error: %v", err)
+		}
+	}()
+
+	go func() {
+		defer close(clientDone)
+		email := NewEmail(name, from, to, subject, body)
+		email.wc = &badCloser{}
+		err := email.Send(ln.Addr().String())
+		assert.Error(t, expectedError, fmt.Sprint(err))
+	}()
+
+	<-clientDone
+	<-serverDone
 }
 
 func TestNameFromEmail(t *testing.T) {
