@@ -87,7 +87,8 @@ func TestParseJWTWithExpired(t *testing.T) {
 func TestParseJWTWithBadMethod(t *testing.T) {
 	// reference - https://github.com/dgrijalva/jwt-go/blob/master/ecdsa_test.go#L23
 	ecdsa256Token := "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJmb28iOiJiYXIifQ.feG39E-bn8HXAKhzDZq7yEAPWYDhZlwTn3sePJnU9VrGMmwdXAIEyoOnrjreYlVM_Z4N13eK9-TmMTWyfKJtHQ"
+	expectedError := fmt.Errorf("unexpected signing method '%v'", ecdsa256Token)
 
 	_, err := ParseSignupJWT(ecdsa256Token, testSecretkey)
-	assert.NotNil(t, err)
+	assert.Error(t, expectedError, err)
 }
