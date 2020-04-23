@@ -16,6 +16,7 @@
 - [ ] 이메일로 발송된 인증 코드 확인
 - [x] 관리자 기능 추가
 - [ ] 기능이 처리 되었음을 알리는 이벤트 전달 (kafka 지원)
+  - https://github.com/confluentinc/confluent-kafka-go 사용 예정
 
 # Running Tests
 
