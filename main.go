@@ -104,7 +104,7 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		conf.GracefulShutdownTimeout()*time.Second)
+		conf.GracefulShutdownDuration())
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {

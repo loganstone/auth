@@ -66,7 +66,7 @@ func TestAppDefault(t *testing.T) {
 	}
 
 	assert.Equal(t, 16, conf.SecretKeyLen())
-	assert.Equal(t, time.Duration(5), conf.GracefulShutdownTimeout())
+	assert.Equal(t, time.Duration(5)*time.Second, conf.GracefulShutdownDuration())
 }
 
 func TestApp(t *testing.T) {

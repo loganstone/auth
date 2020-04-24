@@ -21,7 +21,7 @@ const (
 
 // AppConfig .
 type AppConfig struct {
-	gracefulShutdownTimeout time.Duration
+	gracefulShutdownDuration time.Duration
 
 	ListenPort         int
 	SignupTokenExpire  int
@@ -59,16 +59,16 @@ func (c *AppConfig) SecretKeyLen() int {
 	return c.secretKeyLen
 }
 
-// GracefulShutdownTimeout .
-func (c *AppConfig) GracefulShutdownTimeout() time.Duration {
-	return c.gracefulShutdownTimeout
+// GracefulShutdownDuration .
+func (c *AppConfig) GracefulShutdownDuration() time.Duration {
+	return c.gracefulShutdownDuration
 }
 
 // App .
 func App() *AppConfig {
 	conf := AppConfig{
-		gracefulShutdownTimeout: 5,
-		secretKeyLen:            16,
+		gracefulShutdownDuration: time.Second * 5,
+		secretKeyLen:             16,
 
 		ListenPort:         defaultListenPort,
 		SignupTokenExpire:  defaultSignupTokenExpire,
