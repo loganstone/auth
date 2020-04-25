@@ -16,7 +16,7 @@ const (
 	defaultDBPort = "3306"
 )
 
-// DatabaseConfig ...
+// DatabaseConfig contains information for database access.
 type DatabaseConfig struct {
 	id         string
 	pw         string
@@ -27,7 +27,7 @@ type DatabaseConfig struct {
 	SyncModels bool
 }
 
-// DBName .
+// DBName is returns database name to be used in the current application.
 func (c *DatabaseConfig) DBName() string {
 	if Mode() == TestMode {
 		return fmt.Sprintf("%s_test", c.name)
@@ -35,13 +35,14 @@ func (c *DatabaseConfig) DBName() string {
 	return c.name
 }
 
-// DSN .
+// DSN is returns database source name.
 func (c *DatabaseConfig) DSN() string {
 	return fmt.Sprintf(
 		dbConStr, c.id, c.pw, c.host, c.port, c.DBName(), dbConOpt)
 }
 
-// DB .
+// DB returns the information needed to access the database.
+// If required information constraint is not met, an error is returned.
 func DB() (*DatabaseConfig, error) {
 	const fnDB = "DB"
 	conf := DatabaseConfig{
