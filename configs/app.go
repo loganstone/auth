@@ -8,6 +8,9 @@ import (
 )
 
 const (
+	defaultGracefulShutdownDuration = 5
+	defaultSecretKeyLen             = 16
+
 	defaultListenPort         = 9999
 	defaultSignupTokenExpire  = 1800 // 30 minutes
 	defaultSessionTokenExpire = 3600 // 60 minutes
@@ -67,8 +70,8 @@ func (c *AppConfig) GracefulShutdownDuration() time.Duration {
 // App .
 func App() *AppConfig {
 	conf := AppConfig{
-		gracefulShutdownDuration: time.Second * 5,
-		secretKeyLen:             16,
+		gracefulShutdownDuration: time.Second * defaultGracefulShutdownDuration,
+		secretKeyLen:             defaultSecretKeyLen,
 
 		ListenPort:         defaultListenPort,
 		SignupTokenExpire:  defaultSignupTokenExpire,

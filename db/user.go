@@ -14,7 +14,6 @@ import (
 
 const (
 	failCreateUserMessage = "fail create user '%s': %w"
-	secretKeyLen          = 16
 	passwordMinimumLen    = 10
 )
 
