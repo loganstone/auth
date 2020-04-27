@@ -20,6 +20,10 @@ const (
 	testPassword = "Ok1234567!"
 )
 
+const (
+	oneMinuteSeconds = 60
+)
+
 var (
 	errEmptyAuthorizedUser = errors.New("'AuthorizedUser' empty")
 	errWrongAuthorizedUser = errors.New("'AuthorizedUser' not 'db.User' type")

@@ -89,7 +89,7 @@ func SendVerificationEmail(c *gin.Context) {
 	data := VerificationEmailData{
 		UserEmail:    param.Email,
 		SignupURL:    conf.SignupURL(signupToken),
-		ExpireMin:    conf.SignupTokenExpire / 60,
+		ExpireMin:    conf.SignupTokenExpire / oneMinuteSeconds,
 		Organization: conf.Org,
 	}
 
