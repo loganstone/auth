@@ -84,6 +84,34 @@ func TestConfirmOTP(t *testing.T) {
 	assert.True(t, user.ConfirmedOTP())
 }
 
+func TestConfirmOTPWithoutOTPSecretKey(t *testing.T) {
+	user, err := testUser(testDBCon)
+	assert.NoError(t, err)
+
+	reqBody := ConfirmOTPParam{OTP: "111111"}
+	body, err := json.Marshal(reqBody)
+	assert.NoError(t, err)
+
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/users/%s/otp", user.Email)
+	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
+	assert.NoError(t, err)
+
+	setAuthJWTForTest(req, user)
+
+	router := New()
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+
+	var resBody ErrorCodeResponse
+	err = json.NewDecoder(w.Body).Decode(&resBody)
+	assert.NoError(t, err)
+
+	assert.Equal(t, resBody.Links[0].Rel, "otp.generate")
+	assert.Equal(t, resBody.Links[0].Method, "POST")
+	assert.Equal(t, resBody.Links[0].Href, fmt.Sprintf("/%s/otp", user.Email))
+}
+
 func TestResetOTP(t *testing.T) {
 	user, err := testUser(testDBCon)
 	assert.NoError(t, err)

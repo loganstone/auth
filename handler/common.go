@@ -60,10 +60,18 @@ var errMapByCode = map[int]error{
 	ErrorCodeWrongDBConn: errWrongDBConn,
 }
 
+// Link .
+type Link struct {
+	Rel    string `json:"rel"`
+	Method string `json:"method"`
+	Href   string `json:"href"`
+}
+
 // ErrorCodeResponse .
 type ErrorCodeResponse struct {
 	ErrorCode    int    `json:"error_code"`
 	ErrorMessage string `json:"error_message"`
+	Links        []Link `json:"links"`
 }
 
 // NewErrRes .
@@ -76,9 +84,19 @@ func NewErrRes(code int) ErrorCodeResponse {
 	return NewErrResWithErr(code, err)
 }
 
+// NewErrResWithLinks .
+func NewErrResWithLinks(code int, links []Link) ErrorCodeResponse {
+	err, ok := errMapByCode[code]
+	if !ok {
+		message := fmt.Sprintf("undefiend error code(%d)", code)
+		return NewErrResWithErr(code, errors.New(message))
+	}
+	return ErrorCodeResponse{code, err.Error(), links}
+}
+
 // NewErrResWithErr .
 func NewErrResWithErr(code int, err error) ErrorCodeResponse {
-	return ErrorCodeResponse{code, err.Error()}
+	return ErrorCodeResponse{code, err.Error(), nil}
 }
 
 // AuthorizedUser .

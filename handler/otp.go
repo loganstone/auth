@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -130,11 +131,19 @@ func ConfirmOTP(c *gin.Context) {
 	}
 
 	// TODO(hs.lee):
-	// payload 에 선행 되어야 하는 API URL 을 추가 하자
+	// full url 을 표시 할 수 있도록 수정 한다.
 	if user.OTPSecretKey == "" {
+		links := []Link{
+			Link{
+				Rel:    "otp.generate",
+				Method: "POST",
+				Href:   fmt.Sprintf("/%s/otp", user.Email),
+			},
+		}
 		c.AbortWithStatusJSON(
 			http.StatusForbidden,
-			NewErrRes(ErrorCodeEmptyOTPSecretKey))
+			NewErrResWithLinks(
+				ErrorCodeEmptyOTPSecretKey, links))
 		return
 	}
 
