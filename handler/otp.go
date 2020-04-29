@@ -130,8 +130,6 @@ func ConfirmOTP(c *gin.Context) {
 		return
 	}
 
-	// TODO(hs.lee):
-	// full url 을 표시 할 수 있도록 수정 한다.
 	if user.OTPSecretKey == "" {
 		links := []Link{
 			Link{
