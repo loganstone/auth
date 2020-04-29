@@ -2,7 +2,10 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"net/url"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -23,6 +26,7 @@ type UsersResponse struct {
 	PageSize int       `json:"page_size"`
 	HasNext  bool      `json:"has_next"`
 	Users    []db.User `json:"users"`
+	Links    []Link    `json:"links"`
 }
 
 // Adjust .
@@ -31,6 +35,35 @@ func (r *UsersResponse) Adjust(pageSize int) {
 		r.HasNext = true
 		r.Users = r.Users[:len(r.Users)-1]
 	}
+}
+
+// AttachLinks .
+func (r *UsersResponse) AttachLinks(page, pageSize int, emails []string) {
+	v := url.Values{}
+	v.Set("page_size", strconv.Itoa(pageSize))
+	for _, email := range emails {
+		v.Add("email", email)
+	}
+
+	links := []Link{}
+	if r.HasNext {
+		v.Set("page", strconv.Itoa(page+1))
+		links = append(links, Link{
+			Rel:    "next",
+			Method: "GET",
+			Href:   fmt.Sprintf("/admin/users?%s", v.Encode()),
+		})
+	}
+
+	if page > 0 {
+		v.Set("page", strconv.Itoa(page-1))
+		links = append(links, Link{
+			Rel:    "prev",
+			Method: "GET",
+			Href:   fmt.Sprintf("/admin/users?%s", v.Encode()),
+		})
+	}
+	r.Links = links
 }
 
 // Users .
@@ -75,6 +108,7 @@ func Users(c *gin.Context) {
 		Users:    users,
 	}
 	r.Adjust(pageSize)
+	r.AttachLinks(page, pageSize, emails)
 
 	c.JSON(http.StatusOK, r)
 }
