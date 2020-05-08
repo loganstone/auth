@@ -12,6 +12,8 @@ const (
 	defaultSMTPPort = 25
 )
 
+var smtpPort = defaultSMTPPort
+
 // SMTPConfig .
 type SMTPConfig struct {
 	host string
@@ -33,10 +35,15 @@ func (c *SMTPConfig) DialAndQuit() error {
 	return nil
 }
 
+// SetSMTPPort .
+func SetSMTPPort(port int) {
+	smtpPort = port
+}
+
 // SMTP .
 func SMTP() *SMTPConfig {
 	return &SMTPConfig{
 		defaultSMTPHost,
-		defaultSMTPPort,
+		smtpPort,
 	}
 }

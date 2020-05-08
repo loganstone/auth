@@ -13,12 +13,13 @@ import (
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
+	"github.com/loganstone/auth/mocks"
 	"github.com/loganstone/auth/utils"
 )
 
 const (
-	emailSubject = "[auth] Sign up for email address."
-	emailBody    = `<!DOCTYPE html>
+	emailSubject  = "[auth] Sign up for email address."
+	emailBodyTmpl = `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -44,11 +45,51 @@ const (
 )
 
 func TestSendVerificationEmail(t *testing.T) {
+	email := testEmail()
 	conf := configs.App()
+
+	var emailBody bytes.Buffer
+	data := VerificationEmailData{
+		UserEmail:    email,
+		SignupURL:    conf.SignupURL("token"),
+		ExpireMin:    conf.SignupTokenExpire / oneMinuteSeconds,
+		Organization: conf.Org,
+	}
+
+	emailTmpl, err := template.New("verification email").Parse(emailBodyTmpl)
+	assert.NoError(t, err)
+	err = emailTmpl.Execute(&emailBody, data)
+	assert.NoError(t, err)
+
+	ln, err := mocks.NewLocalListener(mocks.SMTPPort)
+	assert.NoError(t, err)
+	defer ln.Close()
+
+	go func() {
+		c, err := ln.Accept()
+		if err != nil {
+			t.Errorf("local listener accept: %v", err)
+			return
+		}
+		defer c.Close()
+		handler := mocks.SMTPHandler{
+			Con:     c,
+			Name:    utils.NameFromEmail(email),
+			From:    conf.SupportEmail,
+			To:      email,
+			Subject: emailSubject,
+			Body:    emailBody.String(),
+		}
+		if err := handler.Handle(); err != nil {
+			t.Errorf("mock smtp handle error: %v", err)
+		}
+	}()
+	configs.SetSMTPPort(mocks.SMTPPort)
+
 	reqBody := VerificationEmailParam{
-		Email:   testEmail(),
+		Email:   email,
 		Subject: emailSubject,
-		Body:    emailBody,
+		Body:    emailBodyTmpl,
 	}
 	body, err := json.Marshal(reqBody)
 	assert.NoError(t, err)
@@ -72,7 +113,6 @@ func TestSendVerificationEmail(t *testing.T) {
 	assert.Equal(t, emailSubject, resBody.Subject)
 
 	var expectedEmailBody bytes.Buffer
-	emailTmpl, err := template.New("verification email").Parse(emailBody)
 	assert.NoError(t, err)
 	err = emailTmpl.Execute(&expectedEmailBody, resBody.VerificationEmailData)
 	assert.NoError(t, err)

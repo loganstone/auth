@@ -66,6 +66,14 @@ func checkListenPort() {
 }
 
 func main() {
+	if configs.Mode() != configs.TestMode {
+		smtpConf := configs.SMTP()
+		err := smtpConf.DialAndQuit()
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+
 	dbConf, err := configs.DB()
 	if err != nil {
 		log.Fatalln(err)
@@ -75,12 +83,6 @@ func main() {
 		if err := syncModels(dbConf); err != nil {
 			log.Fatalln(err)
 		}
-	}
-
-	smtpConf := configs.SMTP()
-	err = smtpConf.DialAndQuit()
-	if err != nil {
-		log.Fatalln(err)
 	}
 
 	checkListenPort()
