@@ -35,3 +35,14 @@ func TestSMTP(t *testing.T) {
 	err = smtpConf.DialAndQuit()
 	assert.NoError(t, err)
 }
+
+func TestSMTPWithoutSMTPServer(t *testing.T) {
+	SetSMTPPort(mocks.SMTPPort)
+	smtpConf := SMTP()
+
+	err := smtpConf.DialAndQuit()
+	expectedError := fmt.Errorf(
+		"smtp server dial: dial tcp %s: connect: connection refused",
+		smtpConf.Addr())
+	assert.Error(t, expectedError, err)
+}
