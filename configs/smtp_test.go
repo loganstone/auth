@@ -41,8 +41,8 @@ func TestSMTPWithoutSMTPServer(t *testing.T) {
 	smtpConf := SMTP()
 
 	err := smtpConf.DialAndQuit()
-	expectedError := fmt.Errorf(
+	expectedError := fmt.Sprintf(
 		"smtp server dial: dial tcp %s: connect: connection refused",
 		smtpConf.Addr())
-	assert.Error(t, expectedError, err)
+	assert.EqualError(t, err, expectedError)
 }
