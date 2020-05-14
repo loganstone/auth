@@ -160,7 +160,7 @@ func TestSendWithBadCloser(t *testing.T) {
 	ln := newLocalListener(t)
 	defer ln.Close()
 
-	expectedError := errors.New("")
+	expectedError := "error"
 	clientDone := make(chan bool)
 	serverDone := make(chan bool)
 
@@ -182,7 +182,7 @@ func TestSendWithBadCloser(t *testing.T) {
 		email := NewEmail(name, from, to, subject, body)
 		email.wc = &badCloser{}
 		err := email.Send(ln.Addr().String())
-		assert.Error(t, expectedError, fmt.Sprint(err))
+		assert.EqualError(t, err, expectedError)
 	}()
 
 	<-clientDone
