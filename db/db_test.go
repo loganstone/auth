@@ -3,8 +3,9 @@ package db
 import (
 	"testing"
 
-	"github.com/loganstone/auth/configs"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/loganstone/auth/configs"
 )
 
 func TestConnection(t *testing.T) {

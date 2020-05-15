@@ -7,10 +7,10 @@ import (
 	"testing"
 
 	"github.com/jinzhu/gorm"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
-	"github.com/stretchr/testify/assert"
 )
 
 var testDBCon *gorm.DB
