@@ -25,9 +25,9 @@ type DateTimeFields struct {
 }
 
 // SyncModels .
-func SyncModels(option string, echo bool) (*gorm.DB, error) {
+func SyncModels(dataSourceName string, echo bool) (*gorm.DB, error) {
 	const maxWait = 1000
-	con, err := Connection(option, echo)
+	con, err := Connection(dataSourceName, echo)
 	if err != nil {
 		return nil, err
 	}
@@ -49,18 +49,19 @@ func SyncModels(option string, echo bool) (*gorm.DB, error) {
 }
 
 // Connection .
-func Connection(dsn string, echo bool) (*gorm.DB, error) {
-	db, err := gorm.Open("mysql", dsn)
-	if err == nil {
-		db.LogMode(echo)
+func Connection(dataSourceName string, echo bool) (*gorm.DB, error) {
+	db, err := gorm.Open("mysql", dataSourceName)
+	if err != nil {
+		return nil, err
 	}
-	return db, err
+	db.LogMode(echo)
+	return db, nil
 }
 
 // Reset .
-func Reset(dsn string, dbname string) error {
-	dsn = strings.Split(dsn, dbname)[0]
-	db, err := sql.Open("mysql", dsn)
+func Reset(dataSourceName string, dbname string) error {
+	dataSourceName = strings.Split(dataSourceName, dbname)[0]
+	db, err := sql.Open("mysql", dataSourceName)
 	defer db.Close()
 	if err != nil {
 		return fmt.Errorf("db connection failed: %w", err)
