@@ -13,7 +13,6 @@ import (
 
 	"github.com/loganstone/auth/configs"
 	"github.com/loganstone/auth/db"
-	"github.com/loganstone/auth/mocks"
 	"github.com/loganstone/auth/utils"
 )
 
@@ -61,7 +60,7 @@ func TestSendVerificationEmail(t *testing.T) {
 	err = emailTmpl.Execute(&emailBody, data)
 	assert.NoError(t, err)
 
-	ln, err := mocks.NewLocalListener(mocks.SMTPPort)
+	ln, err := utils.NewLocalListener(utils.MockSMTPPort)
 	assert.NoError(t, err)
 	defer ln.Close()
 
@@ -72,7 +71,7 @@ func TestSendVerificationEmail(t *testing.T) {
 			return
 		}
 		defer c.Close()
-		handler := mocks.SMTPHandler{
+		handler := utils.MockSMTPHandler{
 			Con:     c,
 			Name:    utils.NameFromEmail(email),
 			From:    conf.SupportEmail,
@@ -84,7 +83,7 @@ func TestSendVerificationEmail(t *testing.T) {
 			t.Errorf("mock smtp handle error: %v", err)
 		}
 	}()
-	configs.SetSMTPPort(mocks.SMTPPort)
+	configs.SetSMTPPort(utils.MockSMTPPort)
 
 	reqBody := VerificationEmailParam{
 		Email:   email,

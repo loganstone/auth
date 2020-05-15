@@ -6,11 +6,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/loganstone/auth/mocks"
+	"github.com/loganstone/auth/utils"
 )
 
 func TestSMTP(t *testing.T) {
-	ln, err := mocks.NewLocalListener(mocks.SMTPPort)
+	ln, err := utils.NewLocalListener(utils.MockSMTPPort)
 	assert.NoError(t, err)
 	defer ln.Close()
 
@@ -21,14 +21,14 @@ func TestSMTP(t *testing.T) {
 			return
 		}
 		defer c.Close()
-		handler := mocks.SMTPHandler{Con: c}
+		handler := utils.MockSMTPHandler{Con: c}
 		if err := handler.Handle(); err != nil {
 			t.Errorf("mock smtp handle error: %v", err)
 		}
 	}()
 
-	expected := fmt.Sprintf("%s:%d", defaultSMTPHost, mocks.SMTPPort)
-	SetSMTPPort(mocks.SMTPPort)
+	expected := fmt.Sprintf("%s:%d", defaultSMTPHost, utils.MockSMTPPort)
+	SetSMTPPort(utils.MockSMTPPort)
 	smtpConf := SMTP()
 	assert.Equal(t, expected, smtpConf.Addr())
 
@@ -37,7 +37,7 @@ func TestSMTP(t *testing.T) {
 }
 
 func TestSMTPWithoutSMTPServer(t *testing.T) {
-	SetSMTPPort(mocks.SMTPPort)
+	SetSMTPPort(utils.MockSMTPPort)
 	smtpConf := SMTP()
 
 	err := smtpConf.DialAndQuit()

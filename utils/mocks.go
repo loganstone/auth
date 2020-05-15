@@ -1,25 +1,22 @@
-package mocks
+package utils
 
 import (
 	"bufio"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"strconv"
 	"strings"
 )
 
 const (
-	// SMTPPort .
-	SMTPPort = 7777
-)
-
-const (
-	localHost = "127.0.0.1"
+	// MockSMTPPort .
+	MockSMTPPort = 7777
+	localHost    = "127.0.0.1"
 )
 
 // NewLocalListener .
+// reference - https://golang.org/src/net/smtp/smtp_test.go
 func NewLocalListener(p int) (net.Listener, error) {
 	port := strconv.Itoa(p)
 	ln, err := net.Listen("tcp", net.JoinHostPort(localHost, port))
@@ -32,21 +29,23 @@ func NewLocalListener(p int) (net.Listener, error) {
 	return ln, nil
 }
 
+// reference - https://golang.org/src/net/smtp/smtp_test.go
 type smtpSender struct {
 	w io.Writer
 }
 
+// reference - https://golang.org/src/net/smtp/smtp_test.go
 func (s smtpSender) send(f string) {
 	s.w.Write([]byte(f + "\r\n"))
 }
 
-// Handler .
-type Handler interface {
+// MockHandler .
+type MockHandler interface {
 	Handle() error
 }
 
-// SMTPHandler .
-type SMTPHandler struct {
+// MockSMTPHandler .
+type MockSMTPHandler struct {
 	Con     net.Conn
 	Name    string
 	From    string
@@ -56,7 +55,8 @@ type SMTPHandler struct {
 }
 
 // Handle .
-func (h *SMTPHandler) Handle() error {
+// reference - https://golang.org/src/net/smtp/smtp_test.go
+func (h *MockSMTPHandler) Handle() error {
 	send := smtpSender{h.Con}.send
 	// Important.
 	send("220 127.0.0.1 ESMTP service ready")
@@ -85,7 +85,7 @@ func (h *SMTPHandler) Handle() error {
 			send("221 127.0.0.1 Service closing transmission channel")
 			return nil
 		default:
-			log.Fatalf("unrecognized command: %q", txt)
+			return fmt.Errorf("unrecognized command: %q", txt)
 		}
 	}
 	return s.Err()
