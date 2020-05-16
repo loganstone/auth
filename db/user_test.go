@@ -14,6 +14,13 @@ const (
 	testPassword = "Ok1234567!"
 )
 
+func TestCodes(t *testing.T) {
+	var codes Codes
+	data := []string{"111111", "222222"}
+	err := codes.Set(data)
+	assert.NoError(t, err)
+}
+
 func TestSetPassword(t *testing.T) {
 	tables := []struct {
 		Password string
