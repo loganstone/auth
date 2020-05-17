@@ -19,6 +19,9 @@ func TestCodes(t *testing.T) {
 	data := []string{"111111", "222222"}
 	err := codes.Set(data)
 	assert.NoError(t, err)
+	index, ok := codes.In(data[0])
+	assert.Equal(t, 0, index)
+	assert.True(t, ok)
 }
 
 func TestSetPassword(t *testing.T) {
