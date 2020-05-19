@@ -44,7 +44,7 @@ func (c Codes) Value() []string {
 	var result []string
 	err := json.Unmarshal(c, &result)
 	if err != nil {
-		return nil
+		return []string{}
 	}
 	return result
 }

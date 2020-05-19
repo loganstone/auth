@@ -31,6 +31,13 @@ func TestCodes(t *testing.T) {
 	index, ok = codes.In(data[0])
 	assert.Equal(t, 0, index)
 	assert.False(t, ok)
+
+	ok, err = codes.Del(data[1])
+	assert.NoError(t, err)
+	assert.True(t, ok)
+
+	// TODO(hs.lee): nil 이 나오게 변경하자.
+	assert.Equal(t, []string{}, codes.Value())
 }
 
 func TestSetPassword(t *testing.T) {
