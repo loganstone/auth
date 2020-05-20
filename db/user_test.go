@@ -36,8 +36,7 @@ func TestCodes(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, ok)
 
-	// TODO(hs.lee): nil 이 나오게 변경하자.
-	assert.Equal(t, []string{}, codes.Value())
+	assert.Nil(t, codes.Value())
 }
 
 func TestSetPassword(t *testing.T) {
