@@ -205,7 +205,7 @@ func Signup(c *gin.Context) {
 		} else if errors.Is(err, db.ErrorInvalidPassword) {
 			httpStatusCode = http.StatusBadRequest
 			errRes = NewErrResWithErr(ErrorCodeInvalidPassword, err)
-		} else if errors.Is(err, db.ErrorFailSetPassword) {
+		} else if errors.Is(err, db.ErrorFailedSetPassword) {
 			errRes = NewErrResWithErr(ErrorCodeSetPassword, err)
 		}
 		c.AbortWithStatusJSON(httpStatusCode, errRes)

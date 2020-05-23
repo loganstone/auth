@@ -22,8 +22,8 @@ var (
 	ErrorNoEmail = errors.New("no email")
 	// ErrorUserAlreadyExists .
 	ErrorUserAlreadyExists = errors.New("user already exists")
-	// ErrorFailSetPassword .
-	ErrorFailSetPassword = errors.New("fail set password")
+	// ErrorFailedSetPassword .
+	ErrorFailedSetPassword = errors.New("failed set password")
 	// ErrorInvalidPassword .
 	ErrorInvalidPassword = errors.New("invalid password")
 	errEmptyOTPSecretKey = errors.New("empty 'OTPSecretKey'")
@@ -153,7 +153,7 @@ func (u *User) SetPassword(password string) error {
 	hashedBytes, err := bcrypt.GenerateFromPassword(
 		[]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return ErrorFailSetPassword
+		return ErrorFailedSetPassword
 	}
 
 	u.HashedPassword = string(hashedBytes[:])
