@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	failCreateUserMessage = "fail create user '%s': %w"
-	passwordMinimumLen    = 10
+	failedCreateUserMessage = "failed create user '%s': %w"
+	passwordMinimumLen      = 10
 )
 
 var (
@@ -239,23 +239,23 @@ func (u *User) ConfirmedOTP() bool {
 func (u *User) Create(con *gorm.DB, password string) error {
 	if u.Email == "" {
 		return fmt.Errorf(
-			failCreateUserMessage, u.Email, ErrorNoEmail)
+			failedCreateUserMessage, u.Email, ErrorNoEmail)
 	}
 
 	if !con.Where("email = ?", u.Email).First(u).RecordNotFound() {
 		return fmt.Errorf(
-			failCreateUserMessage, u.Email, ErrorUserAlreadyExists)
+			failedCreateUserMessage, u.Email, ErrorUserAlreadyExists)
 	}
 
 	if err := u.SetPassword(password); err != nil {
-		return fmt.Errorf(failCreateUserMessage, u.Email, err)
+		return fmt.Errorf(failedCreateUserMessage, u.Email, err)
 	}
 
 	do := func(tx *gorm.DB) error {
 		return tx.Create(u).Error
 	}
 	if err := Transaction(con, do); err != nil {
-		return fmt.Errorf(failCreateUserMessage, u.Email, err)
+		return fmt.Errorf(failedCreateUserMessage, u.Email, err)
 	}
 	return nil
 }
