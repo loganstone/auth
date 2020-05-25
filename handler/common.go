@@ -182,7 +182,7 @@ func setAuthJWTForTest(req *http.Request, u *db.User) {
 	token := utils.NewJWT(10)
 	sessionToken, err := token.Session(u.ID, u.Email, conf.JWTSigninKey, conf.Org)
 	if err != nil {
-		log.Fatalf("fail generate session token: %s\n", err.Error())
+		log.Fatalf("failed generate session token: %s\n", err.Error())
 	}
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", sessionToken))

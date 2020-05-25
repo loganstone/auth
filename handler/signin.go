@@ -73,7 +73,7 @@ func Signin(c *gin.Context) {
 
 			// 백업코드 확인은 성공 했으니,
 			// 삭제를 실패해도 Signin 은 그대로 진행.
-			message := "fail delete backup code '%s', error '%s'"
+			message := "failed delete backup code '%s', error '%s'"
 			ok, err := user.OTPBackupCodes.Del(params.OTP)
 			if err != nil {
 				log.Printf(message, params.OTP, err.Error())
