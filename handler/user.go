@@ -120,7 +120,8 @@ func User(c *gin.Context) {
 		return
 	}
 
-	user := findUserOrAbort(c, con, http.StatusNotFound)
+	user := findUserByEmailOrAbort(
+		c.Param("email"), c, con, http.StatusNotFound)
 	if user == nil {
 		return
 	}
@@ -135,7 +136,8 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	user := findUserOrAbort(c, con, http.StatusNoContent)
+	user := findUserByEmailOrAbort(
+		c.Param("email"), c, con, http.StatusNoContent)
 	if user == nil {
 		return
 	}
@@ -165,7 +167,8 @@ func ChangePassword(c *gin.Context) {
 		return
 	}
 
-	user := findUserOrAbort(c, con, http.StatusNotFound)
+	user := findUserByEmailOrAbort(
+		c.Param("email"), c, con, http.StatusNotFound)
 	if user == nil {
 		return
 	}
@@ -208,7 +211,8 @@ func RenewSession(c *gin.Context) {
 		return
 	}
 
-	user := findUserOrAbort(c, con, http.StatusNoContent)
+	user := findUserByEmailOrAbort(
+		c.Param("email"), c, con, http.StatusNoContent)
 	if user == nil {
 		return
 	}

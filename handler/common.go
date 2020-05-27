@@ -133,8 +133,7 @@ func DBConnOrAbort(c *gin.Context) *gorm.DB {
 	return dbCon
 }
 
-func findUserOrAbort(c *gin.Context, con *gorm.DB, httpStatusCode int) *db.User {
-	email := c.Param("email")
+func findUserByEmailOrAbort(email string, c *gin.Context, con *gorm.DB, httpStatusCode int) *db.User {
 	if email == "" {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return nil

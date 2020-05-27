@@ -40,11 +40,9 @@ func Signin(c *gin.Context) {
 		return
 	}
 
-	var user db.User
-	if con.Where("email = ?", params.Email).First(&user).RecordNotFound() {
-		c.AbortWithStatusJSON(
-			http.StatusNotFound,
-			NewErrRes(ErrorCodeNotFoundUser))
+	user := findUserByEmailOrAbort(
+		params.Email, c, con, http.StatusBadRequest)
+	if user == nil {
 		return
 	}
 
@@ -95,5 +93,5 @@ func Signin(c *gin.Context) {
 			NewErrResWithErr(ErrorCodeSignJWT, err))
 		return
 	}
-	c.JSON(http.StatusOK, SiginResponse{User: user, Token: sessionToken})
+	c.JSON(http.StatusOK, SiginResponse{User: *user, Token: sessionToken})
 }
