@@ -150,26 +150,33 @@ func findUserByEmailOrAbort(email string, c *gin.Context, con *gorm.DB, httpStat
 		return &user
 	}
 
-	user := db.User{Email: email}
-	if con.Where(&user).First(&user).RecordNotFound() {
+	user := findUserByEmail(email, con)
+	if user == nil {
 		c.AbortWithStatusJSON(
 			httpStatusCode,
 			NewErrRes(ErrorCodeNotFoundUser))
 		return nil
 	}
-	return &user
+	return user
 }
 
 func isAbortedAsUserExist(c *gin.Context, con *gorm.DB, email string) bool {
-	var count int
-	con.Where("email = ?", email).Count(&count)
-	if count > 1 {
+	user := findUserByEmail(email, con)
+	if user != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
 			NewErrRes(ErrorCodeUserAlreadyExists))
 		return true
 	}
 	return false
+}
+
+func findUserByEmail(email string, con *gorm.DB) *db.User {
+	user := db.User{Email: email}
+	if con.Where(&user).First(&user).RecordNotFound() {
+		return nil
+	}
+	return &user
 }
 
 func testEmail() string {
