@@ -150,6 +150,11 @@ func findUserByEmailOrAbort(email string, c *gin.Context, con *gorm.DB, httpStat
 		return &user
 	}
 
+	// TODO(hs.lee): 테스트 케이스를 추가한다.
+	if c.GetBool("AuthorizedUserIsAdmin") {
+		con = con.Unscoped()
+	}
+
 	user := findUserByEmail(email, con)
 	if user == nil {
 		c.AbortWithStatusJSON(

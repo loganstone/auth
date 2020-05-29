@@ -91,6 +91,7 @@ func Users(c *gin.Context) {
 
 	var users []db.User
 	emails := c.QueryArray("email")
+	// Find soft deleted records with Unscoped
 	baseQuery := con.Unscoped()
 	if len(emails) > 1 {
 		baseQuery = baseQuery.Where("email IN (?)", emails)
