@@ -93,10 +93,8 @@ func Users(c *gin.Context) {
 	emails := c.QueryArray("email")
 	// Find soft deleted records with Unscoped
 	baseQuery := con.Unscoped()
-	if len(emails) > 1 {
+	if len(emails) > 0 {
 		baseQuery = baseQuery.Where("email IN (?)", emails)
-	} else if len(emails) == 1 {
-		baseQuery = baseQuery.Where("email = ?", emails[0])
 	}
 	baseQuery = baseQuery.Order("id desc")
 	baseQuery = baseQuery.Limit(pageSize + 1).Offset(page * pageSize)
