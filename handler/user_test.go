@@ -283,6 +283,21 @@ func TestUsersAsAdmin(t *testing.T) {
 	}
 }
 
+func TestUserAsUser(t *testing.T) {
+	user, err := testUser(testDBCon)
+	assert.NoError(t, err)
+
+	router := New()
+	w := httptest.NewRecorder()
+	uri := "/admin/users"
+	req, err := http.NewRequest("GET", uri, nil)
+	assert.NoError(t, err)
+
+	setAuthJWTForTest(req, user)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+}
+
 func TestSearchUserAsAdmin(t *testing.T) {
 	admin, err := testAdmin(testDBCon)
 	assert.NoError(t, err)
