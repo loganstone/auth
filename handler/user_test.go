@@ -25,13 +25,18 @@ func TestUser(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s", user.Email)
-	req, err := http.NewRequest("GET", uri, nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("/users/%s", testEmail()), nil)
 	assert.NoError(t, err)
-
 	setAuthJWTForTest(req, user)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
 
+	w = httptest.NewRecorder()
+	req, err = http.NewRequest("GET", fmt.Sprintf("/users/%s", user.Email), nil)
+	assert.NoError(t, err)
+	setAuthJWTForTest(req, user)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
