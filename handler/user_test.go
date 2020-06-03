@@ -293,7 +293,7 @@ func TestUsersAsAdmin(t *testing.T) {
 	}
 }
 
-func TestUserAsUser(t *testing.T) {
+func TestUsersAsUser(t *testing.T) {
 	user, err := testUser(testDBCon)
 	assert.NoError(t, err)
 
@@ -308,7 +308,7 @@ func TestUserAsUser(t *testing.T) {
 	assert.Equal(t, http.StatusForbidden, w.Code)
 }
 
-func TestSearchUserAsAdmin(t *testing.T) {
+func TestSearchUsersAsAdmin(t *testing.T) {
 	admin, err := testAdmin(testDBCon)
 	assert.NoError(t, err)
 
