@@ -178,6 +178,14 @@ func TestChangePassword(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, signinReqBody.Email, resBody.User.Email)
 	assert.NotEqual(t, "", resBody.Token)
+
+	w = httptest.NewRecorder()
+	uri = fmt.Sprintf("/users/%s/password", testEmail())
+	req, err = http.NewRequest("PUT", uri, bytes.NewReader(body))
+	assert.NoError(t, err)
+	setAuthJWTForTest(req, user)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
 }
 
 func TestChangePasswordWithIncorrectCurrentPassword(t *testing.T) {
