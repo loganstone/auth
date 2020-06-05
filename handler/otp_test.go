@@ -130,14 +130,21 @@ func TestResetOTP(t *testing.T) {
 
 	body, err := json.Marshal(reqBody)
 	assert.NoError(t, err)
+	router := New()
+
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s/otp", user.Email)
+	uri := fmt.Sprintf("/users/%s/otp", testEmail())
 	req, err := http.NewRequest("DELETE", uri, bytes.NewReader(body))
 	assert.NoError(t, err)
-
 	setAuthJWTForTest(req, user)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
 
-	router := New()
+	w = httptest.NewRecorder()
+	uri = fmt.Sprintf("/users/%s/otp", user.Email)
+	req, err = http.NewRequest("DELETE", uri, bytes.NewReader(body))
+	assert.NoError(t, err)
+	setAuthJWTForTest(req, user)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
 
