@@ -367,12 +367,18 @@ func TestRenewSession(t *testing.T) {
 	router := New()
 
 	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s/session", user.Email)
+	uri := fmt.Sprintf("/users/%s/session", testEmail())
 	req, err := http.NewRequest("PUT", uri, nil)
 	assert.NoError(t, err)
-
 	setAuthJWTForTest(req, user)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
 
+	w = httptest.NewRecorder()
+	uri = fmt.Sprintf("/users/%s/session", user.Email)
+	req, err = http.NewRequest("PUT", uri, nil)
+	assert.NoError(t, err)
+	setAuthJWTForTest(req, user)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
