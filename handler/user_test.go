@@ -55,13 +55,12 @@ func TestUserWithNonexistentEmail(t *testing.T) {
 	nonexistentEmail := testEmail()
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/admin/users/%s", nonexistentEmail)
 	req, err := http.NewRequest("GET", uri, nil)
 	assert.NoError(t, err)
-
 	setAuthJWTForTest(req, admin)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
@@ -95,21 +94,19 @@ func TestDeleteUser(t *testing.T) {
 func TestDeleteUserAsOtherUser(t *testing.T) {
 	user, err := testUser(testDBCon)
 	assert.NoError(t, err)
-
-	router := New()
-	w := httptest.NewRecorder()
-	uri := fmt.Sprintf("/users/%s", user.Email)
-	req, err := http.NewRequest("DELETE", uri, nil)
-	assert.NoError(t, err)
-
 	otherUser := db.User{
 		Email: testEmail(),
 	}
 	err = otherUser.Create(testDBCon, testPassword)
 	assert.NoError(t, err)
 
-	setAuthJWTForTest(req, &otherUser)
+	router := New()
 
+	w := httptest.NewRecorder()
+	uri := fmt.Sprintf("/users/%s", user.Email)
+	req, err := http.NewRequest("DELETE", uri, nil)
+	assert.NoError(t, err)
+	setAuthJWTForTest(req, &otherUser)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusForbidden, w.Code)
 }
@@ -117,18 +114,16 @@ func TestDeleteUserAsOtherUser(t *testing.T) {
 func TestDeleteUserAsAdmin(t *testing.T) {
 	user, err := testUser(testDBCon)
 	assert.NoError(t, err)
+	admin, err := testAdmin(testDBCon)
+	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/admin/users/%s", user.Email)
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.NoError(t, err)
-
-	admin, err := testAdmin(testDBCon)
-	assert.NoError(t, err)
-
 	setAuthJWTForTest(req, admin)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
@@ -146,13 +141,12 @@ func TestChangePassword(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s/password", user.Email)
 	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
 	assert.NoError(t, err)
-
 	setAuthJWTForTest(req, user)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -168,9 +162,7 @@ func TestChangePassword(t *testing.T) {
 	req, err = http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
-
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody SiginResponse
@@ -196,18 +188,16 @@ func TestChangePasswordWithIncorrectCurrentPassword(t *testing.T) {
 		CurrentPassword: "incorrectcurrentpassword",
 		Password:        changedPassword,
 	}
-
 	body, err := json.Marshal(reqBody)
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s/password", user.Email)
 	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
 	assert.NoError(t, err)
-
 	setAuthJWTForTest(req, user)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
@@ -224,18 +214,16 @@ func TestChangePasswordWithoutPassword(t *testing.T) {
 	reqBody := ChangePasswordParam{
 		CurrentPassword: testPassword,
 	}
-
 	body, err := json.Marshal(reqBody)
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s/password", user.Email)
 	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
 	assert.NoError(t, err)
-
 	setAuthJWTForTest(req, user)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
@@ -258,11 +246,10 @@ func TestUsersAsAdmin(t *testing.T) {
 	}
 
 	router := New()
-	w := httptest.NewRecorder()
-	uri := "/admin/users"
-	req, err := http.NewRequest("GET", uri, nil)
-	assert.NoError(t, err)
 
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/admin/users", nil)
+	assert.NoError(t, err)
 	setAuthJWTForTest(req, admin)
 	q := req.URL.Query()
 
@@ -306,11 +293,10 @@ func TestUsersAsUser(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
-	w := httptest.NewRecorder()
-	uri := "/admin/users"
-	req, err := http.NewRequest("GET", uri, nil)
-	assert.NoError(t, err)
 
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/admin/users", nil)
+	assert.NoError(t, err)
 	setAuthJWTForTest(req, user)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusForbidden, w.Code)
@@ -324,11 +310,10 @@ func TestSearchUsersAsAdmin(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
-	w := httptest.NewRecorder()
-	uri := "/admin/users"
-	req, err := http.NewRequest("GET", uri, nil)
-	assert.NoError(t, err)
 
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/admin/users", nil)
+	assert.NoError(t, err)
 	setAuthJWTForTest(req, admin)
 	q := req.URL.Query()
 

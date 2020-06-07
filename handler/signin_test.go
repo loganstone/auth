@@ -22,18 +22,17 @@ func TestSignin(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody SiginResponse
 	err = json.NewDecoder(w.Body).Decode(&resBody)
 	assert.NoError(t, err)
-
 	assert.Equal(t, reqBody.Email, resBody.User.Email)
 	assert.NotEqual(t, "", resBody.Token)
 }
@@ -50,18 +49,17 @@ func TestSigninWithWrongPassword(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
 	var errRes ErrorCodeResponse
 	err = json.NewDecoder(w.Body).Decode(&errRes)
 	assert.NoError(t, err)
-
 	assert.Equal(t, ErrorCodeIncorrectPassword, errRes.ErrorCode)
 }
 
@@ -76,18 +74,17 @@ func TestSigninWithoutEmail(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	var errRes ErrorCodeResponse
 	err = json.NewDecoder(w.Body).Decode(&errRes)
 	assert.NoError(t, err)
-
 	assert.Equal(t, ErrorCodeBindJSON, errRes.ErrorCode)
 }
 
@@ -102,18 +99,17 @@ func TestSigninWithoutPassword(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	var errRes ErrorCodeResponse
 	err = json.NewDecoder(w.Body).Decode(&errRes)
 	assert.NoError(t, err)
-
 	assert.Equal(t, ErrorCodeBindJSON, errRes.ErrorCode)
 }
 
@@ -139,11 +135,11 @@ func TestSigninWithOTP(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -171,7 +167,6 @@ func TestSigninWithBackupCode(t *testing.T) {
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -199,18 +194,17 @@ func TestSigninWithIncorrectOTP(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
 	var errRes ErrorCodeResponse
 	err = json.NewDecoder(w.Body).Decode(&errRes)
 	assert.NoError(t, err)
-
 	assert.Equal(t, ErrorCodeIncorrectOTP, errRes.ErrorCode)
 }
 
@@ -256,18 +250,17 @@ func TestSigninWithAllBackupCodes(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
 	var errRes ErrorCodeResponse
 	err = json.NewDecoder(w.Body).Decode(&errRes)
 	assert.NoError(t, err)
-
 	assert.Equal(t, ErrorCodeRequireVerifyOTP, errRes.ErrorCode)
 }
 
@@ -289,17 +282,16 @@ func TestSigninWithoutOTP(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signin", bytes.NewReader(body))
 	defer req.Body.Close()
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
 	var errRes ErrorCodeResponse
 	err = json.NewDecoder(w.Body).Decode(&errRes)
 	assert.NoError(t, err)
-
 	assert.Equal(t, ErrorCodeRequireVerifyOTP, errRes.ErrorCode)
 }

@@ -18,13 +18,12 @@ func TestGenerateOTP(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s/otp", user.Email)
 	req, err := http.NewRequest("POST", uri, nil)
 	assert.NoError(t, err)
-
 	setAuthJWTForTest(req, user)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -46,7 +45,6 @@ func TestConfirmOTP(t *testing.T) {
 
 	_, errCodeRes := generateOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
-
 	totp, err := user.TOTP()
 	assert.NoError(t, err)
 	reqBody := map[string]string{
@@ -55,14 +53,13 @@ func TestConfirmOTP(t *testing.T) {
 	body, err := json.Marshal(reqBody)
 	assert.NoError(t, err)
 
+	router := New()
+
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s/otp", user.Email)
 	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
 	assert.NoError(t, err)
-
 	setAuthJWTForTest(req, user)
-
-	router := New()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
@@ -92,14 +89,13 @@ func TestConfirmOTPWithoutOTPSecretKey(t *testing.T) {
 	body, err := json.Marshal(reqBody)
 	assert.NoError(t, err)
 
+	router := New()
+
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/users/%s/otp", user.Email)
 	req, err := http.NewRequest("PUT", uri, bytes.NewReader(body))
 	assert.NoError(t, err)
-
 	setAuthJWTForTest(req, user)
-
-	router := New()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
@@ -130,6 +126,7 @@ func TestResetOTP(t *testing.T) {
 
 	body, err := json.Marshal(reqBody)
 	assert.NoError(t, err)
+
 	router := New()
 
 	w := httptest.NewRecorder()
@@ -165,18 +162,16 @@ func TestResetOTPAsAdmin(t *testing.T) {
 	errCodeRes = confirmOTP(testDBCon, user)
 	assert.Nil(t, errCodeRes)
 
+	router := New()
+
 	// Reset - Admin
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/admin/users/%s/otp", user.Email)
 	req, err := http.NewRequest("DELETE", uri, nil)
 	assert.NoError(t, err)
-
 	admin, err := testAdmin(testDBCon)
 	assert.NoError(t, err)
-
 	setAuthJWTForTest(req, admin)
-
-	router := New()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusNoContent, w.Code)
 

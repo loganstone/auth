@@ -94,18 +94,17 @@ func TestSendVerificationEmail(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signup/email/verification", bytes.NewReader(body))
 	defer req.Body.Close()
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody VerificationEmailResponseForTest
 	err = json.NewDecoder(w.Body).Decode(&resBody)
 	assert.NoError(t, err)
-
 	claims, err := utils.ParseSignupJWT(resBody.SignupToken, conf.JWTSigninKey)
 	assert.NoError(t, err)
 	assert.Equal(t, reqBody.Email, claims.Email)
@@ -126,18 +125,17 @@ func TestVerifySignupToken(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/signup/email/verification/%s", signupToken)
 	req, err := http.NewRequest("GET", uri, nil)
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resBody map[string]string
 	err = json.NewDecoder(w.Body).Decode(&resBody)
 	assert.NoError(t, err)
-
 	assert.Equal(t, email, resBody["email"])
 }
 
@@ -149,18 +147,17 @@ func TestVerifySignupTokenWithExpiredToken(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	uri := fmt.Sprintf("/signup/email/verification/%s", signupToken)
 	req, err := http.NewRequest("GET", uri, nil)
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	var resBody ErrorCodeResponse
 	err = json.NewDecoder(w.Body).Decode(&resBody)
 	assert.NoError(t, err)
-
 	assert.Equal(t, ErrorCodeExpiredToken, resBody.ErrorCode)
 }
 
@@ -179,17 +176,16 @@ func TestSignup(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signup", bytes.NewReader(body))
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
 
 	var resBody db.User
 	err = json.NewDecoder(w.Body).Decode(&resBody)
 	assert.NoError(t, err)
-
 	assert.Equal(t, email, resBody.Email)
 }
 
@@ -208,16 +204,15 @@ func TestSignupWithShortPassword(t *testing.T) {
 	assert.NoError(t, err)
 
 	router := New()
+
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/signup", bytes.NewReader(body))
 	assert.NoError(t, err)
-
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	var errRes ErrorCodeResponse
 	err = json.NewDecoder(w.Body).Decode(&errRes)
 	assert.NoError(t, err)
-
 	assert.Equal(t, ErrorCodeInvalidPassword, errRes.ErrorCode)
 }
