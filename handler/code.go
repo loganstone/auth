@@ -6,7 +6,7 @@ const (
 
 	ErrorCodeDBEnv
 	ErrorCodeDBConn
-	ErrorCodeEmptyDBConn
+	ErrorCodeNoDBConn
 	ErrorCodeWrongDBConn
 	ErrorCodeDBTransaction
 

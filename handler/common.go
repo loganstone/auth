@@ -25,9 +25,9 @@ const (
 )
 
 var (
-	errEmptyAuthorizedUser = errors.New("'AuthorizedUser' empty")
+	errNoAuthorizedUser    = errors.New("no 'AuthorizedUser'")
 	errWrongAuthorizedUser = errors.New("'AuthorizedUser' not 'db.User' type")
-	errEmptyDBConn         = errors.New("empty db connection")
+	errNoDBConn            = errors.New("no db connection")
 	errWrongDBConn         = errors.New("wrong db connection")
 )
 
@@ -56,7 +56,7 @@ var errMapByCode = map[int]error{
 	ErrorCodeEmptyOTPBackupCodes:  errEmptyOTPBackupCodes,
 	ErrorCodeRequireVerifyOTP:     errRequireVerifyOTP,
 
-	ErrorCodeEmptyDBConn: errEmptyDBConn,
+	ErrorCodeNoDBConn:    errNoDBConn,
 	ErrorCodeWrongDBConn: errWrongDBConn,
 }
 
@@ -103,7 +103,7 @@ func NewErrResWithErr(code int, err error) ErrorCodeResponse {
 func AuthorizedUser(c *gin.Context) (user db.User, err error) {
 	authorizedUser, ok := c.Get("AuthorizedUser")
 	if !ok {
-		err = errEmptyAuthorizedUser
+		err = errNoAuthorizedUser
 		return
 	}
 	user, ok = authorizedUser.(db.User)
@@ -120,7 +120,7 @@ func DBConnOrAbort(c *gin.Context) *gorm.DB {
 	if !ok {
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
-			NewErrRes(ErrorCodeEmptyDBConn))
+			NewErrRes(ErrorCodeNoDBConn))
 		return nil
 	}
 	dbCon, ok := con.(*gorm.DB)
