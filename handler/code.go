@@ -39,9 +39,9 @@ const (
 	ErrorCodeSetPassword
 
 	ErrorCodeOTPAlreadyRegistered
-	ErrorCodeEmptyOTPSecretKey
+	ErrorCodeNoOTPSecretKey
 	ErrorCodeIncorrectOTP
-	ErrorCodeEmptyOTPBackupCodes
+	ErrorCodeNoOTPBackupCodes
 	ErrorCodeRequireVerifyOTP
 
 	ErrorCodeOTPProvisioningURI

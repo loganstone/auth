@@ -38,9 +38,9 @@ var (
 	errExpiredToken      = errors.New("expired token")
 
 	errOTPAlreadyRegistered = errors.New("OTP has already been registered")
-	errEmptyOTPSecretKey    = errors.New("empty OTP secert key")
+	errNoOTPSecretKey       = errors.New("no OTP secert key")
 	errIncorrectOTP         = errors.New("OTP is Incorrect")
-	errEmptyOTPBackupCodes  = errors.New("empty otp backup codes. contact administrator")
+	errNoOTPBackupCodes     = errors.New("no otp backup codes. contact administrator")
 	errRequireVerifyOTP     = errors.New("required verify OTP")
 )
 
@@ -51,9 +51,9 @@ var errMapByCode = map[int]error{
 	ErrorCodeExpiredToken:      errExpiredToken,
 
 	ErrorCodeOTPAlreadyRegistered: errOTPAlreadyRegistered,
-	ErrorCodeEmptyOTPSecretKey:    errEmptyOTPSecretKey,
+	ErrorCodeNoOTPSecretKey:       errNoOTPSecretKey,
 	ErrorCodeIncorrectOTP:         errIncorrectOTP,
-	ErrorCodeEmptyOTPBackupCodes:  errEmptyOTPBackupCodes,
+	ErrorCodeNoOTPBackupCodes:     errNoOTPBackupCodes,
 	ErrorCodeRequireVerifyOTP:     errRequireVerifyOTP,
 
 	ErrorCodeNoDBConn:    errNoDBConn,

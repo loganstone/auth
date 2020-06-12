@@ -142,8 +142,7 @@ func ConfirmOTP(c *gin.Context) {
 		}
 		c.AbortWithStatusJSON(
 			http.StatusForbidden,
-			NewErrResWithLinks(
-				ErrorCodeEmptyOTPSecretKey, links))
+			NewErrResWithLinks(ErrorCodeNoOTPSecretKey, links))
 		return
 	}
 
@@ -194,7 +193,7 @@ func ResetOTP(c *gin.Context) {
 		if user.OTPBackupCodes == nil {
 			c.AbortWithStatusJSON(
 				http.StatusForbidden,
-				NewErrRes(ErrorCodeEmptyOTPBackupCodes))
+				NewErrRes(ErrorCodeNoOTPBackupCodes))
 			return
 		}
 
