@@ -46,8 +46,7 @@ func TestReset(t *testing.T) {
 }
 
 func TestResetWithBadDSN(t *testing.T) {
-	baddsn := "baddsn"
-	err := Reset(baddsn, "badtable")
-	expectedError := "drop 'badtable' database failed: invalid DSN: missing the slash separating the database name"
+	err := Reset("baddsn", "badtable")
+	expectedError := "db connection failed: invalid DSN: missing the slash separating the database name"
 	assert.EqualError(t, err, expectedError)
 }

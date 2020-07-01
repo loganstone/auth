@@ -62,10 +62,10 @@ func Connection(dataSourceName string, echo bool) (*gorm.DB, error) {
 func Reset(dataSourceName string, dbname string) error {
 	dataSourceName = strings.Split(dataSourceName, dbname)[0]
 	db, err := sql.Open("mysql", dataSourceName)
-	defer db.Close()
 	if err != nil {
 		return fmt.Errorf("db connection failed: %w", err)
 	}
+	defer db.Close()
 
 	_, err = db.Exec("DROP DATABASE IF EXISTS " + dbname)
 	if err != nil {
