@@ -151,6 +151,7 @@ func findUserByEmailOrAbort(email string, c *gin.Context, con *gorm.DB, httpStat
 	}
 
 	// TODO(hs.lee): 테스트 케이스를 추가한다.
+	// NOTE(hs.lee): 관리자인 경우 삭제된 사용자도 검색 가능
 	if c.GetBool("AuthorizedUserIsAdmin") {
 		con = con.Unscoped()
 	}
