@@ -22,7 +22,7 @@ const (
 	defaultSignupURL = "http://localhost:%d/signup/email/verification/%s"
 )
 
-// AppConfig .
+// AppConfig contains the information needed to operate application.
 type AppConfig struct {
 	gracefulShutdownDuration time.Duration
 
