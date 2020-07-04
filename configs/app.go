@@ -40,7 +40,7 @@ type AppConfig struct {
 	siginupURL string
 }
 
-// SignupURL .
+// SignupURL is returns signup url to be used by frontend.
 func (c *AppConfig) SignupURL(token string) string {
 	if c.siginupURL == "" {
 		return ""
