@@ -57,7 +57,7 @@ func (c *AppConfig) SignupURL(token string) string {
 	return fmt.Sprintf("%s%s", c.siginupURL, token)
 }
 
-// SecretKeyLen .
+// SecretKeyLen is returns key length information required when creating a secretKey.
 func (c *AppConfig) SecretKeyLen() int {
 	return c.secretKeyLen
 }
