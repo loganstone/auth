@@ -62,7 +62,7 @@ func (c *AppConfig) SecretKeyLen() int {
 	return c.secretKeyLen
 }
 
-// GracefulShutdownDuration .
+// GracefulShutdownDuration is returns duration value to be used when GracefulShutdown.
 func (c *AppConfig) GracefulShutdownDuration() time.Duration {
 	return c.gracefulShutdownDuration
 }
