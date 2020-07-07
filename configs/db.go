@@ -16,7 +16,7 @@ const (
 	defaultDBPort = "3306"
 )
 
-// DatabaseConfig contains information for database access.
+// DatabaseConfig contains values for database access.
 type DatabaseConfig struct {
 	id         string
 	pw         string
@@ -41,8 +41,8 @@ func (c *DatabaseConfig) DSN() string {
 		dbConStr, c.id, c.pw, c.host, c.port, c.DBName(), dbConOpt)
 }
 
-// DB returns the information needed to access the database.
-// If required information constraint is not met, an error is returned.
+// DB returns the values needed to access the database.
+// If required value constraint is not met, an error is returned.
 func DB() (*DatabaseConfig, error) {
 	const fnDB = "DB"
 	conf := DatabaseConfig{

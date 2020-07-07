@@ -22,7 +22,7 @@ const (
 	defaultSignupURL = "http://localhost:%d/signup/email/verification/%s"
 )
 
-// AppConfig contains the information needed to operate application.
+// AppConfig contains the values needed to operate application.
 type AppConfig struct {
 	gracefulShutdownDuration time.Duration
 
@@ -57,7 +57,7 @@ func (c *AppConfig) SignupURL(token string) string {
 	return fmt.Sprintf("%s%s", c.siginupURL, token)
 }
 
-// SecretKeyLen is returns key length information required when creating a secretKey.
+// SecretKeyLen is returns key length value required when creating a secretKey.
 func (c *AppConfig) SecretKeyLen() int {
 	return c.secretKeyLen
 }
