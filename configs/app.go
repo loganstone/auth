@@ -67,7 +67,8 @@ func (c *AppConfig) GracefulShutdownDuration() time.Duration {
 	return c.gracefulShutdownDuration
 }
 
-// App .
+// App returns the Values needed to operate application.
+// Value not set in environment variable is set to fixed value.
 func App() *AppConfig {
 	conf := AppConfig{
 		gracefulShutdownDuration: time.Second * defaultGracefulShutdownDuration,
