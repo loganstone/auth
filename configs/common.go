@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// EnvPrefix .
+// EnvPrefix is prefix of environment variables to be used in the application.
 const EnvPrefix = "AUTH_"
 
 // EnvError .
