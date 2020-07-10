@@ -9,7 +9,7 @@ import (
 // EnvPrefix is prefix of environment variables to be used in the application.
 const EnvPrefix = "AUTH_"
 
-// EnvError .
+// EnvError is an error type returned when a required environment variable is not set.
 type EnvError struct {
 	Func string
 	Err  error
