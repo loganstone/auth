@@ -14,7 +14,7 @@ const (
 
 var smtpPort = defaultSMTPPort
 
-// SMTPConfig .
+// SMTPConfig contains values for smtp server.
 type SMTPConfig struct {
 	host string
 	port int
