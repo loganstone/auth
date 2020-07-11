@@ -20,7 +20,7 @@ type SMTPConfig struct {
 	port int
 }
 
-// Addr .
+// Addr is returns smtp server address.
 func (c *SMTPConfig) Addr() string {
 	return net.JoinHostPort(c.host, strconv.Itoa(c.port))
 }
