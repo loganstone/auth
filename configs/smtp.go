@@ -35,7 +35,7 @@ func (c *SMTPConfig) DialAndQuit() error {
 	return nil
 }
 
-// SetSMTPPort .
+// SetSMTPPort configures the port of the smtp server used global in application.
 func SetSMTPPort(port int) {
 	smtpPort = port
 }
