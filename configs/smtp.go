@@ -40,7 +40,7 @@ func SetSMTPPort(port int) {
 	smtpPort = port
 }
 
-// SMTP .
+// SMTP is returns values needed to connect smtp server.
 func SMTP() *SMTPConfig {
 	return &SMTPConfig{
 		defaultSMTPHost,
