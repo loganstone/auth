@@ -25,7 +25,8 @@ func (c *SMTPConfig) Addr() string {
 	return net.JoinHostPort(c.host, strconv.Itoa(c.port))
 }
 
-// DialAndQuit .
+// DialAndQuit is checks smtp server is running.
+// If not running, an error is returned.
 func (c *SMTPConfig) DialAndQuit() error {
 	con, err := smtp.Dial(c.Addr())
 	if err != nil {
