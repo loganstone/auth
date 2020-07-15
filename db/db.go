@@ -12,7 +12,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql" // driver
 )
 
-// IDField ...
+// IDField is primary key definition.
 type IDField struct {
 	ID uint `gorm:"primary_key"`
 }
