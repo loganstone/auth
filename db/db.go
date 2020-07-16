@@ -17,7 +17,7 @@ type IDField struct {
 	ID uint `gorm:"primary_key"`
 }
 
-// DateTimeFields ...
+// DateTimeFields is base columns definition.
 type DateTimeFields struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
