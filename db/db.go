@@ -24,7 +24,7 @@ type DateTimeFields struct {
 	DeletedAt *time.Time
 }
 
-// SyncModels .
+// SyncModels is synchronize databases and models.
 func SyncModels(dataSourceName string, echo bool) (*gorm.DB, error) {
 	const maxWait = 1000
 	con, err := Connection(dataSourceName, echo)
