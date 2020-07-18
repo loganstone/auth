@@ -58,7 +58,7 @@ func Connection(dataSourceName string, echo bool) (*gorm.DB, error) {
 	return db, nil
 }
 
-// Reset .
+// Reset is drop the database and create a new one.
 func Reset(dataSourceName string, dbname string) error {
 	dataSourceName = strings.Split(dataSourceName, dbname)[0]
 	db, err := sql.Open("mysql", dataSourceName)
