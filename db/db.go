@@ -81,7 +81,7 @@ func Reset(dataSourceName string, dbname string) error {
 	return nil
 }
 
-// Do .
+// Do is executed between begin and commit in a transaction.
 type Do func(tx *gorm.DB) error
 
 // Transaction .
