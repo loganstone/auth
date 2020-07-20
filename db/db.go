@@ -84,7 +84,7 @@ func Reset(dataSourceName string, dbname string) error {
 // Do is executed between begin and commit in a transaction.
 type Do func(tx *gorm.DB) error
 
-// Transaction .
+// Transaction apply work tied to one in 'Do' type function to DB.
 func Transaction(db *gorm.DB, do Do) error {
 	tx := db.Begin()
 	defer func() {
