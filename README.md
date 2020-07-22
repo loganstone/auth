@@ -18,18 +18,21 @@
 - [ ] 기능이 처리 되었음을 알리는 이벤트 전달 (kafka 지원)
   - https://github.com/confluentinc/confluent-kafka-go 사용 예정
 
-# Running Tests
 
-* 로컬 메일서버(postfix)가 필요합니다.
+# Prerequisites
+
+* 로컬 메일서버(postfix)가 필요합니다. 테스트 실행 시에는 필요하지 않습니다.
 * MariaDB 서버가 필요합니다.
-* 환경 변수 설정이 필요합니다.
+* 필수 환경 변수 설정이 필요합니다.
 
 ```shell
-$ export AUTH_LISTEN_PORT=<if you want, default 9999>
-$ export AUTH_DB_HOST=<if you want, default 127.0.0.1>
-$ export AUTH_DB_PORT=<if you want, default 3306>
 $ export AUTH_DB_NAME=<your dbname, required>
 $ export AUTH_DB_ID=<your db id, required>
 $ export AUTH_DB_PW=<your db password, required>
+```
+
+# Running Tests
+
+```shell
 $ go test -v -count=1 ./...  # no cached
 ```
