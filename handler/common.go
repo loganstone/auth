@@ -60,6 +60,13 @@ var errMapByCode = map[int]error{
 	ErrorCodeWrongDBConn: errWrongDBConn,
 }
 
+// SendEmailParam .
+type SendEmailParam struct {
+	Email   string `json:"email" binding:"required,email"`
+	Subject string `json:"subject" binding:"required"`
+	Body    string `json:"body" binding:"required"`
+}
+
 // Link .
 type Link struct {
 	Rel    string `json:"rel"`

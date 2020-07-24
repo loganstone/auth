@@ -85,7 +85,7 @@ func TestSendVerificationEmail(t *testing.T) {
 	}()
 	configs.SetSMTPPort(utils.MockSMTPPort)
 
-	reqBody := VerificationEmailParam{
+	reqBody := SendEmailParam{
 		Email:   email,
 		Subject: emailSubject,
 		Body:    emailBodyTmpl,

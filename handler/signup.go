@@ -15,13 +15,6 @@ import (
 	"github.com/loganstone/auth/utils"
 )
 
-// VerificationEmailParam .
-type VerificationEmailParam struct {
-	Email   string `json:"email" binding:"required,email"`
-	Subject string `json:"subject" binding:"required"`
-	Body    string `json:"body" binding:"required"`
-}
-
 // SignupParam .
 type SignupParam struct {
 	Token    string `json:"token" binding:"required"`
@@ -52,7 +45,7 @@ func SendVerificationEmail(c *gin.Context) {
 		return
 	}
 
-	var param VerificationEmailParam
+	var param SendEmailParam
 	if err := c.ShouldBindJSON(&param); err != nil {
 		c.AbortWithStatusJSON(
 			http.StatusBadRequest,
