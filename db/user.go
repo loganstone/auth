@@ -95,7 +95,7 @@ func (c *Codes) Del(code string) (bool, error) {
 	return true, nil
 }
 
-// User .
+// User is user ORM.
 type User struct {
 	IDField
 	Email          string `gorm:"index;not null" binding:"required,email"`
