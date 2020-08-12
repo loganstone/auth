@@ -235,7 +235,9 @@ func (u *User) ConfirmedOTP() bool {
 	return u.OTPConfirmedAt != nil
 }
 
-// Create .
+// Create creates a new user and saves it in the DB.
+// An error is returned if there are users with duplicate emails or
+// if the password does not match the specified format.
 func (u *User) Create(con *gorm.DB, password string) error {
 	if u.Email == "" {
 		return fmt.Errorf(
