@@ -223,7 +223,8 @@ func (u *User) ConfirmOTP() {
 	u.OTPConfirmedAt = &now
 }
 
-// ResetOTP .
+// ResetOTP initializes OTP registration data.
+// Applied when calling Save.
 func (u *User) ResetOTP() {
 	u.OTPSecretKey = ""
 	u.OTPConfirmedAt = nil
