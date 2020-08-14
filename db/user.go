@@ -36,7 +36,7 @@ var (
 	noWordRegExp = regexp.MustCompile(`[\W]+`)
 )
 
-// Codes .
+// Codes are slice that store code.
 type Codes []byte
 
 // Value .
