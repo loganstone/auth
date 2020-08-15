@@ -39,7 +39,8 @@ var (
 // Codes are slice that store code.
 type Codes []byte
 
-// Value .
+// Value is returned after converting the saved value to a string slice.
+// Returns nil if there is no value.
 func (c Codes) Value() []string {
 	var result []string
 	err := json.Unmarshal(c, &result)
