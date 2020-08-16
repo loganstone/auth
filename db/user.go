@@ -53,7 +53,7 @@ func (c Codes) Value() []string {
 	return result
 }
 
-// Set .
+// Set converts the argument to a byte string and saves it.
 func (c *Codes) Set(codes []string) error {
 	result, err := json.Marshal(codes)
 	if err != nil {
