@@ -64,7 +64,7 @@ func (c *Codes) Set(codes []string) error {
 	return nil
 }
 
-// In .
+// In returns whether the argument is included in the stored value.
 func (c Codes) In(code string) (int, bool) {
 	if codes := c.Value(); codes != nil {
 		for i, v := range codes {
