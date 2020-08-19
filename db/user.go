@@ -76,7 +76,9 @@ func (c Codes) In(code string) (int, bool) {
 	return 0, false
 }
 
-// Del .
+// Del deletes the parameter after checking whether it is in the stored value.
+// It returns whether to delete afterwards. If an error occurs, an error is returned.
+// In this case, it returns false whether to delete.
 func (c *Codes) Del(code string) (bool, error) {
 	codes := c.Value()
 	if codes == nil {
