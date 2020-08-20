@@ -112,7 +112,8 @@ type User struct {
 	DateTimeFields
 }
 
-// JSONUser .
+// JSONUser is used when payload to a request.
+// This is a structure with important information removed.
 type JSONUser struct {
 	Email          string `json:"email"`
 	IsAdmin        bool   `json:"is_admin"`
