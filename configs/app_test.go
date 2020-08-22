@@ -73,14 +73,15 @@ func TestAppDefault(t *testing.T) {
 
 func TestApp(t *testing.T) {
 	data := map[string]string{
-		EnvPrefix + "LISTEN_PORT":          "8080",
-		EnvPrefix + "SIGNUP_TOKEN_EXPIRE":  "3600",
-		EnvPrefix + "SESSION_TOKEN_EXPIRE": "3600",
-		EnvPrefix + "JWT_SIGNIN_KEY":       "testkey",
-		EnvPrefix + "ORG":                  "test org",
-		EnvPrefix + "SUPPORT_EMAIL":        "test.support@email.com",
-		EnvPrefix + "PAGE_SIZE":            "50",
-		EnvPrefix + "PAGE_SIZE_LIMIT":      "100",
+		EnvPrefix + "LISTEN_PORT":                 "8080",
+		EnvPrefix + "SIGNUP_TOKEN_EXPIRE":         "3600",
+		EnvPrefix + "SESSION_TOKEN_EXPIRE":        "3600",
+		EnvPrefix + "RESET_PASSWORD_TOKEN_EXPIRE": "3600",
+		EnvPrefix + "JWT_SIGNIN_KEY":              "testkey",
+		EnvPrefix + "ORG":                         "test org",
+		EnvPrefix + "SUPPORT_EMAIL":               "test.support@email.com",
+		EnvPrefix + "PAGE_SIZE":                   "50",
+		EnvPrefix + "PAGE_SIZE_LIMIT":             "100",
 	}
 
 	for k, v := range data {
@@ -101,6 +102,10 @@ func TestApp(t *testing.T) {
 	val, err = strconv.Atoi(data[EnvPrefix+"SESSION_TOKEN_EXPIRE"])
 	assert.NoError(t, err)
 	assert.Equal(t, val, conf.SessionTokenExpire)
+
+	val, err = strconv.Atoi(data[EnvPrefix+"RESET_PASSWORD_TOKEN_EXPIRE"])
+	assert.NoError(t, err)
+	assert.Equal(t, val, conf.ResetPasswrodTokenExpire)
 
 	assert.Equal(t, data[EnvPrefix+"ORG"], conf.Org)
 

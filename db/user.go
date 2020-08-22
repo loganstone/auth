@@ -105,9 +105,10 @@ type User struct {
 	HashedPassword string `gorm:"not null"`
 	IsAdmin        bool   `gorm:"default:false"`
 
-	OTPSecretKey   string `gorm:"size:16"`
-	OTPBackupCodes Codes
-	OTPConfirmedAt *time.Time
+	OTPSecretKey    string `gorm:"size:16"`
+	OTPBackupCodes  Codes
+	OTPConfirmedAt  *time.Time
+	PasswordResetTs int
 
 	DateTimeFields
 }
