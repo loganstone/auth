@@ -106,16 +106,6 @@ func SendVerificationEmail(c *gin.Context) {
 		return
 	}
 
-	if gin.Mode() == gin.TestMode {
-		c.JSON(http.StatusOK, VerificationEmailResponseForTest{
-			VerificationEmailData: data,
-			SignupToken:           signupToken,
-			Subject:               param.Subject,
-			Body:                  body.String(),
-		})
-		return
-	}
-
 	c.Status(http.StatusOK)
 }
 

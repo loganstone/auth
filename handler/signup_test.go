@@ -101,20 +101,6 @@ func TestSendVerificationEmail(t *testing.T) {
 	assert.NoError(t, err)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
-
-	var resBody VerificationEmailResponseForTest
-	err = json.NewDecoder(w.Body).Decode(&resBody)
-	assert.NoError(t, err)
-	claims, err := utils.ParseSignupJWT(resBody.SignupToken, conf.JWTSigninKey)
-	assert.NoError(t, err)
-	assert.Equal(t, reqBody.Email, claims.Email)
-	assert.Equal(t, emailSubject, resBody.Subject)
-
-	var expectedEmailBody bytes.Buffer
-	assert.NoError(t, err)
-	err = emailTmpl.Execute(&expectedEmailBody, resBody.VerificationEmailData)
-	assert.NoError(t, err)
-	assert.Equal(t, expectedEmailBody.String(), resBody.Body)
 }
 
 func TestVerifySignupToken(t *testing.T) {
