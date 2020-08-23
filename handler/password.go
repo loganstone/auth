@@ -168,15 +168,5 @@ func SendResetPasswrodEmail(c *gin.Context) {
 		return
 	}
 
-	if gin.Mode() == gin.TestMode {
-		c.JSON(http.StatusOK, ResetPasswrodEmailResponseForTest{
-			ResetPasswrodEmailData: data,
-			ResetPasswrodToekn:     resetPasswordToken,
-			Subject:                param.Subject,
-			Body:                   body.String(),
-		})
-		return
-	}
-
 	c.Status(http.StatusOK)
 }
