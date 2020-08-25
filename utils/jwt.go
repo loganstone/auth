@@ -12,7 +12,7 @@ import (
 const (
 	Signup        = "Signup"
 	Session       = "Session"
-	ResetPasswrod = "ResetPasswrod"
+	ResetPassword = "ResetPassword"
 )
 
 // SessionUser .
@@ -39,10 +39,10 @@ type SessionClaims struct {
 	jwt.StandardClaims
 }
 
-// ResetPasswrodClaims .
-type ResetPasswrodClaims struct {
+// ResetPasswordClaims .
+type ResetPasswordClaims struct {
 	Email           string
-	PasswrodResetTs int
+	PasswordResetTs int
 	jwt.StandardClaims
 }
 
@@ -100,12 +100,12 @@ func (t *Token) Session(userID uint, userEmail, secretkey, issuer string) (strin
 	return t.SignedString([]byte(secretkey))
 }
 
-// ResetPasswrod .
-func (t *Token) ResetPasswrod(email string, passwordResetTs int, secretkey, issuer string) (string, error) {
-	t.Claims = ResetPasswrodClaims{
+// ResetPassword .
+func (t *Token) ResetPassword(email string, passwordResetTs int, secretkey, issuer string) (string, error) {
+	t.Claims = ResetPasswordClaims{
 		email,
 		passwordResetTs,
-		*newStandardClaims(ResetPasswrod, email, issuer, t.expireAfterSec, 0),
+		*newStandardClaims(ResetPassword, email, issuer, t.expireAfterSec, 0),
 	}
 	return t.SignedString([]byte(secretkey))
 }

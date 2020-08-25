@@ -20,18 +20,18 @@ type ChangePasswordParam struct {
 	Password        string `json:"password" binding:"required"`
 }
 
-// ResetPasswrodEmailData .
-type ResetPasswrodEmailData struct {
+// ResetPasswordEmailData .
+type ResetPasswordEmailData struct {
 	UserEmail    string `json:"user_email"`
 	ResetURL     string `json:"reset_url"`
 	ExpireMin    int    `json:"expire_min"`
 	Organization string `json:"organization"`
 }
 
-// ResetPasswrodEmailResponseForTest .
-type ResetPasswrodEmailResponseForTest struct {
-	ResetPasswrodEmailData
-	ResetPasswrodToekn string `json:"reset_password_token"`
+// ResetPasswordEmailResponseForTest .
+type ResetPasswordEmailResponseForTest struct {
+	ResetPasswordEmailData
+	ResetPasswordToekn string `json:"reset_password_token"`
 	Subject            string `json:"subject"`
 	Body               string `json:"body"`
 }
@@ -87,8 +87,8 @@ func ChangePassword(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-// SendResetPasswrodEmail .
-func SendResetPasswrodEmail(c *gin.Context) {
+// SendResetPasswordEmail .
+func SendResetPasswordEmail(c *gin.Context) {
 	conf := configs.App()
 	con := DBConnOrAbort(c)
 	if con == nil {
@@ -110,8 +110,8 @@ func SendResetPasswrodEmail(c *gin.Context) {
 	}
 	user.PasswordResetTs = int(time.Now().Unix())
 
-	token := utils.NewJWT(conf.ResetPasswrodTokenExpire)
-	resetPasswordToken, err := token.ResetPasswrod(
+	token := utils.NewJWT(conf.ResetPasswordTokenExpire)
+	resetPasswordToken, err := token.ResetPassword(
 		param.Email, user.PasswordResetTs, conf.JWTSigninKey, conf.Org)
 	if err != nil {
 		c.AbortWithStatusJSON(
@@ -133,10 +133,10 @@ func SendResetPasswrodEmail(c *gin.Context) {
 	}
 
 	var body bytes.Buffer
-	data := ResetPasswrodEmailData{
+	data := ResetPasswordEmailData{
 		UserEmail:    param.Email,
 		ResetURL:     conf.ResetPasswordURL(resetPasswordToken),
-		ExpireMin:    conf.ResetPasswrodTokenExpire / oneMinuteSeconds,
+		ExpireMin:    conf.ResetPasswordTokenExpire / oneMinuteSeconds,
 		Organization: conf.Org,
 	}
 

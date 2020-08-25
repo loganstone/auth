@@ -14,7 +14,7 @@ const (
 	defaultListenPort               = 9999
 	defaultSignupTokenExpire        = 1800 // 30 minutes
 	defaultSessionTokenExpire       = 3600 // 60 minutes
-	defaultResetPasswrodTokenExpire = 600  // 10 minutes
+	defaultResetPasswordTokenExpire = 600  // 10 minutes
 	defaultJWTSigninKey             = "PlzSetYourSigninKey"
 	defaultOrg                      = "Auth"
 	defaultSupportEmail             = "auth@email.com"
@@ -31,7 +31,7 @@ type AppConfig struct {
 	ListenPort               int
 	SignupTokenExpire        int
 	SessionTokenExpire       int
-	ResetPasswrodTokenExpire int
+	ResetPasswordTokenExpire int
 	JWTSigninKey             string
 	Org                      string
 	SupportEmail             string
@@ -98,7 +98,7 @@ func App() *AppConfig {
 		ListenPort:               defaultListenPort,
 		SignupTokenExpire:        defaultSignupTokenExpire,
 		SessionTokenExpire:       defaultSessionTokenExpire,
-		ResetPasswrodTokenExpire: defaultResetPasswrodTokenExpire,
+		ResetPasswordTokenExpire: defaultResetPasswordTokenExpire,
 		JWTSigninKey:             defaultJWTSigninKey,
 		Org:                      defaultOrg,
 		SupportEmail:             defaultSupportEmail,
@@ -110,7 +110,7 @@ func App() *AppConfig {
 		EnvPrefix + "LISTEN_PORT":                 &conf.ListenPort,
 		EnvPrefix + "SIGNUP_TOKEN_EXPIRE":         &conf.SignupTokenExpire,
 		EnvPrefix + "SESSION_TOKEN_EXPIRE":        &conf.SessionTokenExpire,
-		EnvPrefix + "RESET_PASSWORD_TOKEN_EXPIRE": &conf.ResetPasswrodTokenExpire,
+		EnvPrefix + "RESET_PASSWORD_TOKEN_EXPIRE": &conf.ResetPasswordTokenExpire,
 		EnvPrefix + "JWT_SIGNIN_KEY":              &conf.JWTSigninKey,
 		EnvPrefix + "ORG":                         &conf.Org,
 		EnvPrefix + "SUPPORT_EMAIL":               &conf.SupportEmail,

@@ -105,7 +105,7 @@ func TestApp(t *testing.T) {
 
 	val, err = strconv.Atoi(data[EnvPrefix+"RESET_PASSWORD_TOKEN_EXPIRE"])
 	assert.NoError(t, err)
-	assert.Equal(t, val, conf.ResetPasswrodTokenExpire)
+	assert.Equal(t, val, conf.ResetPasswordTokenExpire)
 
 	assert.Equal(t, data[EnvPrefix+"ORG"], conf.Org)
 
