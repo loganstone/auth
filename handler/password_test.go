@@ -12,7 +12,29 @@ import (
 )
 
 const (
-	changedPassword = "changedPassw0rd%"
+	changedPassword            = "changedPassw0rd%"
+	resetPasswordEmailSubject  = "[auth] Reset password."
+	resetPasswordEmailBodyTmpl = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Reset password.</title>
+</head>
+
+<body>
+    <p>Hi. Do you want to reset password?</p>
+
+    <p><a href="{{ .SignupURL }}">Reset Password</a></p>
+
+    <p>If you don’t use this link within {{ .ExpireMin }} minutes, it will expire.</p>
+
+    <p>Thanks,</p>
+    <p>Your friends at {{ .Organization }}.</p>
+
+    <p>If this wasn’t you, please ignore this email.</p>
+</body>
+
+</html>`
 )
 
 func TestChangePassword(t *testing.T) {

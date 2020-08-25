@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	emailSubject  = "[auth] Sign up for email address."
-	emailBodyTmpl = `<!DOCTYPE html>
+	verificationEmailSubject  = "[auth] Sign up for email address."
+	verificationEmailBodyTmpl = `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -55,7 +55,7 @@ func TestSendVerificationEmail(t *testing.T) {
 		Organization: conf.Org,
 	}
 
-	emailTmpl, err := template.New("verification email").Parse(emailBodyTmpl)
+	emailTmpl, err := template.New("verification email").Parse(verificationEmailBodyTmpl)
 	assert.NoError(t, err)
 	err = emailTmpl.Execute(&emailBody, data)
 	assert.NoError(t, err)
@@ -76,7 +76,7 @@ func TestSendVerificationEmail(t *testing.T) {
 			Name:    utils.NameFromEmail(email),
 			From:    conf.SupportEmail,
 			To:      email,
-			Subject: emailSubject,
+			Subject: verificationEmailSubject,
 			Body:    emailBody.String(),
 		}
 		if err := handler.Handle(); err != nil {
@@ -87,8 +87,8 @@ func TestSendVerificationEmail(t *testing.T) {
 
 	reqBody := SendEmailParam{
 		Email:   email,
-		Subject: emailSubject,
-		Body:    emailBodyTmpl,
+		Subject: verificationEmailSubject,
+		Body:    verificationEmailBodyTmpl,
 	}
 	body, err := json.Marshal(reqBody)
 	assert.NoError(t, err)
