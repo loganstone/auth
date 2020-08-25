@@ -22,9 +22,9 @@ const (
 </head>
 
 <body>
-    <p>Hi. Do you want to reset password?</p>
+    <p>Hi {{ .UserEmail}}. Do you want to reset password?</p>
 
-    <p><a href="{{ .SignupURL }}">Reset Password</a></p>
+    <p><a href="{{ .ResetURL }}">Reset Password</a></p>
 
     <p>If you don’t use this link within {{ .ExpireMin }} minutes, it will expire.</p>
 
