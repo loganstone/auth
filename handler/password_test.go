@@ -7,7 +7,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"text/template"
 
+	"github.com/loganstone/auth/configs"
+	"github.com/loganstone/auth/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -140,4 +143,65 @@ func TestChangePasswordWithoutPassword(t *testing.T) {
 	err = json.NewDecoder(w.Body).Decode(&errRes)
 	assert.NoError(t, err)
 	assert.Equal(t, ErrorCodeBindJSON, errRes.ErrorCode)
+}
+
+func TestSendResetPasswordEmail(t *testing.T) {
+	conf := configs.App()
+	user, err := testUser(testDBCon)
+	assert.NoError(t, err)
+
+	var emailBody bytes.Buffer
+	data := ResetPasswordEmailData{
+		UserEmail:    user.Email,
+		ResetURL:     conf.ResetPasswordURL("token"),
+		ExpireMin:    conf.ResetPasswordTokenExpire / oneMinuteSeconds,
+		Organization: conf.Org,
+	}
+
+	emailTmpl, err := template.New("reset password email").Parse(resetPasswordEmailBodyTmpl)
+	assert.NoError(t, err)
+	err = emailTmpl.Execute(&emailBody, data)
+	assert.NoError(t, err)
+
+	ln, err := utils.NewLocalListener(utils.MockSMTPPort)
+	assert.NoError(t, err)
+	defer ln.Close()
+
+	go func() {
+		c, err := ln.Accept()
+		if err != nil {
+			t.Errorf("local listener accept: %v", err)
+			return
+		}
+		defer c.Close()
+		handler := utils.MockSMTPHandler{
+			Con:     c,
+			Name:    utils.NameFromEmail(user.Email),
+			From:    conf.SupportEmail,
+			To:      user.Email,
+			Subject: resetPasswordEmailSubject,
+			Body:    emailBody.String(),
+		}
+		if err := handler.Handle(); err != nil {
+			t.Errorf("mock smtp handle error: %v", err)
+		}
+	}()
+	configs.SetSMTPPort(utils.MockSMTPPort)
+
+	reqBody := SendEmailParam{
+		Email:   user.Email,
+		Subject: resetPasswordEmailSubject,
+		Body:    resetPasswordEmailBodyTmpl,
+	}
+	body, err := json.Marshal(reqBody)
+	assert.NoError(t, err)
+
+	router := New()
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", "/email/reset_password", bytes.NewReader(body))
+	defer req.Body.Close()
+	assert.NoError(t, err)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
 }

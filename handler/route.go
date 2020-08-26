@@ -44,6 +44,7 @@ func bind(r *gin.Engine) {
 		signup.POST("", Signup)
 	}
 
+	r.POST("/email/reset_password", SendResetPasswordEmail)
 	r.POST("/signin", Signin)
 }
 
