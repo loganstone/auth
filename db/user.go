@@ -124,7 +124,8 @@ type JSONUser struct {
 	OTPConfirmedAt *int64 `json:"otp_confirmed_at"`
 }
 
-// SetPassword .
+// SetPassword converts the passed password string into a hash string and saves it.
+// If the password format is incorrect, an error is returned.
 func (u *User) SetPassword(password string) error {
 	// TODO(logan): 에러를 세분화
 	if password == "" {
