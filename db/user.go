@@ -166,7 +166,7 @@ func (u *User) SetPassword(password string) error {
 	return nil
 }
 
-// VerifyPassword .
+// VerifyPassword verifies that the given password is correct.
 func (u *User) VerifyPassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword(
 		[]byte(u.HashedPassword), []byte(password))
