@@ -269,7 +269,8 @@ func (u *User) Create(con *gorm.DB, password string) error {
 	return nil
 }
 
-// Save .
+// Save stores each attribute of User in DB.
+// If an error occurs while saving, rollback and return error.
 func (u *User) Save(con *gorm.DB) error {
 	do := func(tx *gorm.DB) error {
 		return tx.Save(u).Error
