@@ -281,7 +281,8 @@ func (u *User) Save(con *gorm.DB) error {
 	return nil
 }
 
-// Delete .
+// Delete deletes the user data from the DB.
+// If an error occurs while saving, rollback and return error.
 func (u *User) Delete(con *gorm.DB) error {
 	do := func(tx *gorm.DB) error {
 		return tx.Delete(u).Error
