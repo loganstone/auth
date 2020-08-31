@@ -293,7 +293,8 @@ func (u *User) Delete(con *gorm.DB) error {
 	return nil
 }
 
-// Fetch .
+// Fetch reads data from DB and synchronizes the user's data.
+// If the user has been deleted return error.
 func (u *User) Fetch(con *gorm.DB) (*User, error) {
 	user := &User{}
 	if con.Where("email = ? ", u.Email).First(user).RecordNotFound() {
