@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Email .
+// Email sends an email.
 type Email struct {
 	name    string
 	from    string
@@ -22,7 +22,7 @@ type Email struct {
 	wc      io.WriteCloser
 }
 
-// NewEmail .
+// NewEmail creates and returns a new Email object.
 func NewEmail(name, from, to, subject, body string) *Email {
 	return &Email{
 		name:    name,
