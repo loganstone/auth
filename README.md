@@ -4,7 +4,11 @@
 
 인증 서비스 API 만들기
 
+
 # Goal
+- [ ] GORM 을 SQLboiler + sql-migrate 로 변경하기
+  * SQLboiler 가 SQL 과 직관적인 맵핑
+  * GORM 일부 기능이 제대로 작동하지 않는 문제
 - [x] 이메일 확인 후 가입
 - [x] 비밀번호 인증
 - [x] 비밀번호 변경
