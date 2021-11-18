@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"text/template"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gin-gonic/gin"
 
 	"github.com/loganstone/auth/configs"

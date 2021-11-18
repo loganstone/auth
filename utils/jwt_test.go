@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 
 	"github.com/stretchr/testify/assert"
@@ -85,7 +85,7 @@ func TestParseJWTWithExpired(t *testing.T) {
 }
 
 func TestParseJWTWithBadMethod(t *testing.T) {
-	// reference - https://github.com/dgrijalva/jwt-go/blob/master/ecdsa_test.go#L23
+	// reference - https://github.com/golang-jwt/jwt/blob/main/ecdsa_test.go#L21
 	ecdsa256Token := "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJmb28iOiJiYXIifQ.feG39E-bn8HXAKhzDZq7yEAPWYDhZlwTn3sePJnU9VrGMmwdXAIEyoOnrjreYlVM_Z4N13eK9-TmMTWyfKJtHQ"
 	expectedError := fmt.Sprintf("utils,parseWithClaims: unexpected signing method 'ES256' - '%v'", ecdsa256Token)
 
