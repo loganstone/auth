@@ -10,5 +10,5 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/stretchr/testify v1.4.0
 	github.com/xlzd/gotp v0.0.0-20181030022105-c8557ba2c119
-	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
+	golang.org/x/crypto v0.1.0
 )
